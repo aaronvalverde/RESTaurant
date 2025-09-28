@@ -1,5 +1,7 @@
 package cr.ac.una.restuna.controller;
 
+import cr.ac.una.restuna.util.AppKeys;
+import cr.ac.una.restuna.util.FlowController;
 import cr.ac.una.restuna.util.Format;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXPasswordField;
@@ -38,6 +40,7 @@ public class LoginController extends Controller implements Initializable {
 
     @FXML
     private void onActionBtnSignIn(ActionEvent event) {
+        FlowController.getInstance().goView(AppKeys.MAIN);
     }
 
 }
