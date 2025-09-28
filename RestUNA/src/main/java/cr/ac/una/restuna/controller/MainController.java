@@ -12,6 +12,7 @@ import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
@@ -29,8 +30,6 @@ public class MainController extends Controller implements Initializable {
     @FXML
     private VBox sidebar;
     @FXML
-    private VBox main;
-    @FXML
     private MFXButton btnLogout;
     @FXML
     private MFXButton btnSections;
@@ -43,6 +42,8 @@ public class MainController extends Controller implements Initializable {
     @FXML
     private MFXButton btnUsers;
     @FXML
+    private MFXButton btnSectionsMgmt;
+    @FXML
     private MFXButton btnMenuGroups;
     @FXML
     private MFXButton btnMenuItems;
@@ -50,16 +51,19 @@ public class MainController extends Controller implements Initializable {
     private MFXButton btnReports;
     @FXML
     private MFXButton btnSettings;
+    @FXML
+    private BorderPane contentArea;
 
     /**
      * Initializes the controller class.
      */
     @Override
-    public void initialize() {}
+    public void initialize() {
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
+        FlowController.getInstance().setContentArea((BorderPane) contentArea.getParent());
     }
 
     @FXML
@@ -75,7 +79,7 @@ public class MainController extends Controller implements Initializable {
 
     @FXML
     private void onActionBtnSignOut(ActionEvent event) {
-        FlowController.getInstance().goView(AppKeys.LOGIN);
+        FlowController.getInstance().goMain(AppKeys.LOGIN);
     }
 
     @FXML
@@ -97,6 +101,10 @@ public class MainController extends Controller implements Initializable {
     @FXML
     private void onActionBtnUsers(ActionEvent event) {
         FlowController.getInstance().goView(AppKeys.USERS_MANAGEMENT);
+    }
+
+    @FXML
+    private void onActionBtnSectionsMgmt(ActionEvent event) {
     }
 
     @FXML

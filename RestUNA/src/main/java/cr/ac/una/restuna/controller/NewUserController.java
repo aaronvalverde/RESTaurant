@@ -8,8 +8,10 @@ import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXPasswordField;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+
 import java.net.URL;
 import java.util.ResourceBundle;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -38,14 +40,15 @@ public class NewUserController extends Controller implements Initializable {
     @FXML
     private MFXButton btnCancel;
 
-   
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
-    }    
+    }
 
     @Override
-    public void initialize() {}
+    public void initialize() {
+    }
 
     @FXML
     private void onActionBtnClose(ActionEvent event) {
@@ -58,5 +61,5 @@ public class NewUserController extends Controller implements Initializable {
     @FXML
     private void onActionBtnCancel(ActionEvent event) {
     }
-    
+
 }

@@ -20,3 +20,61 @@
     -fx-border-radius: 10px;
     -fx-background-color: #CCCCCC;
 }
+
+/*sidebar buttons*/
+#btnSections {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+}
+#btnSections:hover {
+    -fx-background-color: #734c2f;
+}
+#btnOrders {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+}
+
+#btnBilling {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+}
+
+#btnCashClosing {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+}
+
+#btnUsers {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+}
+
+#btnSectionsMgmt {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+}
+
+#btnMenuGroups {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+}
+
+#btnMenuItems {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+}
+
+#btnReports {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+}
+
+#btnSettings {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+}
+
+#btnLogout {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+}

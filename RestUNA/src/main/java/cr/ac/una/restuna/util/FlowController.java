@@ -27,26 +27,26 @@ public class FlowController {
 
     private static FlowController instance;
     private final Stage mainStage;
-    private ResourceBundle idioma;
+    private ResourceBundle language;
     private final Map<String, FXMLLoader> loaders = new HashMap<>();
     private static final Logger logger = Logger.getLogger(FlowController.class.getSimpleName());
     private BorderPane contentArea;
 
-    public FlowController(Stage mainStage, ResourceBundle idioma) {
+    public FlowController(Stage mainStage, ResourceBundle language) {
         this.mainStage = mainStage;
-        this.idioma = idioma;
+        this.language = language;
         instance = this;
     }
 
     public static FlowController getInstance() {
         if (instance == null) {
-            throw new IllegalStateException("FlowController no ha sido inicializado");
+            throw new IllegalStateException("FlowController has not been initialized");
         }
         return instance;
     }
 
-    public void setIdioma(ResourceBundle idioma) {
-        this.idioma = idioma;
+    public void setLanguage(ResourceBundle language) {
+        this.language = language;
         clearCache();
     }
 
@@ -60,7 +60,6 @@ public class FlowController {
             if (loader != null) {
                 Parent cachedRoot = loader.getRoot();
                 if (cachedRoot != null && cachedRoot.getScene() != null) {
-
                     loaders.remove(name);
                     loader = null;
                 }
@@ -76,7 +75,7 @@ public class FlowController {
                     }
 
                     loader.setLocation(resource);
-                    loader.setResources(idioma);
+                    loader.setResources(language);
                     loader.load();
                     loaders.put(name, loader);
                 } catch (IOException e) {
@@ -89,14 +88,10 @@ public class FlowController {
     }
 
     public void goView(String viewName) {
-        goView(viewName, "Center", null);
+        goView(viewName, null);
     }
 
-    public void goView(String viewName, String accion) {
-        goView(viewName, "Center", accion);
-    }
-
-    public void goView(String viewName, String location, String accion) {
+    public void goView(String viewName, String action) {
         Platform.runLater(() -> {
             try {
                 FXMLLoader loader = loadLoader(viewName);
@@ -113,25 +108,25 @@ public class FlowController {
 
                 controller.setStage(mainStage);
 
-                if (accion != null && !accion.isEmpty()) {
+                if (action != null && !action.isEmpty()) {
                     controller.initialize();
                 }
 
                 Parent newContent = loader.getRoot();
-                Scene currentScene = mainStage.getScene();
 
-                if (currentScene != null) {
-                    BorderPane contentArea = findContentArea(currentScene.getRoot());
-
-                    if (contentArea != null) {
-                        contentArea.getChildren().clear();
-                        contentArea.getChildren().add(newContent);
-                    } else {
-                        Scene scene = new Scene(newContent);
-                        MFXThemeManager.addOn(scene, Themes.DEFAULT, Themes.LEGACY);
-                        mainStage.setScene(scene);
+                BorderPane currentContentArea = contentArea;
+                if (currentContentArea == null) {
+                    Scene currentScene = mainStage.getScene();
+                    if (currentScene != null) {
+                        currentContentArea = findContentArea(currentScene.getRoot());
                     }
+                }
+
+                if (currentContentArea != null) {
+                    currentContentArea.setCenter(newContent);
                 } else {
+                    logger.log(Level.WARNING, "No BorderPane found to update view: " + viewName);
+                    // Fallback to creating a new scene
                     Scene scene = new Scene(newContent);
                     MFXThemeManager.addOn(scene, Themes.DEFAULT, Themes.LEGACY);
                     mainStage.setScene(scene);
@@ -139,6 +134,45 @@ public class FlowController {
 
             } catch (Exception e) {
                 logger.log(Level.SEVERE, "Error loading view: " + viewName, e);
+            }
+        });
+    }
+
+    public void goMain(String viewName) {
+        goMain(viewName, null);
+    }
+
+    public void goMain(String viewName, String action) {
+        Platform.runLater(() -> {
+            try {
+                FXMLLoader loader = loadLoader(viewName);
+                if (loader == null) {
+                    logger.log(Level.SEVERE, "Loader is null for main view: " + viewName);
+                    return;
+                }
+
+                Controller controller = loader.getController();
+                if (controller == null) {
+                    logger.log(Level.SEVERE, "Controller is null for main view: " + viewName);
+                    return;
+                }
+
+                controller.setStage(mainStage);
+
+                if (action != null && !action.isEmpty()) {
+                    controller.initialize();
+                }
+
+                Parent root = loader.getRoot();
+                Scene scene = new Scene(root);
+                MFXThemeManager.addOn(scene, Themes.DEFAULT, Themes.LEGACY);
+                mainStage.setScene(scene);
+
+                // Clear contentArea reference since we're in main view
+                this.contentArea = null;
+
+            } catch (Exception e) {
+                logger.log(Level.SEVERE, "Error loading main view: " + viewName, e);
             }
         });
     }
@@ -165,102 +199,6 @@ public class FlowController {
             }
         }
         return null;
-    }
-
-    public void goViewOriginal(String viewName) {
-        goViewOriginal(viewName, "Center", null);
-    }
-
-    public void goViewOriginal(String viewName, String accion) {
-        goViewOriginal(viewName, "Center", accion);
-    }
-
-    private void goViewOriginal(String viewName, String location, String accion) {
-        Platform.runLater(() -> {
-            try {
-                FXMLLoader loader = loadLoader(viewName);
-                if (loader == null) {
-                    logger.log(Level.SEVERE, "Loader is null for view: " + viewName);
-                    return;
-                }
-
-                Controller controller = loader.getController();
-                if (controller == null) {
-                    logger.log(Level.SEVERE, "Controller is null for view: " + viewName);
-                    return;
-                }
-
-                Stage stage = controller.getStage();
-                if (stage == null) {
-                    stage = mainStage;
-                    controller.setStage(stage);
-                }
-
-                Parent root = loader.getRoot();
-                Scene scene = stage.getScene();
-
-                if (scene == null) {
-                    scene = new Scene(root);
-                    stage.setScene(scene);
-                } else {
-                    scene.setRoot(root);
-                }
-                MFXThemeManager.addOn(scene, Themes.DEFAULT, Themes.LEGACY);
-
-            } catch (Exception e) {
-                logger.log(Level.SEVERE, "Error loading view: " + viewName, e);
-            }
-        });
-    }
-
-    public void goViewInStage(String viewName, Stage stage) {
-        Platform.runLater(() -> {
-            try {
-                FXMLLoader loader = loadLoader(viewName);
-                Controller controller = loader.getController();
-                controller.setStage(stage);
-
-                Scene scene = stage.getScene();
-                if (scene == null) {
-                    scene = new Scene(loader.getRoot());
-                    stage.setScene(scene);
-                } else {
-                    scene.setRoot(loader.getRoot());
-                }
-
-                MFXThemeManager.addOn(scene, Themes.DEFAULT, Themes.LEGACY);
-                stage.show();
-            } catch (IOException e) {
-                logger.log(Level.SEVERE, "Error loading view in stage: " + viewName, e);
-            }
-        });
-    }
-
-    public void goViewInWindow(String viewName) {
-        Platform.runLater(() -> {
-            try {
-                FXMLLoader loader = loadLoader(viewName);
-                Controller controller = loader.getController();
-
-                Stage stage = new Stage();
-                stage.getIcons().add(new Image(""));
-                stage.setTitle(controller.getNombreVista());
-                stage.setOnHidden((WindowEvent event) -> {
-                    controller.getStage().getScene().setRoot(new VBox());
-                    controller.setStage(null);
-                });
-
-                controller.setStage(stage);
-
-                Scene scene = new Scene(loader.getRoot());
-                MFXThemeManager.addOn(scene, Themes.DEFAULT, Themes.LEGACY);
-                stage.setScene(scene);
-                stage.centerOnScreen();
-                stage.show();
-            } catch (IOException e) {
-                logger.log(Level.SEVERE, "Error opening window view: " + viewName, e);
-            }
-        });
     }
 
     public void goViewInWindowModal(String viewName, Stage parentStage, boolean resizable) {
@@ -301,7 +239,7 @@ public class FlowController {
         }
     }
 
-    public void limpiarLoader(String viewName) {
+    public void clearLoader(String viewName) {
         synchronized (loaders) {
             loaders.remove(viewName);
         }
@@ -317,7 +255,7 @@ public class FlowController {
         clearCache();
     }
 
-    public void salir() {
+    public void exit() {
         Platform.runLater(mainStage::close);
     }
 }

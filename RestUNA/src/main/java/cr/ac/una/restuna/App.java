@@ -22,7 +22,7 @@ public class App extends Application {
         Locale locale = new Locale("");
         ResourceBundle bundle = ResourceBundle.getBundle("cr.ac.una.restuna.i18n.text", locale);
         new FlowController(stage, bundle);
-        FlowController.getInstance().goView(AppKeys.LOGIN);
+        FlowController.getInstance().goMain(AppKeys.LOGIN);
         stage.setScene(scene);
         stage.setTitle("RESTaurant");
         stage.show();
