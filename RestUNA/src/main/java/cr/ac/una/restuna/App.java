@@ -8,6 +8,8 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import java.io.IOException;
+import java.util.ResourceBundle;
+import java.util.Locale;
 
 
 
@@ -17,7 +19,9 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        new FlowController(stage, null);
+        Locale locale = new Locale("");
+        ResourceBundle bundle = ResourceBundle.getBundle("cr.ac.una.restuna.i18n.text", locale);
+        new FlowController(stage, bundle);
         FlowController.getInstance().goView(AppKeys.LOGIN);
         stage.setScene(scene);
         stage.setTitle("RESTaurant");
