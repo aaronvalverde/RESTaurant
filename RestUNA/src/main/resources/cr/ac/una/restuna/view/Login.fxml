@@ -4,6 +4,7 @@
 <?import io.github.palexdev.materialfx.controls.MFXPasswordField?>
 <?import io.github.palexdev.materialfx.controls.MFXTextField?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.image.Image?>
@@ -38,7 +39,10 @@
                               <Insets bottom="1.0" />
                            </VBox.margin>
                         </Separator>
-                        <MFXTextField fx:id="txfUser" floatMode="DISABLED" maxWidth="1.7976931348623157E308" />
+                        <MFXTextField fx:id="txfUser" floatMode="DISABLED" maxWidth="1.7976931348623157E308">
+                           <cursor>
+                              <Cursor fx:constant="TEXT" />
+                           </cursor></MFXTextField>
                      </children>
                      <VBox.margin>
                         <Insets bottom="20.0" />
@@ -56,13 +60,19 @@
                               <Insets bottom="1.0" />
                            </VBox.margin>
                         </Separator>
-                        <MFXPasswordField fx:id="pswPassword" floatMode="DISABLED" maxWidth="1.7976931348623157E308" onKeyPressed="#onKeyPressedPswPassword" />
+                        <MFXPasswordField fx:id="pswPassword" floatMode="DISABLED" maxWidth="1.7976931348623157E308" onKeyPressed="#onKeyPressedPswPassword">
+                           <cursor>
+                              <Cursor fx:constant="TEXT" />
+                           </cursor></MFXPasswordField>
                      </children>
                      <VBox.margin>
                         <Insets bottom="30.0" />
                      </VBox.margin>
                   </VBox>
-                  <MFXButton fx:id="btnSignIn" maxWidth="1.7976931348623157E308" onAction="#onActionBtnSignIn" prefHeight="40.0" prefWidth="200.0" text="%btn.login" />
+                  <MFXButton fx:id="btnSignIn" maxWidth="1.7976931348623157E308" onAction="#onActionBtnSignIn" prefHeight="40.0" prefWidth="200.0" text="%btn.login">
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor></MFXButton>
                </children>
                <padding>
                   <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />

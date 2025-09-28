@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXTreeTableView?>
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import io.github.palexdev.materialfx.controls.MFXFilterComboBox?>
+<?import io.github.palexdev.materialfx.controls.MFXScrollPane?>
+<?import io.github.palexdev.materialfx.controls.MFXTextField?>
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TreeTableColumn?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane id="AnchorPane" prefHeight="800.0" prefWidth="1280.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cr.ac.una.restuna.controller.UsersMgmtController">
+    <stylesheets>
+        <URL value="@Styles.css" />
+    </stylesheets>
+   <children>
+      <VBox layoutX="455.0" layoutY="278.0" prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <HBox prefHeight="100.0" prefWidth="200.0">
+               <children>
+                  <VBox prefHeight="200.0" prefWidth="100.0" spacing="10.0" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Label text="%lb.usersmgmt" />
+                        <Label text="%lb.usersmgmt.subtitle" />
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+               <children>
+                  <MFXTextField fx:id="txfSearch" floatMode="DISABLED" prefWidth="463.0" HBox.hgrow="ALWAYS">
+                     <cursor>
+                        <Cursor fx:constant="TEXT" />
+                     </cursor></MFXTextField>
+                  <MFXFilterComboBox fx:id="cmbRole" floatMode="DISABLED" promptText="%cmb.role">
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor></MFXFilterComboBox>
+                  <MFXFilterComboBox fx:id="cmbStatus" floatMode="DISABLED" promptText="%cmb.status">
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor></MFXFilterComboBox>
+                  <HBox prefHeight="100.0" prefWidth="312.0" HBox.hgrow="ALWAYS" />
+                  <MFXButton fx:id="btnAdd" onAction="#onActionBtnAdd" text="%btn.add.user">
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor></MFXButton>
+               </children>
+            </HBox>
+            <Separator prefWidth="200.0" />
+            <MFXScrollPane fx:id="tableRoot" VBox.vgrow="ALWAYS">
+               <content>
+                  <JFXTreeTableView fx:id="tbvUsers">
+                     <columns>
+                        <TreeTableColumn fx:id="tbcName" prefWidth="75.0" text="%tbc.name" />
+                        <TreeTableColumn fx:id="tbcUser" prefWidth="75.0" text="%tbc.username" />
+                        <TreeTableColumn fx:id="tbcEmail" prefWidth="75.0" text="%tbc.email" />
+                        <TreeTableColumn fx:id="tbcRole" prefWidth="75.0" text="%tbc.role" />
+                        <TreeTableColumn fx:id="tbcStatus" prefWidth="75.0" text="%tbc.status" />
+                     </columns>
+                  </JFXTreeTableView>
+               </content>
+            </MFXScrollPane>
+         </children>
+         <padding>
+            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+         </padding>
+      </VBox>
+   </children>
+</AnchorPane>

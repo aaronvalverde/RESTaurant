@@ -96,6 +96,7 @@ public class MainController extends Controller implements Initializable {
 
     @FXML
     private void onActionBtnUsers(ActionEvent event) {
+        FlowController.getInstance().goView(AppKeys.USERS_MANAGEMENT);
     }
 
     @FXML

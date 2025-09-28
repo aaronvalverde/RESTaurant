@@ -11,4 +11,5 @@ module cr.ac.una.restuna {
     exports cr.ac.una.restuna;
     requires MaterialFX;
     requires javafx.graphicsEmpty;
+    requires com.jfoenix;
 }

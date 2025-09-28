@@ -270,7 +270,6 @@ public class FlowController {
                 Controller controller = loader.getController();
 
                 Stage stage = new Stage();
-                stage.getIcons().add(new Image(""));
                 stage.setTitle(controller.getNombreVista());
                 stage.setResizable(resizable);
                 stage.setOnHidden((WindowEvent event) -> {
