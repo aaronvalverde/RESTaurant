@@ -22,59 +22,87 @@
 }
 
 /*sidebar buttons*/
-#btnSections {
+/*normal*/
+#btnSections, #btnOrders,
+#btnBilling, #btnCashClosing,
+#btnUsers, #btnSectionsMgmt,
+#btnMenuGroups, #btnMenuItems,
+#btnReports, #btnSettings, #btnLogout {
     -fx-background-color: transparent;
     -fx-text-fill: white;
+    -fx-font-size: 14px;
 }
-#btnSections:hover {
+
+/*hover*/
+#btnSections:hover, #btnOrders:hover,
+#btnBilling:hover, #btnCashClosing:hover,
+#btnUsers:hover, #btnSectionsMgmt:hover,
+#btnMenuGroups:hover, #btnMenuItems:hover,
+#btnReports:hover, #btnSettings:hover, #btnLogout:hover{
     -fx-background-color: #734c2f;
 }
-#btnOrders {
-    -fx-background-color: transparent;
+
+/*icons*/
+#btnSections > ImageView {
+    -fx-image: url("../resources/icons/icons8-edificio-de-restaurante-50.png");
+}
+
+#btnOrders > ImageView {
+    -fx-image: url("../resources/icons/icons8-orden-de-compra-50.png");
+}
+
+#btnBilling > ImageView {
+    -fx-image: url("../resources/icons/icons8-recibo-50.png");
+}
+
+#btnCashClosing > ImageView {
+    -fx-image: url("../resources/icons/icons8-caja-registradora-50.png");
+}
+
+#btnUsers > ImageView {
+    -fx-image: url("../resources/icons/icons8-administrador-del-hombre-50.png");
+}
+
+#btnSectionsMgmt > ImageView {
+    -fx-image: url("../resources/icons/icons8-edificio-de-restaurante-50.png");
+}
+
+#btnMenuGroups > ImageView {
+    -fx-image: url("../resources/icons/icons8-comida-50-2.png");
+}
+
+#btnMenuItems > ImageView {
+    -fx-image: url("../resources/icons/icons8-cubiertos-50.png");
+}
+
+#btnReports > ImageView {
+    -fx-image: url("../resources/icons/icons8-gráfico-circular-50.png");
+}
+
+#btnSettings > ImageView {
+    -fx-image: url("../resources/icons/icons8-engranajes-50.png");
+}
+
+#btnLogout > ImageView {
+    -fx-image: url("../resources/icons/icons8-salida-50.png")
+}
+
+
+.jfx-label {
+    -fx-font-weight: bold;
+    -fx-font-size: 15px;
     -fx-text-fill: white;
 }
 
-#btnBilling {
-    -fx-background-color: transparent;
-    -fx-text-fill: white;
+#btnChooseImage > ImageView {
+    -fx-image: url("../resources/icons/icons8-añadir-imagen-50.png");
 }
-
-#btnCashClosing {
-    -fx-background-color: transparent;
-    -fx-text-fill: white;
+#btnChangeImage > ImageView {
+    -fx-image: url("../resources/icons/icons8-editar-imagen-50.png");
 }
-
-#btnUsers {
-    -fx-background-color: transparent;
-    -fx-text-fill: white;
+#btnDeleteImage > ImageView {
+    -fx-image: url("../resources/icons/icons8-eliminar-imagen-50.png");
 }
-
-#btnSectionsMgmt {
-    -fx-background-color: transparent;
-    -fx-text-fill: white;
-}
-
-#btnMenuGroups {
-    -fx-background-color: transparent;
-    -fx-text-fill: white;
-}
-
-#btnMenuItems {
-    -fx-background-color: transparent;
-    -fx-text-fill: white;
-}
-
-#btnReports {
-    -fx-background-color: transparent;
-    -fx-text-fill: white;
-}
-
-#btnSettings {
-    -fx-background-color: transparent;
-    -fx-text-fill: white;
-}
-
-#btnLogout {
-    -fx-background-color: transparent;
-    -fx-text-fill: white;
+#imvTableGraphic {
+    -fx-image: url("../resources/icons/icons8-archivo-de-imagen-50.png");
 }

@@ -62,6 +62,6 @@ public class UsersMgmtController extends Controller implements Initializable {
 
     @FXML
     private void onActionBtnAdd(ActionEvent event) {
-        FlowController.getInstance().goViewInWindowModal(AppKeys.NEW_USER, new Stage(), true);
+        FlowController.getInstance().goViewInWindowModal(AppKeys.NEW_USER, new Stage(), false);
     }
 }

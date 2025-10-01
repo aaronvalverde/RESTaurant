@@ -60,6 +60,7 @@ public class NewUserController extends Controller implements Initializable {
 
     @FXML
     private void onActionBtnCancel(ActionEvent event) {
+        getStage().close();
     }
 
 }

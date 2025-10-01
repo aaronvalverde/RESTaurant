@@ -11,8 +11,6 @@ import java.io.IOException;
 import java.util.ResourceBundle;
 import java.util.Locale;
 
-
-
 public class App extends Application {
 
     private static Scene scene;
@@ -24,7 +22,7 @@ public class App extends Application {
         new FlowController(stage, bundle);
         FlowController.getInstance().goMain(AppKeys.LOGIN);
         stage.setScene(scene);
-        stage.setTitle("RESTaurant");
+        stage.setTitle("BeanyWoodCafé");
         stage.show();
     }
 
