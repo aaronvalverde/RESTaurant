@@ -16,30 +16,29 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane id="AnchorPane" prefHeight="800.0" prefWidth="1280.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cr.ac.una.restuna.controller.UsersMgmtController">
+<AnchorPane id="AnchorPane" prefHeight="800.0" prefWidth="1280.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cr.ac.una.restuna.controller.GroupsMgmtController">
     <stylesheets>
         <URL value="@Styles.css" />
     </stylesheets>
-   <children>
+    <children>
       <VBox layoutX="455.0" layoutY="278.0" prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
             <HBox prefHeight="100.0" prefWidth="200.0">
                <children>
                   <VBox prefHeight="200.0" prefWidth="100.0" spacing="10.0" HBox.hgrow="ALWAYS">
                      <children>
-                        <Label text="%lb.usersmgmt" />
-                        <Label text="%lb.usersmgmt.subtitle" />
+                        <Label text="%lb.groupsmgmt" />
                      </children>
                   </VBox>
                </children>
             </HBox>
             <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                <children>
-                  <MFXTextField fx:id="txfSearch" floatMode="DISABLED" prefWidth="463.0" HBox.hgrow="ALWAYS">
+                  <MFXTextField fx:id="txfSearch" floatMode="DISABLED" prefWidth="463.0" promptText="%txf.search.groups" HBox.hgrow="ALWAYS">
                      <cursor>
                         <Cursor fx:constant="TEXT" />
                      </cursor></MFXTextField>
-                  <MFXFilterComboBox fx:id="cmbRole" floatMode="DISABLED" promptText="%cmb.role">
+                  <MFXFilterComboBox fx:id="cmbShortcut" floatMode="DISABLED" promptText="%cmb.shortcut">
                      <cursor>
                         <Cursor fx:constant="HAND" />
                      </cursor></MFXFilterComboBox>
@@ -48,7 +47,7 @@
                         <Cursor fx:constant="HAND" />
                      </cursor></MFXFilterComboBox>
                   <HBox prefHeight="100.0" prefWidth="312.0" HBox.hgrow="ALWAYS" />
-                  <MFXButton fx:id="btnAdd" onAction="#onActionBtnAdd" text="%btn.add.user">
+                  <MFXButton fx:id="btnAdd" onAction="#onActionBtnAdd" text="%btn.add.group">
                      <cursor>
                         <Cursor fx:constant="HAND" />
                      </cursor></MFXButton>
@@ -57,13 +56,14 @@
             <Separator prefWidth="200.0" />
             <MFXScrollPane fx:id="tableRoot" hbarPolicy="NEVER" vbarPolicy="NEVER" VBox.vgrow="ALWAYS">
                <content>
-                  <JFXTreeTableView fx:id="tbvUsers">
+                  <JFXTreeTableView fx:id="tbvMenuGroups">
                      <columns>
+                        <TreeTableColumn fx:id="tbcID" prefWidth="75.0" text="%tbc.id" />
                         <TreeTableColumn fx:id="tbcName" prefWidth="75.0" text="%tbc.name" />
-                        <TreeTableColumn fx:id="tbcUser" prefWidth="75.0" text="%tbc.username" />
-                        <TreeTableColumn fx:id="tbcEmail" prefWidth="75.0" text="%tbc.email" />
-                        <TreeTableColumn fx:id="tbcRole" prefWidth="75.0" text="%tbc.role" />
+                        <TreeTableColumn fx:id="tbcDescription" prefWidth="75.0" text="%tbc.description" />
+                        <TreeTableColumn fx:id="tbcShortcut" prefWidth="75.0" text="%tbc.shortcut" />
                         <TreeTableColumn fx:id="tbcStatus" prefWidth="75.0" text="%tbc.status" />
+                        <TreeTableColumn fx:id="tbcActions" prefWidth="75.0" text="%tbc.actions" />
                      </columns>
                      <columnResizePolicy>
                         <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY" />

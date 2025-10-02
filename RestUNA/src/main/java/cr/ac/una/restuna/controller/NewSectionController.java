@@ -1,6 +1,7 @@
 package cr.ac.una.restuna.controller;
 
 import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXCheckbox;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXRadioButton;
 import io.github.palexdev.materialfx.controls.MFXTextField;
@@ -27,11 +28,7 @@ public class NewSectionController extends Controller implements Initializable {
     private MFXTextField txfName;
     @FXML
     private MFXComboBox<?> cmbType;
-    @FXML
     private MFXRadioButton rdbYes;
-    @FXML
-    private ToggleGroup isTaxed;
-    @FXML
     private MFXRadioButton rdbNo;
     @FXML
     private ImageView imvTableGraphic;
@@ -49,8 +46,11 @@ public class NewSectionController extends Controller implements Initializable {
     private MFXButton btnCancel;
     @FXML
     private HBox imageRoot;
+    @FXML
+    private MFXCheckbox cbSalesTax;
 
     private boolean editMode = false;
+    
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {

@@ -129,10 +129,12 @@ public class MainController extends Controller implements Initializable {
 
     @FXML
     private void onActionBtnMenuGroups(ActionEvent event) {
+        FlowController.getInstance().goView(AppKeys.MENU_GROUPS_MGMT);
     }
 
     @FXML
     private void onActionBtnMenuItems(ActionEvent event) {
+        FlowController.getInstance().goView(AppKeys.MENU_ITEMS_MGMT);
     }
 
     @FXML
