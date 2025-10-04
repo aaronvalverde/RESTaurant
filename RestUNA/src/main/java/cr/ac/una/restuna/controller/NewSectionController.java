@@ -1,5 +1,7 @@
 package cr.ac.una.restuna.controller;
 
+import cr.ac.una.restuna.util.AppKeys;
+import cr.ac.una.restuna.util.FlowController;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXCheckbox;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
@@ -13,6 +15,7 @@ import java.util.ResourceBundle;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -27,7 +30,7 @@ public class NewSectionController extends Controller implements Initializable {
     @FXML
     private MFXTextField txfName;
     @FXML
-    private MFXComboBox<?> cmbType;
+    private MFXComboBox<String> cmbType;
     private MFXRadioButton rdbYes;
     private MFXRadioButton rdbNo;
     @FXML
@@ -50,10 +53,11 @@ public class NewSectionController extends Controller implements Initializable {
     private MFXCheckbox cbSalesTax;
 
     private boolean editMode = false;
-    
+    private Sections section;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        cmbType.getItems().addAll("Salon", "VentaDirecta");
         initButtons();
     }
 
@@ -72,26 +76,54 @@ public class NewSectionController extends Controller implements Initializable {
         if (file != null) {
             Image image = new Image(file.toURI().toString());
             imvTableGraphic.setImage(image);
+            imvTableGraphic.setUserData(file.getAbsolutePath());
         }
     }
 
     @FXML
     private void onActionBtnChangeImage(ActionEvent event) {
+        onActionBtnChooseImage(event);
     }
 
     @FXML
     private void onActionBtnDeleteImage(ActionEvent event) {
-        if (imvTableGraphic != null) {
-            imvTableGraphic.setImage(null);
-        }
+
+        imvTableGraphic.setImage(null);
+        imvTableGraphic.setUserData(null);
     }
 
     @FXML
     private void onActionBtnSaveChanges(ActionEvent event) {
+
+        if (section != null) {
+
+            section.getName().set(txfName.getText());
+            section.getType().set(cmbType.getValue());
+            section.getTax().set(cbSalesTax.isSelected());
+            section.getImage().set(imvTableGraphic.getUserData() != null ? imvTableGraphic.getUserData().toString() : "");
+
+        }
+
+        getStage().close();
     }
 
     @FXML
     private void onActionBtnAdd(ActionEvent event) {
+
+        String name = txfName.getText();
+        String type = cmbType.getValue();
+        boolean tax = cbSalesTax.isSelected();
+        String image = imvTableGraphic.getUserData() != null ? imvTableGraphic.getUserData().toString() : "";
+
+        if (name.isEmpty() || type == null) {
+
+            showMessage("Campos obligatorios");
+            return;
+        }
+
+        SectionsMgmtController newSection = (SectionsMgmtController) FlowController.getInstance().getController(AppKeys.SECTIONS_MGMT);
+        newSection.addSection(name, type, tax, image);
+        getStage().close();
     }
 
     @FXML
@@ -140,19 +172,19 @@ public class NewSectionController extends Controller implements Initializable {
         event.consume();
     }
 
-    public void loadSection(/*SectionDto section*/) {
+    public void loadSection(Sections sectionLoad) {
         editMode = true;
-        //cargar todas los items correspondientes.
-        //txfName.setText(section.getName());
-        //cmbType.getSelectionModel().selectItem(section.getType());
-        /*if (section.isTaxed()) {
-            rdbYes.setSelected(true);
-        } else {
-            rdbNo.setSelected(true);
-        }*/
-        /*if (section.getImagePath() != null) {
-            imvTableGraphic.setImage(new Image(new File(section.getImagePath()).toURI().toString()));
-        }*/
+        section = sectionLoad;
+        txfName.setText(sectionLoad.getName().get());
+        cmbType.getSelectionModel().selectItem(sectionLoad.getType().get());
+        cbSalesTax.setSelected(sectionLoad.getTax().get());
+        
+        if (sectionLoad.getImage().get() != null && !sectionLoad.getImage().get().isEmpty()) {
+            imvTableGraphic.setImage(new Image(new File(sectionLoad.getImage().get()).toURI().toString()));
+            imvTableGraphic.setUserData(sectionLoad.getImage().get());
+        }
+
+        initButtons();
     }
 
     private void initButtons() {
@@ -163,5 +195,13 @@ public class NewSectionController extends Controller implements Initializable {
             btnSaveChanges.setVisible(false);
             btnSaveChanges.setManaged(false);
         }
+    }
+
+    private void showMessage(String msg) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Información");
+        alert.setHeaderText(null);
+        alert.setContentText(msg);
+        alert.showAndWait();
     }
 }
