@@ -69,20 +69,31 @@ public class MainController extends Controller implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        FlowController.getInstance().setContentArea((BorderPane) contentArea.getParent());
+        // Configurar el contentArea directamente, no su padre
+        FlowController.getInstance().setContentArea(contentArea);
 
-        WebEngine webEngine = wvLogo.getEngine();
-        String svgPath = getClass()
-                .getResource("/cr/ac/una/restuna/resources/Logo_beany.svg")
-                .toExternalForm();
+        // Configurar WebView del logo si está disponible
+        if (wvLogo != null) {
+            try {
+                WebEngine webEngine = wvLogo.getEngine();
+                String svgPath = getClass()
+                        .getResource("/cr/ac/una/restuna/resources/Logo_beany.svg")
+                        .toExternalForm();
 
-        String html = "<html><body style='background: #5e3d26; display:flex; justify-content:center; align-items:center; height:100%; margin:0;'>"
-                + "<img src='" + svgPath + "'/>"
-                + "</body></html>";
-        webEngine.loadContent(html);
+                String html = "<html><body style='background: #5e3d26; display:flex; justify-content:center; align-items:center; height:100%; margin:0;'>"
+                        + "<img src='" + svgPath + "'/>"
+                        + "</body></html>";
+                webEngine.loadContent(html);
+            } catch (Exception e) {
+                System.err.println("Error loading logo WebView: " + e.getMessage());
+            }
+        }
 
-        sidebar.setVisible(false);
-        sidebar.setManaged(false);
+        // Configurar sidebar
+        if (sidebar != null) {
+            sidebar.setVisible(false);
+            sidebar.setManaged(false);
+        }
     }
 
     @FXML
