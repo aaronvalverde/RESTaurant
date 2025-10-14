@@ -1,1 +1,10 @@
+cr\ac\una\wsrestuna\resources\JakartaEE10Resource.class
+cr\ac\una\wsrestuna\model\UsuarioDto.class
+cr\ac\una\wsrestuna\model\Usuario.class
 cr\ac\una\wsrestuna\resources\UsuarioController$1.class
+cr\ac\una\wsrestuna\JakartaRestConfiguration.class
+cr\ac\una\wsrestuna\resources\SistemaController.class
+cr\ac\una\wsrestuna\resources\UsuarioController.class
+cr\ac\una\wsrestuna\util\CodigoRespuesta.class
+cr\ac\una\wsrestuna\util\Respuesta.class
+cr\ac\una\wsrestuna\service\UsuarioService.class

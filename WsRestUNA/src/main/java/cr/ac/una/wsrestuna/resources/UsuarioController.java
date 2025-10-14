@@ -33,7 +33,17 @@ public class UsuarioController {
     @Path("usuario/{usuario}/{contrasena}")
     public Response getUsuario(@PathParam("usuario") String usuario, @PathParam("contrasena") String contrasena) {
         try {
+            LOGGER.info("=== INICIO AUTENTICACION ===");
+            LOGGER.info("Usuario recibido: " + usuario);
+            LOGGER.info("Contraseña recibida: " + contrasena);
+            
             Respuesta respuesta = usuarioService.autenticar(usuario, contrasena);
+            
+            LOGGER.info("Estado de respuesta: " + respuesta.getEstado());
+            LOGGER.info("Mensaje de respuesta: " + respuesta.getMensaje());
+            LOGGER.info("Resultado de respuesta: " + respuesta.getResultado("Usuario"));
+            LOGGER.info("=== FIN AUTENTICACION ===");
+            
             return crearRespuestaHttp(respuesta);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error al autenticar usuario", e);

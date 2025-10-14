@@ -1,5 +1,6 @@
 package cr.ac.una.wsrestuna.util;
 
+import jakarta.json.bind.annotation.JsonbProperty;
 import java.io.Serializable;
 import java.util.HashMap;
 
@@ -11,10 +12,19 @@ public class Respuesta implements Serializable {
     
     private static final long serialVersionUID = 1L;
     
+    @JsonbProperty("estado")
     private Boolean estado;
+    
+    @JsonbProperty("codigoRespuesta")
     private CodigoRespuesta codigoRespuesta;   
+    
+    @JsonbProperty("mensaje")
     private String mensaje;    
+    
+    @JsonbProperty("mensajeInterno")
     private String mensajeInterno;
+    
+    @JsonbProperty("resultado")
     private HashMap<String, Object> resultado; 
 
     public Respuesta() {
@@ -93,5 +103,14 @@ public class Respuesta implements Serializable {
 
     public void setResultado(Object resultado) {
         this.resultado.put("[Objeto]", resultado);
+    }
+    
+    // Getter y setter para el HashMap completo (necesario para JSON serialization)
+    public HashMap<String, Object> getResultados() {
+        return resultado;
+    }
+    
+    public void setResultados(HashMap<String, Object> resultado) {
+        this.resultado = resultado;
     }
 }

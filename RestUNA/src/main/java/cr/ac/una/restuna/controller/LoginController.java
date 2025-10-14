@@ -146,16 +146,27 @@ public class LoginController extends Controller implements Initializable {
                     String usuarioJson = (String) respuesta.getResultado("Usuario");
                     
                     if (usuarioJson != null && !usuarioJson.trim().isEmpty()) {
-                        // Login exitoso
-                        System.out.println("Login exitoso - Respuesta: " + usuarioJson);
+                        // Extraer el rol del usuario del JSON
+                        String rolUsuario = extraerRolDelJson(usuarioJson);
+                        String rolSeleccionado = cmBoxRol.getValue();
                         
-                        // TODO: Validar rol si es necesario
-                        // TODO: Guardar usuario en sesión si necesario
-                        // UserSession.setCurrentUser(usuarioAutenticado);
-                        
-                        FlowController.getInstance().goMain(AppKeys.MAIN);
+                        // Validar que el rol del usuario coincida con el seleccionado
+                        if (rolUsuario != null && rolSeleccionado != null && validarRol(rolUsuario, rolSeleccionado)) {
+                            // Login exitoso
+                            System.out.println("Login exitoso - Usuario: " + usuario + ", Rol: " + rolUsuario + ", Rol seleccionado: " + rolSeleccionado);
+                            
+                            // TODO: Guardar usuario en sesión si necesario
+                            // UserSession.setCurrentUser(usuarioAutenticado);
+                            
+                            FlowController.getInstance().goMain(AppKeys.MAIN);
+                        } else {
+                            mostrarAlerta("Error de Autorización", 
+                                "El usuario '" + usuario + "' no tiene permisos para el rol '" + rolSeleccionado + "'.\n" +
+                                "Rol del usuario: " + (rolUsuario != null ? rolUsuario : "Desconocido"));
+                        }
                     } else {
-                        mostrarAlerta("Error", "No se pudo obtener la información del usuario");
+                        mostrarAlerta("Error", "El servidor no retornó los datos del usuario. \n" +
+                                     "Verificar que el servidor WsRestUNA esté ejecutándose.");
                     }
                 } else {
                     String mensaje = respuesta != null ? respuesta.getMensaje() : "Error desconocido";
@@ -195,6 +206,87 @@ public class LoginController extends Controller implements Initializable {
         alert.setHeaderText(null);
         alert.setContentText(mensaje);
         alert.showAndWait();
+    }
+    
+    /**
+     * Extrae el rol del usuario del JSON de respuesta usando regex simple
+     */
+    private String extraerRolDelJson(String json) {
+        try {
+            System.out.println("DEBUG - JSON recibido: " + json);
+            
+            // El JSON puede venir como respuesta completa del servidor o como datos del usuario
+            // Intentar diferentes patrones para extraer el rol
+            String[] patronesRol = {
+                "\"rol\"\\s*:\\s*\"([^\"]+)\"",           // "rol":"ADMINISTRADOR"
+                "\"ROL\"\\s*:\\s*\"([^\"]+)\"",           // "ROL":"ADMINISTRADOR"  
+                "\"role\"\\s*:\\s*\"([^\"]+)\"",          // "role":"ADMINISTRADOR"
+                "rol[^:]*:\\s*[\"']([^\"']+)[\"']",       // rol: "ADMINISTRADOR" con variantes
+                "ROL[^:]*:\\s*[\"']([^\"']+)[\"']"        // ROL: "ADMINISTRADOR" con variantes
+            };
+            
+            for (String patron : patronesRol) {
+                java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(patron, java.util.regex.Pattern.CASE_INSENSITIVE);
+                java.util.regex.Matcher matcher = pattern.matcher(json);
+                
+                if (matcher.find()) {
+                    String rol = matcher.group(1);
+                    System.out.println("DEBUG - Rol extraído con patrón (" + patron + "): " + rol);
+                    return rol;
+                }
+            }
+            
+            // Si no encuentra rol directamente, buscar en la estructura del resultado
+            // Buscar: "Usuario": { ... "rol": "ADMINISTRADOR" ... }
+            java.util.regex.Pattern usuarioPattern = java.util.regex.Pattern.compile(
+                "\"Usuario\"\\s*:\\s*\\{[^}]*\"rol\"\\s*:\\s*\"([^\"]+)\"[^}]*\\}", 
+                java.util.regex.Pattern.CASE_INSENSITIVE | java.util.regex.Pattern.DOTALL);
+            java.util.regex.Matcher usuarioMatcher = usuarioPattern.matcher(json);
+            
+            if (usuarioMatcher.find()) {
+                String rol = usuarioMatcher.group(1);
+                System.out.println("DEBUG - Rol extraído de estructura Usuario: " + rol);
+                return rol;
+            }
+            
+            System.out.println("DEBUG - No se encontró el campo 'rol' en el JSON con ningún patrón");
+            
+        } catch (Exception e) {
+            System.err.println("Error extrayendo rol del JSON: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    /**
+     * Valida que el rol del usuario coincida con el rol seleccionado
+     */
+    private boolean validarRol(String rolUsuario, String rolSeleccionado) {
+        if (rolUsuario == null || rolSeleccionado == null) {
+            return false;
+        }
+        
+        // Mapeo de roles de la interfaz a roles de la base de datos
+        String rolBD = mapearRolInterfazABD(rolSeleccionado);
+        
+        // Comparar ignorando case
+        return rolUsuario.toUpperCase().equals(rolBD.toUpperCase());
+    }
+    
+    /**
+     * Mapea los roles de la interfaz a los roles de la base de datos
+     */
+    private String mapearRolInterfazABD(String rolInterfaz) {
+        switch (rolInterfaz) {
+            case "Administrador":
+                return "ADMINISTRADOR";
+            case "Cajero":
+                return "CAJERO";
+            case "Salonero":
+                return "SALONERO";
+            default:
+                return rolInterfaz; // En caso de que ya venga en el formato correcto
+        }
     }
 
 }

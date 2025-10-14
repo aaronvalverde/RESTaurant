@@ -1,5 +1,6 @@
 package cr.ac.una.wsrestuna.model;
 
+import jakarta.json.bind.annotation.JsonbProperty;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -12,20 +13,22 @@ public class UsuarioDto implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    @JsonbProperty("idUsuario")
     private Long idUsuario;
-
-
 
     @NotBlank(message = "El usuario es obligatorio")
     @Size(max = 50, message = "El usuario no puede exceder 50 caracteres")
+    @JsonbProperty("usuario")
     private String usuario;
 
     @NotBlank(message = "El rol es obligatorio")
     @Pattern(regexp = "^(ADMINISTRADOR|CAJERO|SALONERO)$", message = "El rol debe ser ADMINISTRADOR, CAJERO o SALONERO")
+    @JsonbProperty("rol")
     private String rol;
 
     @NotBlank(message = "El estado es obligatorio")
     @Pattern(regexp = "^[AI]$", message = "El estado debe ser A (Activo) o I (Inactivo)")
+    @JsonbProperty("estado")
     private String estado;
 
     private LocalDateTime fechaCreacion;
