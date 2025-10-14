@@ -1,11 +1,13 @@
 package cr.ac.una.restuna.controller;
 
 
+import cr.ac.una.restuna.dto.UsuarioDto;
 import cr.ac.una.restuna.service.UsuarioService;
 import cr.ac.una.restuna.util.Respuesta;
 import cr.ac.una.restuna.util.AppKeys;
 import cr.ac.una.restuna.util.FlowController;
 import cr.ac.una.restuna.util.Format;
+import cr.ac.una.restuna.util.UserSession;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXPasswordField;
@@ -143,9 +145,9 @@ public class LoginController extends Controller implements Initializable {
                         
                         // Validar que el rol del usuario coincida con el seleccionado
                         if (rolUsuario != null && rolSeleccionado != null && validarRol(rolUsuario, rolSeleccionado)) {
-                            // Login exitoso
-                            // TODO: Guardar usuario en sesión si necesario
-                            // UserSession.setCurrentUser(usuarioAutenticado);
+                            // Login exitoso - crear DTO del usuario para la sesión
+                            UsuarioDto usuarioDto = crearUsuarioDesdeJson(usuarioJson);
+                            UserSession.getInstance().setCurrentUser(usuarioDto);
                             
                             FlowController.getInstance().goMain(AppKeys.MAIN);
                         } else {
@@ -268,6 +270,49 @@ public class LoginController extends Controller implements Initializable {
                 return "SALONERO";
             default:
                 return rolInterfaz; // En caso de que ya venga en el formato correcto
+        }
+    }
+    
+    /**
+     * Crea un UsuarioDto básico desde el JSON de respuesta
+     * Extrae los campos principales para la sesión
+     */
+    private UsuarioDto crearUsuarioDesdeJson(String json) {
+        try {
+            UsuarioDto usuario = new UsuarioDto();
+            
+            // Extraer ID
+            String idPattern = "\"idUsuario\"\\s*:\\s*(\\d+)";
+            java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(idPattern);
+            java.util.regex.Matcher matcher = pattern.matcher(json);
+            if (matcher.find()) {
+                usuario.setIdUsuario(Long.parseLong(matcher.group(1)));
+            }
+            
+            // Extraer usuario
+            String usuarioPattern = "\"usuario\"\\s*:\\s*\"([^\"]+)\"";
+            pattern = java.util.regex.Pattern.compile(usuarioPattern);
+            matcher = pattern.matcher(json);
+            if (matcher.find()) {
+                usuario.setUsuario(matcher.group(1));
+            }
+            
+            // Extraer rol (ya lo tenemos del método anterior)
+            String rol = extraerRolDelJson(json);
+            usuario.setRol(rol);
+            
+            // Extraer estado
+            String estadoPattern = "\"estado\"\\s*:\\s*\"([^\"]+)\"";
+            pattern = java.util.regex.Pattern.compile(estadoPattern);
+            matcher = pattern.matcher(json);
+            if (matcher.find()) {
+                usuario.setEstado(matcher.group(1));
+            }
+            
+            return usuario;
+        } catch (Exception e) {
+            System.err.println("Error creando UsuarioDto desde JSON: " + e.getMessage());
+            return null;
         }
     }
 

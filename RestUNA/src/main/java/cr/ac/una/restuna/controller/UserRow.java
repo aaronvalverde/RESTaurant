@@ -9,36 +9,23 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 /**
- *
- * @author fonse
+ * Representa una fila de usuario en la tabla de gestión de usuarios
+ * Estructura simplificada según el modelo de BD actual
  */
-// esta clase es temporal hasta que se agrega la db 
 public class UserRow extends RecursiveTreeObject<UserRow> {
 
-    private final StringProperty name;
     private final StringProperty username;
-    private final StringProperty email;
     private final StringProperty role;
     private final StringProperty status;
 
-    public UserRow(String name, String username, String email, String role, String status) {
-        this.name = new SimpleStringProperty(name);
+    public UserRow(String username, String role, String status) {
         this.username = new SimpleStringProperty(username);
-        this.email = new SimpleStringProperty(email);
         this.role = new SimpleStringProperty(role);
         this.status = new SimpleStringProperty(status);
     }
 
-    public StringProperty getName() {
-        return name;
-    }
-
     public StringProperty getUsername() {
         return username;
-    }
-
-    public StringProperty getEmail() {
-        return email;
     }
 
     public StringProperty getRole() {
@@ -48,5 +35,4 @@ public class UserRow extends RecursiveTreeObject<UserRow> {
     public StringProperty getStatus() {
         return status;
     }
-
 }

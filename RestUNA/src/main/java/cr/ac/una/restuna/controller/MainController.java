@@ -6,6 +6,7 @@ package cr.ac.una.restuna.controller;
 
 import cr.ac.una.restuna.util.AppKeys;
 import cr.ac.una.restuna.util.FlowController;
+import cr.ac.una.restuna.util.UserSession;
 import io.github.palexdev.materialfx.controls.MFXButton;
 
 import java.net.URL;
@@ -96,6 +97,70 @@ public class MainController extends Controller implements Initializable {
             sidebar.setVisible(false);
             sidebar.setManaged(false);
         }
+        
+        // Aplicar permisos basados en rol del usuario
+        aplicarPermisosDeRol();
+    }
+    
+    /**
+     * Aplica permisos basados en el rol del usuario autenticado
+     * Oculta/muestra botones según los permisos del rol
+     */
+    private void aplicarPermisosDeRol() {
+        UserSession session = UserSession.getInstance();
+        
+        if (!session.isAuthenticated()) {
+            // Si no hay usuario autenticado, ocultar todo
+            ocultarTodosLosBotones();
+            return;
+        }
+        
+        // Mostrar/ocultar botones según permisos
+        configurarVisibilidadBoton(btnSections, session.canAccessSalones());
+        configurarVisibilidadBoton(btnOrders, session.canAccessOrdenes());
+        configurarVisibilidadBoton(btnBilling, session.canAccessFacturacion());
+        configurarVisibilidadBoton(btnCashClosing, session.canAccessCierreCaja());
+        
+        // Botones de mantenimiento (solo administradores)
+        configurarVisibilidadBoton(btnUsers, session.canAccessMantenimientos());
+        configurarVisibilidadBoton(btnSectionsMgmt, session.canAccessMantenimientos());
+        configurarVisibilidadBoton(btnMenuGroups, session.canAccessMantenimientos());
+        configurarVisibilidadBoton(btnMenuItems, session.canAccessMantenimientos());
+        
+        // Botones del sistema (solo administradores)
+        configurarVisibilidadBoton(btnReports, session.canAccessReportes());
+        configurarVisibilidadBoton(btnSettings, session.canAccessConfiguracion());
+        
+        // El botón de logout siempre debe estar visible
+        configurarVisibilidadBoton(btnLogout, true);
+    }
+    
+    /**
+     * Configura la visibilidad y habilitación de un botón
+     */
+    private void configurarVisibilidadBoton(MFXButton boton, boolean permitido) {
+        if (boton != null) {
+            boton.setVisible(permitido);
+            boton.setManaged(permitido);
+            boton.setDisable(!permitido);
+        }
+    }
+    
+    /**
+     * Oculta todos los botones del menú
+     */
+    private void ocultarTodosLosBotones() {
+        configurarVisibilidadBoton(btnSections, false);
+        configurarVisibilidadBoton(btnOrders, false);
+        configurarVisibilidadBoton(btnBilling, false);
+        configurarVisibilidadBoton(btnCashClosing, false);
+        configurarVisibilidadBoton(btnUsers, false);
+        configurarVisibilidadBoton(btnSectionsMgmt, false);
+        configurarVisibilidadBoton(btnMenuGroups, false);
+        configurarVisibilidadBoton(btnMenuItems, false);
+        configurarVisibilidadBoton(btnReports, false);
+        configurarVisibilidadBoton(btnSettings, false);
+        configurarVisibilidadBoton(btnLogout, true); // Logout siempre visible
     }
 
     @FXML
@@ -111,6 +176,9 @@ public class MainController extends Controller implements Initializable {
 
     @FXML
     private void onActionBtnSignOut(ActionEvent event) {
+        // Limpiar sesión del usuario
+        UserSession.getInstance().clearSession();
+        
         FlowController.getInstance().goMain(AppKeys.LOGIN);
     }
 
