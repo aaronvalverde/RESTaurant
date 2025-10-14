@@ -60,12 +60,6 @@ public class LoginController extends Controller implements Initializable {
     
     private void initializeControls() {
         try {
-            System.out.println("Initializing controls...");
-            System.out.println("txfUser: " + (txfUser != null ? "OK" : "NULL"));
-            System.out.println("pswPassword: " + (pswPassword != null ? "OK" : "NULL"));
-            System.out.println("cmBoxRol: " + (cmBoxRol != null ? "OK" : "NULL"));
-            System.out.println("webRoot: " + (webRoot != null ? "OK" : "NULL"));
-            
             if (txfUser != null) {
                 txfUser.delegateSetTextFormatter(Format.getInstance().lettersFormat(20));
             }
@@ -78,9 +72,6 @@ public class LoginController extends Controller implements Initializable {
             if (cmBoxRol != null) {
                 cmBoxRol.getItems().addAll("Administrador", "Cajero", "Salonero");
                 cmBoxRol.setValue("Salonero"); // Valor por defecto
-                System.out.println("ComboBox configured successfully");
-            } else {
-                System.err.println("WARNING: cmBoxRol is null! Check FXML injection.");
             }
         } catch (Exception e) {
             System.err.println("Error initializing controls: " + e.getMessage());
@@ -153,8 +144,6 @@ public class LoginController extends Controller implements Initializable {
                         // Validar que el rol del usuario coincida con el seleccionado
                         if (rolUsuario != null && rolSeleccionado != null && validarRol(rolUsuario, rolSeleccionado)) {
                             // Login exitoso
-                            System.out.println("Login exitoso - Usuario: " + usuario + ", Rol: " + rolUsuario + ", Rol seleccionado: " + rolSeleccionado);
-                            
                             // TODO: Guardar usuario en sesión si necesario
                             // UserSession.setCurrentUser(usuarioAutenticado);
                             
@@ -213,8 +202,6 @@ public class LoginController extends Controller implements Initializable {
      */
     private String extraerRolDelJson(String json) {
         try {
-            System.out.println("DEBUG - JSON recibido: " + json);
-            
             // El JSON puede venir como respuesta completa del servidor o como datos del usuario
             // Intentar diferentes patrones para extraer el rol
             String[] patronesRol = {
@@ -231,7 +218,6 @@ public class LoginController extends Controller implements Initializable {
                 
                 if (matcher.find()) {
                     String rol = matcher.group(1);
-                    System.out.println("DEBUG - Rol extraído con patrón (" + patron + "): " + rol);
                     return rol;
                 }
             }
@@ -245,15 +231,11 @@ public class LoginController extends Controller implements Initializable {
             
             if (usuarioMatcher.find()) {
                 String rol = usuarioMatcher.group(1);
-                System.out.println("DEBUG - Rol extraído de estructura Usuario: " + rol);
                 return rol;
             }
             
-            System.out.println("DEBUG - No se encontró el campo 'rol' en el JSON con ningún patrón");
-            
         } catch (Exception e) {
             System.err.println("Error extrayendo rol del JSON: " + e.getMessage());
-            e.printStackTrace();
         }
         return null;
     }

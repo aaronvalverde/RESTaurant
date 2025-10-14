@@ -41,10 +41,8 @@ public class Request {
     public void get() {
         try {
             String url = buildUrl();
-            System.out.println("DEBUG - Request GET URL: " + url);
             HttpURLConnection connection = createConnection(url, "GET");
             processResponse(connection);
-            System.out.println("DEBUG - Response received: " + responseBody);
         } catch (Exception e) {
             handleError("Error en petición GET", e);
         }

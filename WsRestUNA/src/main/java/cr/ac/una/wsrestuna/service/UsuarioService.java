@@ -333,22 +333,8 @@ public class UsuarioService {
             LOGGER.info("Usuario autenticado exitosamente: " + usuario);
             UsuarioDto usuarioDto = new UsuarioDto(usuarioEntity);
             
-            // DEBUG: Verificar que el DTO tiene los datos correctos
-            LOGGER.info("DEBUG - UsuarioDto creado:");
-            LOGGER.info("  ID: " + usuarioDto.getIdUsuario());
-            LOGGER.info("  Usuario: " + usuarioDto.getUsuario());
-            LOGGER.info("  Rol: " + usuarioDto.getRol());
-            LOGGER.info("  Estado: " + usuarioDto.getEstado());
-            
-            Respuesta respuesta = new Respuesta(true, CodigoRespuesta.CORRECTO, 
+            return new Respuesta(true, CodigoRespuesta.CORRECTO, 
                     "Usuario autenticado correctamente", "", "Usuario", usuarioDto);
-                    
-            // DEBUG: Verificar que la respuesta tiene el DTO
-            LOGGER.info("DEBUG - Respuesta creada:");
-            LOGGER.info("  Estado: " + respuesta.getEstado());
-            LOGGER.info("  Resultado Usuario: " + respuesta.getResultado("Usuario"));
-            
-            return respuesta;
 
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error al autenticar usuario: " + usuario, e);
