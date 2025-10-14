@@ -153,7 +153,7 @@ public class LoginController extends Controller implements Initializable {
                         // TODO: Guardar usuario en sesión si necesario
                         // UserSession.setCurrentUser(usuarioAutenticado);
                         
-                        FlowController.getInstance().goView(AppKeys.MAIN);
+                        FlowController.getInstance().goMain(AppKeys.MAIN);
                     } else {
                         mostrarAlerta("Error", "No se pudo obtener la información del usuario");
                     }

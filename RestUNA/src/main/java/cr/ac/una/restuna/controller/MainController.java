@@ -56,6 +56,8 @@ public class MainController extends Controller implements Initializable {
     @FXML
     private MFXButton btnSettings;
     @FXML
+    private BorderPane mainLayout;
+    @FXML
     private BorderPane contentArea;
     @FXML
     private WebView wvLogo;
