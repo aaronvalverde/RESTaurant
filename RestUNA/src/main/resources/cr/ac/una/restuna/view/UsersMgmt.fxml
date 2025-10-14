@@ -59,9 +59,7 @@
                <content>
                   <JFXTreeTableView fx:id="tbvUsers">
                      <columns>
-                        <TreeTableColumn fx:id="tbcName" prefWidth="75.0" text="%tbc.name" />
                         <TreeTableColumn fx:id="tbcUser" prefWidth="75.0" text="%tbc.username" />
-                        <TreeTableColumn fx:id="tbcEmail" prefWidth="75.0" text="%tbc.email" />
                         <TreeTableColumn fx:id="tbcRole" prefWidth="75.0" text="%tbc.role" />
                         <TreeTableColumn fx:id="tbcStatus" prefWidth="75.0" text="%tbc.status" />
                      </columns>

@@ -120,6 +120,25 @@ public class UsuarioController {
     }
 
     /**
+     * GET /UsuarioController/usuarios - Obtiene todos los usuarios sin filtros
+     */
+    @GET
+    @Path("usuarios")
+    public Response obtenerTodosLosUsuarios() {
+        try {
+            Respuesta respuesta = usuarioService.obtenerTodos();
+            return crearRespuestaHttp(respuesta);
+
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error al obtener usuarios", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(new Respuesta(false, CodigoRespuesta.ERROR_INTERNO, 
+                           "Error interno del servidor", e.getMessage()))
+                    .build();
+        }
+    }
+
+    /**
      * DELETE /UsuarioController/usuario/{id} - Elimina (desactiva) un usuario
      */
     @DELETE

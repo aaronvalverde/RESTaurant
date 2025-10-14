@@ -78,25 +78,28 @@ public class UsuarioService {
 }
 
     
-    public Respuesta getUsuarios(String nombre, String apellidos, String usuario, String correo) {
-        try {Map<String,Object> parametros = new HashMap<>();
-        parametros.put("nombre", nombre);
-        parametros.put("apellidos", apellidos);
-        parametros.put("usuario", usuario);
-        parametros.put("correo", correo);       
-        Request request = new Request("UsuarioController/usuarios", "/{nombre}/{apellidos}/{usuario}/{correo}", parametros);
-        request.get();
-        if(request.isError()){
-            return new Respuesta(false, request.getError(), "");
-        }
-        
-        String responseJson = request.getResponseBody();
-        return new Respuesta(true, "", "", "Usuarios", responseJson);
-        
+    public Respuesta getUsuarios() {
+        try {
+            // Usar el endpoint simplificado sin parámetros
+            Request request = new Request("UsuarioController/usuarios");
+            request.get();
+            if(request.isError()){
+                return new Respuesta(false, request.getError(), "");
+            }
+            
+            String responseJson = request.getResponseBody();
+            return new Respuesta(true, "", "", "Usuarios", responseJson);
+            
         } catch (Exception ex) {
             Logger.getLogger(UsuarioService.class.getName()).log(Level.SEVERE, "Error obteniendo usuarios.", ex);
             return new Respuesta(false, "Error obteniendo usuarios.", "getUsuarios " + ex.getMessage());
         }
+    }
+    
+    @Deprecated
+    public Respuesta getUsuarios(String nombre, String apellidos, String usuario, String correo) {
+        // Método mantenido por compatibilidad - redirige al nuevo método simplificado
+        return getUsuarios();
     }
     
     public Respuesta guardarUsuario(UsuarioDto usuarioDto){
@@ -115,6 +118,29 @@ public class UsuarioService {
         } catch (Exception ex) {
             Logger.getLogger(UsuarioService.class.getName()).log(Level.SEVERE, "Ocurrio un error al guardar el usuario.", ex);
             return new Respuesta(false, "Ocurrio un error al guardar el usuario.", "guardarUsuario " + ex.getMessage());
+        }
+    }
+    
+    /**
+     * Método simplificado para obtener todos los usuarios sin parámetros
+     */
+    public Respuesta obtenerTodosLosUsuarios() {
+        try {
+            // Usar endpoint simple sin parámetros
+            Request request = new Request("UsuarioController/usuarios");
+            request.get();
+            
+            if(request.isError()){
+                return new Respuesta(false, request.getError(), "");
+            }
+            
+            String responseJson = request.getResponseBody();
+            return new Respuesta(true, "", "", "Usuarios", responseJson);
+            
+        } catch (Exception ex) {
+            Logger.getLogger(UsuarioService.class.getName())
+                  .log(Level.SEVERE, "Error obteniendo todos los usuarios.", ex);
+            return new Respuesta(false, "Error obteniendo usuarios.", "obtenerTodosLosUsuarios " + ex.getMessage());
         }
     }
     
