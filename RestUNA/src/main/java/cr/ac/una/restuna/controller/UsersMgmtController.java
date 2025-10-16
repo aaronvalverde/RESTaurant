@@ -101,8 +101,7 @@ public class UsersMgmtController extends Controller implements Initializable {
         Task<Respuesta> loadTask = new Task<Respuesta>() {
             @Override
             protected Respuesta call() throws Exception {
-                // Usar el método simplificado para obtener todos los usuarios
-                return usuarioService.obtenerTodosLosUsuarios();
+                return usuarioService.getUsuarios("", "", "", ""); // Obtener todos los usuarios
             }
         };
         
@@ -112,18 +111,10 @@ public class UsersMgmtController extends Controller implements Initializable {
                 
                 if (respuesta != null && respuesta.getEstado()) {
                     try {
-                        // La respuesta contiene el JSON completo, necesitamos extraer el array de usuarios
-                        String jsonCompleto = (String) respuesta.getResultado("Usuarios");
-                        
-                        if (jsonCompleto != null && !jsonCompleto.trim().isEmpty()) {
-                            // Extraer solo el array de usuarios del JSON anidado
-                            String usuariosArray = extraerArrayUsuarios(jsonCompleto);
-                            if (usuariosArray != null) {
-                                procesarUsuariosDesdeJson(usuariosArray);
-                            } else {
-                                System.err.println("No se pudo extraer el array de usuarios del JSON");
-                                showMessage("Error procesando la respuesta del servidor");
-                            }
+                        // La respuesta contiene el JSON con la lista de usuarios
+                        String usuariosJson = (String) respuesta.getResultado("Usuarios");
+                        if (usuariosJson != null && !usuariosJson.trim().isEmpty()) {
+                            procesarUsuariosDesdeJson(usuariosJson);
                         }
                     } catch (Exception ex) {
                         System.err.println("Error procesando usuarios: " + ex.getMessage());
@@ -131,18 +122,7 @@ public class UsersMgmtController extends Controller implements Initializable {
                     }
                 } else {
                     String mensaje = respuesta != null ? respuesta.getMensaje() : "Error desconocido";
-                    
-                    // Log técnico para desarrolladores (NO mostrar al usuario)
-                    System.err.println("Error del servidor al cargar usuarios: " + mensaje);
-                    
-                    // Verificar si es un error HTML (404, 500, etc.)
-                    if (mensaje.contains("<!DOCTYPE") || mensaje.contains("<html>")) {
-                        System.err.println("Servidor devolvió página de error HTML - Endpoint no encontrado");
-                        showMessage("El servicio no está disponible. Contacte al administrador.");
-                    } else {
-                        // Mensaje amigable para el usuario (SIN detalles técnicos)
-                        showMessage("No se pudieron cargar los usuarios. Verifique la conexión.");
-                    }
+                    showMessage("Error cargando usuarios: " + mensaje);
                 }
                 
                 // Restaurar botón
@@ -154,15 +134,7 @@ public class UsersMgmtController extends Controller implements Initializable {
         loadTask.setOnFailed(e -> {
             Platform.runLater(() -> {
                 Throwable exception = loadTask.getException();
-                
-                // Log técnico SOLO en consola para desarrolladores
-                System.err.println("Error de conexión al cargar usuarios: " + exception.getMessage());
-                if (exception.getCause() != null) {
-                    System.err.println("Causa: " + exception.getCause().getMessage());
-                }
-                
-                // Mensaje simple y amigable para el usuario
-                showMessage("No se pudo conectar al servidor.");
+                showMessage("Error de conexión: " + exception.getMessage());
                 
                 // Restaurar botón
                 btnAdd.setDisable(false);
@@ -220,34 +192,21 @@ public class UsersMgmtController extends Controller implements Initializable {
         try {
             userList.clear();
             
-            // Usar regex más flexible que encuentra cada objeto JSON completo
-            java.util.regex.Pattern objetoPattern = java.util.regex.Pattern.compile(
-                "\\{[^{}]*\\}",
+            // El JSON viene como un array de usuarios: [{"usuario":"admin","rol":"ADMINISTRADOR",...}, ...]
+            // Usaremos regex para extraer cada usuario
+            java.util.regex.Pattern usuarioPattern = java.util.regex.Pattern.compile(
+                "\\{[^}]*\"usuario\"\\s*:\\s*\"([^\"]+)\"[^}]*\"rol\"\\s*:\\s*\"([^\"]+)\"[^}]*\"estado\"\\s*:\\s*\"([^\"]+)\"[^}]*\\}",
                 java.util.regex.Pattern.CASE_INSENSITIVE);
             
-            java.util.regex.Matcher objetoMatcher = objetoPattern.matcher(usuariosJson);
+            java.util.regex.Matcher matcher = usuarioPattern.matcher(usuariosJson);
             
-            // Patrones individuales para extraer cada campo por separado
-            java.util.regex.Pattern usuarioPattern = java.util.regex.Pattern.compile("\"usuario\"\\s*:\\s*\"([^\"]+)\"");
-            java.util.regex.Pattern rolPattern = java.util.regex.Pattern.compile("\"rol\"\\s*:\\s*\"([^\"]+)\"");
-            java.util.regex.Pattern estadoPattern = java.util.regex.Pattern.compile("\"estado\"\\s*:\\s*\"([^\"]+)\"");
-            
-            while (objetoMatcher.find()) {
-                String objetoJson = objetoMatcher.group();
+            while (matcher.find()) {
+                String usuario = matcher.group(1);
+                String rol = matcher.group(2);
+                String estado = matcher.group(3);
                 
-                // Extraer cada campo por separado
-                java.util.regex.Matcher usuarioMatcher = usuarioPattern.matcher(objetoJson);
-                java.util.regex.Matcher rolMatcher = rolPattern.matcher(objetoJson);
-                java.util.regex.Matcher estadoMatcher = estadoPattern.matcher(objetoJson);
-                
-                if (usuarioMatcher.find() && rolMatcher.find() && estadoMatcher.find()) {
-                    String usuario = usuarioMatcher.group(1);
-                    String rol = rolMatcher.group(1);
-                    String estado = estadoMatcher.group(1);
-                    
-                    // Crear UserRow con la estructura simplificada
-                    userList.add(new UserRow(usuario, rol, estado));
-                }
+                // Crear UserRow con la estructura simplificada
+                userList.add(new UserRow(usuario, rol, estado));
             }
             
             // Actualizar la vista
@@ -258,34 +217,6 @@ public class UsersMgmtController extends Controller implements Initializable {
         } catch (Exception e) {
             System.err.println("Error procesando usuarios desde JSON: " + e.getMessage());
             e.printStackTrace();
-        }
-    }
-
-    private String extraerArrayUsuarios(String jsonCompleto) {
-        try {
-            System.out.println("=== EXTRAYENDO ARRAY USUARIOS ===");
-            System.out.println("JSON completo a procesar: " + jsonCompleto);
-            
-            // Buscar el array de usuarios dentro de "resultados":{"Usuarios":[...]}
-            java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(
-                "\"resultados\"\\s*:\\s*\\{[^}]*\"Usuarios\"\\s*:\\s*(\\[[^\\]]*\\])",
-                java.util.regex.Pattern.CASE_INSENSITIVE | java.util.regex.Pattern.DOTALL);
-            
-            java.util.regex.Matcher matcher = pattern.matcher(jsonCompleto);
-            
-            if (matcher.find()) {
-                String array = matcher.group(1);
-                System.out.println("Array encontrado: " + array);
-                return array; // Devuelve solo el array [...]
-            } else {
-                System.err.println("No se encontró el patrón 'resultados':{'Usuarios':[...]}");
-                return null;
-            }
-            
-        } catch (Exception e) {
-            System.err.println("Error extrayendo array de usuarios: " + e.getMessage());
-            e.printStackTrace();
-            return null;
         }
     }
 
