@@ -16,4 +16,5 @@ public class AppKeys {
     public static final String NEW_MENU_GROUP = "NewGroup";
     public static final String MENU_ITEMS_MGMT = "ItemsMgmt";
     public static final String NEW_MENU_ITEM = "NewItem";
+    public static final String SECTIONS = "Sections";
 }

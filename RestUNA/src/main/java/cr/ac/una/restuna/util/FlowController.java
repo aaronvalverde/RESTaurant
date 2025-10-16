@@ -258,4 +258,8 @@ public class FlowController {
     public void exit() {
         Platform.runLater(mainStage::close);
     }
+    
+    public ResourceBundle getLanguage(){
+        return language;
+    }
 }

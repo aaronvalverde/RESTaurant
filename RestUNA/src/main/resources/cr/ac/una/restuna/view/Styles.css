@@ -106,3 +106,20 @@
 #imvTableGraphic {
     -fx-image: url("../resources/icons/icons8-archivo-de-imagen-50.png");
 }
+
+/*section buttons*/
+#btnEdit > ImageView {
+    -fx-image: url("../resources/icons/icons8-edit-50.png");
+}
+#btnDelete > ImageView {
+    -fx-image: url("../resources/icons/icons8-delete-50.png");
+}
+#btnAddTable > ImageView {
+    -fx-image: url("../resources/icons/icons8-add-50.png");
+}
+#btnDeleteTable > ImageView {
+    -fx-image: url("../resources/icons/icons8-delete-50.png");
+}
+#btnExitEditMode > ImageView {
+    -fx-image: url("../resources/icons/icons8-multiply-50.png");
+}

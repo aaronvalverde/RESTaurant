@@ -17,7 +17,7 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        Locale locale = new Locale("es");
+        Locale locale = new Locale("");
         ResourceBundle bundle = ResourceBundle.getBundle("cr.ac.una.restuna.i18n.text", locale);
         new FlowController(stage, bundle);
         FlowController.getInstance().goMain(AppKeys.LOGIN);

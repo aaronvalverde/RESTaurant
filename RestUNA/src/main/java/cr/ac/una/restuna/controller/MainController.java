@@ -184,6 +184,7 @@ public class MainController extends Controller implements Initializable {
 
     @FXML
     private void onActionBtnSections(ActionEvent event) {
+        FlowController.getInstance().goView(AppKeys.SECTIONS);
     }
 
     @FXML

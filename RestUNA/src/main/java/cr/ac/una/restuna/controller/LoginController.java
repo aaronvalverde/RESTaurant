@@ -120,7 +120,7 @@ public class LoginController extends Controller implements Initializable {
         
         // Deshabilitar botón durante la autenticación
         btnSignIn.setDisable(true);
-        btnSignIn.setText("Autenticando...");
+        btnSignIn.setText(FlowController.getInstance().getLanguage().getString("btn.authenticating"));
         
         // Ejecutar autenticación en background thread
         Task<Respuesta> loginTask = new Task<Respuesta>() {
@@ -166,7 +166,7 @@ public class LoginController extends Controller implements Initializable {
                 
                 // Rehabilitar botón
                 btnSignIn.setDisable(false);
-                btnSignIn.setText("Ingresar");
+                btnSignIn.setText(FlowController.getInstance().getLanguage().getString("btn.login"));
             });
         });
         
