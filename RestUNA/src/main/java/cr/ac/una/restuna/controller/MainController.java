@@ -31,10 +31,6 @@ public class MainController extends Controller implements Initializable {
     @FXML
     private HBox topbar;
     @FXML
-    private MFXButton btnMenu;
-    @FXML
-    private VBox sidebar;
-    @FXML
     private MFXButton btnLogout;
     @FXML
     private MFXButton btnSections;
@@ -62,6 +58,8 @@ public class MainController extends Controller implements Initializable {
     private BorderPane contentArea;
     @FXML
     private WebView wvLogo;
+    @FXML
+    private MFXButton btnCashOpening;
 
     /**
      * Initializes the controller class.
@@ -83,58 +81,56 @@ public class MainController extends Controller implements Initializable {
                         .getResource("/cr/ac/una/restuna/resources/Logo_beany.svg")
                         .toExternalForm();
 
-                String html = "<html><body style='background: #5e3d26; display:flex; justify-content:center; align-items:center; height:100%; margin:0;'>"
-                        + "<img src='" + svgPath + "'/>"
-                        + "</body></html>";
+                String html
+                        = "<html>"
+                        + "<body style='background:#faf4f0; display:flex; justify-content:center; align-items:center; height:100vh; margin:0;'>"
+                        + "<img src='" + svgPath + "' style='transform: scale(3.5); transform-origin: center; width:auto; height:auto;'/>"
+                        + "</body>"
+                        + "</html>";
+
                 webEngine.loadContent(html);
             } catch (Exception e) {
                 System.err.println("Error loading logo WebView: " + e.getMessage());
             }
         }
 
-        // Configurar sidebar
-        if (sidebar != null) {
-            sidebar.setVisible(false);
-            sidebar.setManaged(false);
-        }
-        
         // Aplicar permisos basados en rol del usuario
         aplicarPermisosDeRol();
     }
-    
+
     /**
-     * Aplica permisos basados en el rol del usuario autenticado
-     * Oculta/muestra botones según los permisos del rol
+     * Aplica permisos basados en el rol del usuario autenticado Oculta/muestra
+     * botones según los permisos del rol
      */
     private void aplicarPermisosDeRol() {
         UserSession session = UserSession.getInstance();
-        
+
         if (!session.isAuthenticated()) {
             // Si no hay usuario autenticado, ocultar todo
             ocultarTodosLosBotones();
             return;
         }
-        
+
         // Mostrar/ocultar botones según permisos
         configurarVisibilidadBoton(btnSections, session.canAccessSalones());
         configurarVisibilidadBoton(btnOrders, session.canAccessOrdenes());
         configurarVisibilidadBoton(btnBilling, session.canAccessFacturacion());
         configurarVisibilidadBoton(btnCashClosing, session.canAccessCierreCaja());
-        
+
         // Botones de mantenimiento (solo administradores)
         configurarVisibilidadBoton(btnUsers, session.canAccessMantenimientos());
         configurarVisibilidadBoton(btnSectionsMgmt, session.canAccessMantenimientos());
         configurarVisibilidadBoton(btnMenuGroups, session.canAccessMantenimientos());
         configurarVisibilidadBoton(btnMenuItems, session.canAccessMantenimientos());
-        
+
         // Botones del sistema (solo administradores)
         configurarVisibilidadBoton(btnReports, session.canAccessReportes());
         configurarVisibilidadBoton(btnSettings, session.canAccessConfiguracion());
-        
+
         // El botón de logout siempre debe estar visible
         configurarVisibilidadBoton(btnLogout, true);
     }
-    
+
     /**
      * Configura la visibilidad y habilitación de un botón
      */
@@ -145,7 +141,7 @@ public class MainController extends Controller implements Initializable {
             boton.setDisable(!permitido);
         }
     }
-    
+
     /**
      * Oculta todos los botones del menú
      */
@@ -164,21 +160,10 @@ public class MainController extends Controller implements Initializable {
     }
 
     @FXML
-    private void onActionBtnMenu(ActionEvent event) {
-        if (!sidebar.isVisible()) {
-            sidebar.setVisible(true);
-            sidebar.setManaged(true);
-            return;
-        }
-        sidebar.setVisible(false);
-        sidebar.setManaged(false);
-    }
-
-    @FXML
     private void onActionBtnSignOut(ActionEvent event) {
         // Limpiar sesión del usuario
         UserSession.getInstance().clearSession();
-        
+
         FlowController.getInstance().goMain(AppKeys.LOGIN);
     }
 
@@ -225,5 +210,9 @@ public class MainController extends Controller implements Initializable {
 
     @FXML
     private void onActionBtnSettings(ActionEvent event) {
+    }
+
+    @FXML
+    private void onActionBtnCashOpening(ActionEvent event) {
     }
 }

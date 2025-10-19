@@ -24,18 +24,19 @@
 /*sidebar buttons*/
 /*normal*/
 #btnSections, #btnOrders,
-#btnBilling, #btnCashClosing,
+#btnBilling, #btnCashOpening, #btnCashClosing,
 #btnUsers, #btnSectionsMgmt,
 #btnMenuGroups, #btnMenuItems,
 #btnReports, #btnSettings, #btnLogout {
     -fx-background-color: transparent;
     -fx-text-fill: white;
     -fx-font-size: 14px;
+    -fx-pref-width: 100%;
 }
 
 /*hover*/
 #btnSections:hover, #btnOrders:hover,
-#btnBilling:hover, #btnCashClosing:hover,
+#btnBilling:hover, #btnCashOpening:hover, #btnCashClosing:hover,
 #btnUsers:hover, #btnSectionsMgmt:hover,
 #btnMenuGroups:hover, #btnMenuItems:hover,
 #btnReports:hover, #btnSettings:hover, #btnLogout:hover{
@@ -53,6 +54,10 @@
 
 #btnBilling > ImageView {
     -fx-image: url("../resources/icons/icons8-recibo-50.png");
+}
+
+#btnCashOpening > ImageView {
+    -fx-image: url("../resources/icons/icons8-caja-registradora-50.png");
 }
 
 #btnCashClosing > ImageView {
@@ -122,4 +127,30 @@
 }
 #btnExitEditMode > ImageView {
     -fx-image: url("../resources/icons/icons8-multiply-50.png");
+}
+
+/*temp*/
+#btnSave {
+    -fx-background-color: blue;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+#btnCancel {
+    -fx-background-color: red;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+#btnToBill {
+    -fx-background-color: green;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+#btnClose > ImageView {
+    -fx-image: url("../resources/icons/icons8-salida-50.png");
+}
+#btnClose {
+    -fx-background-color: #555555;
+}
+#btnRemove > ImageView {
+    -fx-image: url("../resources/icons/icons8-delete-50.png");
 }

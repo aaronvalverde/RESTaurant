@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import io.github.palexdev.materialfx.controls.MFXComboBox?>
+<?import io.github.palexdev.materialfx.controls.MFXScrollPane?>
+<?import io.github.palexdev.materialfx.controls.MFXTextField?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane id="AnchorPane" prefHeight="800.0" prefWidth="1280.0" stylesheets="@Styles.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cr.ac.una.restuna.controller.OrderController">
+   <children>
+      <HBox layoutX="99.0" layoutY="36.0" prefHeight="100.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <VBox prefHeight="200.0" prefWidth="100.0" spacing="5.0" HBox.hgrow="ALWAYS">
+               <children>
+                  <HBox prefHeight="95.0" prefWidth="712.0">
+                     <children>
+                        <VBox fx:id="orderModeBox" alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="100.0" spacing="10.0">
+                           <children>
+                              <Label fx:id="lbTable" text="%lb.table" />
+                              <Label fx:id="lbSection" text="Label" />
+                           </children>
+                           <HBox.margin>
+                              <Insets />
+                           </HBox.margin>
+                           <padding>
+                              <Insets left="10.0" />
+                           </padding>
+                        </VBox>
+                        <HBox fx:id="billingModeBox" alignment="CENTER_LEFT" prefHeight="95.0" prefWidth="335.0" spacing="10.0">
+                           <children>
+                              <MFXComboBox fx:id="cmbSection" floatMode="DISABLED" maxHeight="-Infinity" maxWidth="-Infinity" prefWidth="150.0" promptText="%cmb.sectionprompt" HBox.hgrow="ALWAYS" />
+                              <MFXComboBox fx:id="cmbTable" floatMode="DISABLED" maxWidth="-Infinity" prefWidth="150.0" promptText="%cmb.tableprompt" HBox.hgrow="ALWAYS" />
+                           </children>
+                           <padding>
+                              <Insets left="10.0" />
+                           </padding>
+                        </HBox>
+                        <HBox prefHeight="100.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
+                        <HBox alignment="CENTER_RIGHT" prefHeight="95.0" prefWidth="90.0">
+                           <children>
+                              <MFXButton fx:id="btnClose" contentDisplay="GRAPHIC_ONLY" onAction="#onActionBtnClose">
+                                 <graphic>
+                                    <ImageView fitHeight="35.0" fitWidth="35.0" pickOnBounds="true" preserveRatio="true" />
+                                 </graphic></MFXButton>
+                           </children>
+                           <padding>
+                              <Insets right="10.0" />
+                           </padding>
+                        </HBox>
+                     </children>
+                  </HBox>
+                  <HBox prefHeight="74.0" prefWidth="712.0" spacing="10.0">
+                     <children>
+                        <MFXTextField fx:id="txfSearch" floatMode="DISABLED" maxWidth="1.7976931348623157E308" promptText="%txf.search.items" HBox.hgrow="ALWAYS" />
+                        <MFXComboBox fx:id="cmbGroups" floatMode="DISABLED" prefWidth="170.0" promptText="%lb.group" />
+                     </children>
+                     <padding>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                     </padding>
+                  </HBox>
+                  <HBox prefHeight="73.0" prefWidth="766.0">
+                     <children>
+                        <MFXScrollPane fx:id="groupsRoot" hbarPolicy="NEVER" prefWidth="746.0" vbarPolicy="NEVER" HBox.hgrow="ALWAYS">
+                           <content>
+                              <HBox fx:id="groupsBox" prefHeight="100.0" prefWidth="200.0" />
+                           </content>
+                        </MFXScrollPane>
+                     </children>
+                     <padding>
+                        <Insets left="10.0" right="10.0" />
+                     </padding>
+                  </HBox>
+                  <VBox prefHeight="200.0" prefWidth="100.0" VBox.vgrow="ALWAYS">
+                     <padding>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                     </padding>
+                     <children>
+                        <MFXScrollPane fx:id="productsRoot" VBox.vgrow="ALWAYS">
+                           <content>
+                              <GridPane fx:id="itemsGrid">
+                                <columnConstraints>
+                                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                </columnConstraints>
+                                <rowConstraints>
+                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                </rowConstraints>
+                              </GridPane>
+                           </content>
+                        </MFXScrollPane>
+                     </children>
+                  </VBox>
+               </children>
+            </VBox>
+            <VBox prefHeight="200.0" prefWidth="100.0" spacing="5.0" HBox.hgrow="ALWAYS">
+               <children>
+                  <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <MFXTextField fx:id="txfClientName" floatMode="DISABLED" maxWidth="1.7976931348623157E308" promptText="%lb.client" HBox.hgrow="ALWAYS" />
+                     </children>
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                     <padding>
+                        <Insets right="10.0" />
+                     </padding>
+                  </HBox>
+                  <MFXScrollPane fx:id="orderRoot" hbarPolicy="NEVER" prefHeight="428.0" prefWidth="583.0" vbarPolicy="NEVER" VBox.vgrow="ALWAYS">
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                     <content>
+                        <VBox fx:id="orderContainer" prefHeight="293.0" prefWidth="436.0" />
+                     </content>
+                     <padding>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                     </padding>
+                  </MFXScrollPane>
+                  <VBox prefHeight="277.0" prefWidth="583.0" spacing="10.0">
+                     <padding>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                     </padding>
+                     <children>
+                        <HBox alignment="CENTER_LEFT" prefHeight="30.0" prefWidth="548.0">
+                           <children>
+                              <Label text="%lb.subtotal" />
+                              <HBox prefHeight="100.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
+                              <Label fx:id="lbSubtotal" text="Label" />
+                           </children>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" prefHeight="30.0" prefWidth="548.0">
+                           <children>
+                              <Label text="%lb.vat" />
+                              <HBox prefHeight="100.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
+                              <Label fx:id="lbVAT" text="Label" />
+                           </children>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" prefHeight="30.0" prefWidth="548.0">
+                           <children>
+                              <Label text="%lb.service.tax" />
+                              <HBox prefHeight="100.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
+                              <Label fx:id="lbServiceTax" text="Label" />
+                           </children>
+                        </HBox>
+                        <Separator prefWidth="200.0" />
+                        <HBox alignment="CENTER_LEFT" prefHeight="35.0" prefWidth="563.0">
+                           <children>
+                              <Label text="%lb.total" />
+                              <HBox prefHeight="100.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
+                              <Label fx:id="lbTotal" text="Label" />
+                           </children>
+                        </HBox>
+                        <VBox prefHeight="200.0" prefWidth="100.0">
+                           <children>
+                              <HBox prefHeight="84.0" prefWidth="548.0" spacing="10.0" VBox.vgrow="ALWAYS">
+                                 <children>
+                                    <MFXButton fx:id="btnCancel" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" onAction="#onActionBtnCancel" prefHeight="50.0" text="%btn.cancel" HBox.hgrow="ALWAYS" />
+                                    <MFXButton fx:id="btnSave" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" onAction="#onActionBtnSave" prefHeight="50.0" text="%btn.save.bill" HBox.hgrow="ALWAYS" />
+                                 </children>
+                              </HBox>
+                           </children>
+                        </VBox>
+                        <VBox prefHeight="200.0" prefWidth="100.0" VBox.vgrow="ALWAYS">
+                           <children>
+                              <MFXButton fx:id="btnToBill" maxWidth="1.7976931348623157E308" onAction="#onActionBtnToBill" prefHeight="50.0" text="%btn.to.bill" VBox.vgrow="ALWAYS" />
+                           </children>
+                        </VBox>
+                     </children>
+                  </VBox>
+               </children>
+            </VBox>
+         </children>
+      </HBox>
+   </children>
+</AnchorPane>
