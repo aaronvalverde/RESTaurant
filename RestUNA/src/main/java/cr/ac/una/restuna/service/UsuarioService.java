@@ -99,7 +99,8 @@ public class UsuarioService {
     @Deprecated
     public Respuesta getUsuarios(String nombre, String apellidos, String usuario, String correo) {
         // Método mantenido por compatibilidad - redirige al nuevo método simplificado
-        return getUsuarios();
+        System.out.println("AVISO: Usando método getUsuarios() obsoleto. Use obtenerTodosLosUsuarios()");
+        return obtenerTodosLosUsuarios();
     }
     
     public Respuesta guardarUsuario(UsuarioDto usuarioDto){
@@ -123,23 +124,43 @@ public class UsuarioService {
     
     /**
      * Método simplificado para obtener todos los usuarios sin parámetros
+     * Con mejor manejo de errores y logs detallados
      */
     public Respuesta obtenerTodosLosUsuarios() {
         try {
             // Usar endpoint simple sin parámetros
+            System.out.println("Iniciando solicitud para obtener todos los usuarios");
             Request request = new Request("UsuarioController/usuarios");
             request.get();
             
             if(request.isError()){
+                System.err.println("Error en la solicitud: " + request.getError());
                 return new Respuesta(false, request.getError(), "");
             }
             
             String responseJson = request.getResponseBody();
+            System.out.println("Respuesta recibida de longitud: " + 
+                              (responseJson != null ? responseJson.length() : 0));
+            
+            if (responseJson == null || responseJson.trim().isEmpty()) {
+                System.err.println("Respuesta vacía del servidor");
+                return new Respuesta(false, "Respuesta vacía del servidor", "No se recibieron datos");
+            }
+            
+            // Verificar si la respuesta es un JSON válido (básicamente)
+            if (!(responseJson.startsWith("{") && responseJson.endsWith("}")) && 
+                !(responseJson.startsWith("[") && responseJson.endsWith("]")))
+            {
+                System.err.println("Formato de respuesta inesperado: " + responseJson);
+                return new Respuesta(false, "Formato de respuesta no válido", "No es JSON válido");
+            }
+            
             return new Respuesta(true, "", "", "Usuarios", responseJson);
             
         } catch (Exception ex) {
             Logger.getLogger(UsuarioService.class.getName())
                   .log(Level.SEVERE, "Error obteniendo todos los usuarios.", ex);
+            ex.printStackTrace();
             return new Respuesta(false, "Error obteniendo usuarios.", "obtenerTodosLosUsuarios " + ex.getMessage());
         }
     }

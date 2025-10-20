@@ -191,22 +191,43 @@ public class UsersMgmtController extends Controller implements Initializable {
     private void procesarUsuariosDesdeJson(String usuariosJson) {
         try {
             userList.clear();
+            System.out.println("Procesando JSON de usuarios...");
+            System.out.println("JSON recibido: " + usuariosJson);
             
-            // El JSON viene como un array de usuarios: [{"usuario":"admin","rol":"ADMINISTRADOR",...}, ...]
-            // Usaremos regex para extraer cada usuario
-            java.util.regex.Pattern usuarioPattern = java.util.regex.Pattern.compile(
-                "\\{[^}]*\"usuario\"\\s*:\\s*\"([^\"]+)\"[^}]*\"rol\"\\s*:\\s*\"([^\"]+)\"[^}]*\"estado\"\\s*:\\s*\"([^\"]+)\"[^}]*\\}",
-                java.util.regex.Pattern.CASE_INSENSITIVE);
+            // Verificar si el JSON es válido
+            if (usuariosJson == null || usuariosJson.trim().isEmpty()) {
+                System.err.println("JSON vacío");
+                showMessage("No se recibieron datos de usuarios");
+                return;
+            }
             
-            java.util.regex.Matcher matcher = usuarioPattern.matcher(usuariosJson);
-            
-            while (matcher.find()) {
-                String usuario = matcher.group(1);
-                String rol = matcher.group(2);
-                String estado = matcher.group(3);
-                
-                // Crear UserRow con la estructura simplificada
-                userList.add(new UserRow(usuario, rol, estado));
+            // El formato del JSON es un objeto que contiene un array de usuarios dentro de resultados.Usuarios
+            // Primero extraemos el array de usuarios de la estructura
+            int inicioArray = usuariosJson.indexOf("\"Usuarios\":");
+            if (inicioArray != -1) {
+                // Encontrar el inicio del array
+                inicioArray = usuariosJson.indexOf("[", inicioArray);
+                if (inicioArray != -1) {
+                    // Encontrar el fin del array
+                    int finArray = encontrarCierreCorchete(usuariosJson, inicioArray);
+                    if (finArray != -1) {
+                        // Extraer el array de usuarios
+                        String arrayUsuarios = usuariosJson.substring(inicioArray, finArray + 1);
+                        System.out.println("Array de usuarios extraído: " + arrayUsuarios);
+                        
+                        // Ahora procesamos cada objeto de usuario dentro del array
+                        procesarArrayDeUsuarios(arrayUsuarios);
+                    } else {
+                        System.err.println("No se pudo encontrar el cierre del array de usuarios");
+                        showMessage("Error analizando la respuesta del servidor");
+                    }
+                } else {
+                    System.err.println("No se pudo encontrar el inicio del array de usuarios");
+                    showMessage("Error analizando la respuesta del servidor");
+                }
+            } else {
+                System.err.println("No se encontró la clave 'Usuarios' en el JSON");
+                showMessage("Formato de respuesta inesperado");
             }
             
             // Actualizar la vista
@@ -217,7 +238,127 @@ public class UsersMgmtController extends Controller implements Initializable {
         } catch (Exception e) {
             System.err.println("Error procesando usuarios desde JSON: " + e.getMessage());
             e.printStackTrace();
+            showMessage("Error procesando datos: " + e.getMessage());
         }
+    }
+    
+    /**
+     * Encuentra la posición de cierre del corchete correspondiente
+     */
+    private int encontrarCierreCorchete(String json, int posicionApertura) {
+        int contador = 1;
+        for (int i = posicionApertura + 1; i < json.length(); i++) {
+            char c = json.charAt(i);
+            if (c == '[') {
+                contador++;
+            } else if (c == ']') {
+                contador--;
+                if (contador == 0) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+    
+    /**
+     * Procesa un array de usuarios JSON
+     */
+    private void procesarArrayDeUsuarios(String arrayUsuarios) {
+        try {
+            // Eliminar los corchetes del array
+            String contenido = arrayUsuarios.substring(1, arrayUsuarios.length() - 1);
+            
+            // Dividir por objetos de usuario (este enfoque simple asume que no hay objetos anidados)
+            // Para una solución más robusta, necesitaríamos una biblioteca JSON adecuada
+            int nivelLlaves = 0;
+            StringBuilder objetoUsuario = new StringBuilder();
+            
+            for (int i = 0; i < contenido.length(); i++) {
+                char c = contenido.charAt(i);
+                
+                if (c == '{') {
+                    nivelLlaves++;
+                    objetoUsuario.append(c);
+                } else if (c == '}') {
+                    nivelLlaves--;
+                    objetoUsuario.append(c);
+                    
+                    // Si llegamos al cierre del objeto de usuario
+                    if (nivelLlaves == 0) {
+                        procesarObjetoUsuario(objetoUsuario.toString());
+                        objetoUsuario = new StringBuilder();
+                        
+                        // Saltar la coma que separa objetos
+                        if (i + 1 < contenido.length() && contenido.charAt(i + 1) == ',') {
+                            i++;
+                        }
+                    }
+                } else if (nivelLlaves > 0) {
+                    objetoUsuario.append(c);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error procesando array de usuarios: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Procesa un objeto de usuario individual
+     */
+    private void procesarObjetoUsuario(String objetoUsuario) {
+        try {
+            String usuario = extraerValor(objetoUsuario, "usuario");
+            String rol = extraerValor(objetoUsuario, "rol");
+            String estado = extraerValor(objetoUsuario, "estado");
+            
+            if (usuario != null && rol != null && estado != null) {
+                System.out.println("Usuario encontrado: " + usuario + ", Rol: " + rol + ", Estado: " + estado);
+                userList.add(new UserRow(usuario, rol, estado));
+            } else {
+                System.err.println("Datos incompletos en objeto de usuario: " + objetoUsuario);
+            }
+        } catch (Exception e) {
+            System.err.println("Error procesando objeto de usuario: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Extrae un valor de un campo en el JSON
+     */
+    private String extraerValor(String json, String campo) {
+        String patron = "\"" + campo + "\"\\s*:\\s*\"([^\"]+)\"";
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(patron);
+        java.util.regex.Matcher matcher = pattern.matcher(json);
+        
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+        
+        // Intentar con formato numérico (sin comillas)
+        patron = "\"" + campo + "\"\\s*:\\s*([^,\\}]+)";
+        pattern = java.util.regex.Pattern.compile(patron);
+        matcher = pattern.matcher(json);
+        
+        if (matcher.find()) {
+            String valor = matcher.group(1);
+            // Eliminar espacios y verificar si es booleano
+            valor = valor.trim();
+            if (valor.equals("true") || valor.equals("false")) {
+                return valor;
+            }
+            try {
+                // Verificar si es numérico
+                Double.parseDouble(valor);
+                return valor;
+            } catch (NumberFormatException e) {
+                // No es numérico
+            }
+        }
+        
+        return null;
     }
 
     private void showMessage(String msg) {
