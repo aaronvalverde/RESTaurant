@@ -37,6 +37,12 @@ public class Usuario implements Serializable {
     @Basic(optional = false)
     @Column(name = "USUARIO", nullable = false, length = 50, unique = true)
     private String usuario;
+    
+    @NotBlank(message = "El nombre es obligatorio")
+    @Size(max = 100, message = "El nombre no puede exceder 100 caracteres")
+    @Basic(optional = false)
+    @Column(name = "NOMBRE", nullable = false, length = 100)
+    private String nombre;
 
     @NotBlank(message = "La contraseña es obligatoria")
     @Size(max = 255, message = "La contraseña no puede exceder 255 caracteres")
@@ -87,12 +93,24 @@ public class Usuario implements Serializable {
 
     public void actualizar(UsuarioDto usuarioDto) {
         this.usuario = usuarioDto.getUsuario();
-        this.rol = usuarioDto.getRol();
-        this.estado = usuarioDto.isActivo() ? "A" : "I";
         
-        // Solo actualizar contraseña si se proporciona una nueva
+        // Actualizar el nombre si se proporciona, sino usar el usuario
+        if (usuarioDto.getNombre() != null && !usuarioDto.getNombre().trim().isEmpty()) {
+            this.nombre = usuarioDto.getNombre();
+        } else {
+            this.nombre = usuarioDto.getUsuario(); // Usar el usuario como nombre por defecto
+        }
+        
+        this.rol = usuarioDto.getRol();
+        this.estado = usuarioDto.getEstado() != null ? usuarioDto.getEstado() : "A";
+        
+        // Solo actualizar contraseña si se proporciona una nueva para usuarios existentes
+        // Para usuarios nuevos (sin ID), siempre requerir contraseña
         if (usuarioDto.getNuevaContrasena() != null && !usuarioDto.getNuevaContrasena().trim().isEmpty()) {
             this.contrasena = usuarioDto.getNuevaContrasena();
+        } else if (this.idUsuario == null) {
+            // Para usuarios nuevos, asegurarse de que hay contraseña
+            throw new IllegalArgumentException("La contraseña es obligatoria para usuarios nuevos");
         }
     }
 
@@ -169,6 +187,14 @@ public class Usuario implements Serializable {
     public void setUsuario(String usuario) {
         this.usuario = usuario;
     }
+    
+    public String getNombre() {
+        return nombre;
+    }
+    
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
 
     public String getContrasena() {
         return contrasena;
@@ -243,6 +269,7 @@ public class Usuario implements Serializable {
         return "Usuario{" +
                 "idUsuario=" + idUsuario +
                 ", usuario='" + usuario + '\'' +
+                ", nombre='" + nombre + '\'' +
                 ", rol='" + rol + '\'' +
                 ", estado='" + estado + '\'' +
                 '}';

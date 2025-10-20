@@ -15,17 +15,23 @@ import javafx.beans.property.StringProperty;
 public class UserRow extends RecursiveTreeObject<UserRow> {
 
     private final StringProperty username;
+    private final StringProperty name;
     private final StringProperty role;
     private final StringProperty status;
 
-    public UserRow(String username, String role, String status) {
+    public UserRow(String username, String name, String role, String status) {
         this.username = new SimpleStringProperty(username);
+        this.name = new SimpleStringProperty(name != null ? name : "");
         this.role = new SimpleStringProperty(role);
         this.status = new SimpleStringProperty(status);
     }
 
     public StringProperty getUsername() {
         return username;
+    }
+    
+    public StringProperty getName() {
+        return name;
     }
 
     public StringProperty getRole() {

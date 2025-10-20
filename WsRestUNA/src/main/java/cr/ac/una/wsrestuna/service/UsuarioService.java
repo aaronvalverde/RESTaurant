@@ -173,12 +173,9 @@ public class UsuarioService {
                         "Ya existe un usuario con ese nombre", "Usuario duplicado: " + usuarioDto.getUsuario());
             }
 
-            // Crear entidad
-            Usuario usuario = new Usuario();
-            usuario.setUsuario(usuarioDto.getUsuario());
-            usuario.setRol(usuarioDto.getRol());
-            usuario.setEstado(usuarioDto.getEstado() != null ? usuarioDto.getEstado() : "A");
-
+            // Crear entidad usando el constructor que llama a actualizar()
+            Usuario usuario = new Usuario(usuarioDto);
+            
             // Cifrar contraseña
             String contrasenaCifrada = cifrarContrasena(usuarioDto.getNuevaContrasena());
             usuario.setContrasena(contrasenaCifrada);

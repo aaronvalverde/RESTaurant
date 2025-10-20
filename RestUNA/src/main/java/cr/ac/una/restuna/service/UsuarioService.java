@@ -103,22 +103,85 @@ public class UsuarioService {
         return obtenerTodosLosUsuarios();
     }
     
+    /**
+     * Guarda un nuevo usuario o actualiza uno existente en el servidor
+     * @param usuarioDto El DTO con los datos del usuario
+     * @return Respuesta con el resultado de la operación
+     */
     public Respuesta guardarUsuario(UsuarioDto usuarioDto){
         try {        
-        Request request = new Request("UsuarioController/usuario");
-        request.post(usuarioDto);
-       
-        if(request.isError()){
-            return new Respuesta(false, request.getError(), "");
-        }
-        
-        String responseJson = request.getResponseBody();
-        
-        return new Respuesta(true, "", "", "Usuario", responseJson);
+            // Validaciones básicas
+            if (usuarioDto == null) {
+                return new Respuesta(false, "Datos de usuario inválidos", "UsuarioDto es null");
+            }
+            
+            if (usuarioDto.getUsuario() == null || usuarioDto.getUsuario().trim().isEmpty()) {
+                return new Respuesta(false, "El nombre de usuario es obligatorio", "Nombre de usuario vacío");
+            }
+            
+            // Si es un usuario nuevo (sin ID) y no tiene contraseña, rechazarlo
+            if (usuarioDto.getIdUsuario() == null && 
+                (usuarioDto.getNuevaContrasena() == null || usuarioDto.getNuevaContrasena().trim().isEmpty())) {
+                return new Respuesta(false, "La contraseña es obligatoria para usuarios nuevos", "Contraseña vacía");
+            }
+            
+            // Validación del nombre (si está disponible pero vacío)
+            if (usuarioDto.getNombre() == null || usuarioDto.getNombre().trim().isEmpty()) {
+                usuarioDto.setNombre(usuarioDto.getUsuario()); // Usar nombre de usuario como nombre por defecto
+            }
+            
+            // Asegurarse de que el estado está establecido
+            if (usuarioDto.getEstado() == null) {
+                usuarioDto.setEstado("A"); // Activo por defecto
+            }
+            
+            System.out.println("Guardando usuario: " + usuarioDto.getUsuario());
+            Request request = new Request("UsuarioController/usuario");
+            request.post(usuarioDto);
+           
+            if(request.isError()){
+                System.err.println("Error guardando usuario: " + request.getError());
+                // Filtrar el error para no mostrar HTML o mensajes técnicos al usuario
+                String errorMsg = "Error de comunicación con el servidor";
+                
+                if (request.getError().contains("HTTP 400")) {
+                    errorMsg = "Datos de usuario incorrectos o incompletos";
+                } else if (request.getError().contains("HTTP 401") || request.getError().contains("HTTP 403")) {
+                    errorMsg = "No tiene permisos para realizar esta operación";
+                } else if (request.getError().contains("HTTP 404")) {
+                    errorMsg = "Servicio no disponible actualmente";
+                } else if (request.getError().contains("HTTP 500")) {
+                    errorMsg = "Error interno del servidor";
+                }
+                
+                return new Respuesta(false, errorMsg, "Error en la comunicación con el servidor");
+            }
+            
+            String responseJson = request.getResponseBody();
+            System.out.println("Respuesta recibida: " + responseJson);
+            
+            // Verificar si la respuesta indica un error a pesar de tener código HTTP 200
+            if (responseJson != null && responseJson.contains("\"estado\":false")) {
+                // Intentar extraer mensaje de error
+                int inicioMsg = responseJson.indexOf("\"mensaje\":");
+                if (inicioMsg > 0) {
+                    inicioMsg += 11; // Longitud de "mensaje":"
+                    int finMsg = responseJson.indexOf("\"", inicioMsg);
+                    if (finMsg > inicioMsg) {
+                        String mensajeError = responseJson.substring(inicioMsg, finMsg);
+                        return new Respuesta(false, mensajeError, "Error reportado por el servidor");
+                    }
+                }
+                return new Respuesta(false, "Error al guardar el usuario", "Respuesta con estado falso");
+            }
+            
+            return new Respuesta(true, "Usuario guardado correctamente", "", "Usuario", responseJson);
 
         } catch (Exception ex) {
-            Logger.getLogger(UsuarioService.class.getName()).log(Level.SEVERE, "Ocurrio un error al guardar el usuario.", ex);
-            return new Respuesta(false, "Ocurrio un error al guardar el usuario.", "guardarUsuario " + ex.getMessage());
+            Logger.getLogger(UsuarioService.class.getName()).log(Level.SEVERE, "Ocurrió un error al guardar el usuario.", ex);
+            ex.printStackTrace();
+            return new Respuesta(false, "Ocurrió un error al guardar el usuario", 
+                                "guardarUsuario " + ex.getMessage());
         }
     }
     

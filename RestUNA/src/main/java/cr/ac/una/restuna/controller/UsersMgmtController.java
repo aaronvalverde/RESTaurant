@@ -47,6 +47,8 @@ public class UsersMgmtController extends Controller implements Initializable {
     @FXML
     private TreeTableColumn<UserRow, String> tbcUser;
     @FXML
+    private TreeTableColumn<UserRow, String> tbcName;
+    @FXML
     private TreeTableColumn<UserRow, String> tbcRole;
     @FXML
     private TreeTableColumn<UserRow, String> tbcStatus;
@@ -73,6 +75,7 @@ public class UsersMgmtController extends Controller implements Initializable {
 
         // Configurar columnas de la tabla (estructura simplificada)
         tbcUser.setCellValueFactory(x -> x.getValue().getValue().getUsername());
+        tbcName.setCellValueFactory(x -> x.getValue().getValue().getName());
         tbcRole.setCellValueFactory(x -> x.getValue().getValue().getRole());
         tbcStatus.setCellValueFactory(x -> x.getValue().getValue().getStatus());
 
@@ -92,8 +95,9 @@ public class UsersMgmtController extends Controller implements Initializable {
     
     /**
      * Carga todos los usuarios desde el servidor
+     * Método público para permitir recargar desde otros controladores
      */
-    private void cargarUsuarios() {
+    public void cargarUsuarios() {
         // Mostrar indicador de carga si es necesario
         btnAdd.setDisable(true);
         btnAdd.setText("Cargando...");
@@ -101,7 +105,7 @@ public class UsersMgmtController extends Controller implements Initializable {
         Task<Respuesta> loadTask = new Task<Respuesta>() {
             @Override
             protected Respuesta call() throws Exception {
-                return usuarioService.getUsuarios("", "", "", ""); // Obtener todos los usuarios
+                return usuarioService.obtenerTodosLosUsuarios(); // Obtener todos los usuarios
             }
         };
         
@@ -155,19 +159,43 @@ public class UsersMgmtController extends Controller implements Initializable {
 
     @FXML
     private void onActionBtnAdd(ActionEvent event) {
-        FlowController.getInstance().goViewInWindowModal(AppKeys.NEW_USER, new Stage(), false);
+        // Abrir ventana modal para agregar nuevo usuario
+        Stage stage = new Stage();
+        FlowController.getInstance().goViewInWindowModal(AppKeys.NEW_USER, stage, false);
+        
+        // Si la ventana se cierra, podríamos recargar los usuarios
+        // Sin embargo, esto se maneja desde NewUserController a través de addUser
     }
 
-    public void addUser(String username, String role, String status) {
+    /**
+     * Añade un usuario al modelo local y actualiza la vista
+     * Este método es llamado desde NewUserController después de guardar un usuario
+     * 
+     * @param username Nombre de usuario
+     * @param role Rol del usuario
+     * @param status Estado del usuario (A=Activo, I=Inactivo)
+     */
+    public void addUser(String username, String name, String role, String status) {
+        // Verificar si el usuario ya existe en la lista local
         for (UserRow user : userList) {
             if (user.getUsername().get().equalsIgnoreCase(username)) {
-                showMessage("Usuario ya existente: " + username);
+                System.out.println("El usuario " + username + " ya existe en la lista. Actualizando...");
+                // Si existe, podemos actualizar sus datos
+                user.getName().set(name);
+                user.getRole().set(role);
+                user.getStatus().set(status);
+                filters(); // Actualizar vista
                 return;
             }
         }
 
-        userList.add(new UserRow(username, role, status));
-        filters();
+        // Si no existe, añadirlo
+        System.out.println("Añadiendo nuevo usuario: " + username);
+        userList.add(new UserRow(username, name, role, status));
+        filters(); // Actualizar vista
+        
+        // Opcional: Mostrar mensaje de confirmación
+        // showMessage("Usuario " + username + " añadido correctamente");
     }
 
     private void filters() {
@@ -310,12 +338,17 @@ public class UsersMgmtController extends Controller implements Initializable {
     private void procesarObjetoUsuario(String objetoUsuario) {
         try {
             String usuario = extraerValor(objetoUsuario, "usuario");
+            // Intentar extraer el nombre del JSON, si no existe usamos el usuario como nombre
+            String nombre = extraerValor(objetoUsuario, "nombre");
+            if (nombre == null || nombre.trim().isEmpty()) {
+                nombre = usuario; // Fallback al usuario si no hay nombre
+            }
             String rol = extraerValor(objetoUsuario, "rol");
             String estado = extraerValor(objetoUsuario, "estado");
             
             if (usuario != null && rol != null && estado != null) {
-                System.out.println("Usuario encontrado: " + usuario + ", Rol: " + rol + ", Estado: " + estado);
-                userList.add(new UserRow(usuario, rol, estado));
+                System.out.println("Usuario encontrado: " + usuario + ", Nombre: " + nombre + ", Rol: " + rol + ", Estado: " + estado);
+                userList.add(new UserRow(usuario, nombre, rol, estado));
             } else {
                 System.err.println("Datos incompletos en objeto de usuario: " + objetoUsuario);
             }

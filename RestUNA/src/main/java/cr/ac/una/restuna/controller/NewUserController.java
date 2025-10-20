@@ -36,6 +36,8 @@ public class NewUserController extends Controller implements Initializable {
     @FXML
     private MFXTextField txfUsername;
     @FXML
+    private MFXTextField txfName;
+    @FXML
     private MFXPasswordField pwfPassword;
     @FXML
     private MFXComboBox<String> cmbRole;
@@ -69,45 +71,134 @@ public class NewUserController extends Controller implements Initializable {
 
     @FXML
     private void onActionBtnAdd(ActionEvent event) {
-         String username = txfUsername.getText();
-         String password = pwfPassword.getText();
+         String username = txfUsername.getText().trim();
+         String name = txfName.getText().trim();
+         String password = pwfPassword.getText().trim();
          String role = cmbRole.getValue();
          String status = cmbStatus.getValue();
          
-        if(username.isEmpty() || password.isEmpty() || role == null || status == null ){
-            showMessage("Campos obligatorios");
+        // Validaciones más completas
+        if(username.isEmpty()) {
+            showMessage("El nombre de usuario es obligatorio");
+            txfUsername.requestFocus();
             return;
         }
         
+        if(name.isEmpty()) {
+            showMessage("El nombre completo es obligatorio");
+            txfName.requestFocus();
+            return;
+        }
+        
+        if(password.isEmpty()) {
+            showMessage("La contraseña es obligatoria");
+            pwfPassword.requestFocus();
+            return;
+        } else if(password.length() < 4) {
+            showMessage("La contraseña debe tener al menos 4 caracteres");
+            pwfPassword.requestFocus();
+            return;
+        }
+        
+        if(role == null) {
+            showMessage("Debe seleccionar un rol");
+            cmbRole.requestFocus();
+            return;
+        }
+        
+        if(status == null) {
+            showMessage("Debe seleccionar un estado");
+            cmbStatus.requestFocus();
+            return;
+        }
+        
+        // Deshabilitar controles para evitar doble envío
+        btnAdd.setDisable(true);
+        btnCancel.setDisable(true);
+        btnAdd.setText("Guardando...");
+        
         // Crear usuario en el servidor usando servicio REST
-        Task<Void> task = new Task<Void>() {
+        Task<Respuesta> task = new Task<Respuesta>() {
             @Override
-            protected Void call() throws Exception {
+            protected Respuesta call() throws Exception {
                 UsuarioDto usuario = new UsuarioDto();
                 usuario.setUsuario(username);
+                usuario.setNombre(name);  // Agregar el nombre
                 usuario.setNuevaContrasena(password);
                 usuario.setRol(role);
                 usuario.setEstado(status);
                 
-                Respuesta respuesta = usuarioService.guardarUsuario(usuario);
-                
-                if (!respuesta.getEstado()) {
-                    Platform.runLater(() -> {
-                        showMessage("Error: " + respuesta.getMensaje());
-                    });
-                } else {
-                    Platform.runLater(() -> {
-                        // Notificar al controlador padre que se agregó un usuario
-                        UsersMgmtController newUser = (UsersMgmtController) FlowController.getInstance().getController(AppKeys.USERS_MGMT);
-                        newUser.addUser(username, role, status);
-                        getStage().close();
-                    });
-                }
-                return null;
+                System.out.println("Enviando petición para crear usuario: " + username);
+                return usuarioService.guardarUsuario(usuario);
             }
         };
         
-        new Thread(task).start();
+        task.setOnSucceeded(e -> {
+            Platform.runLater(() -> {
+                Respuesta respuesta = task.getValue();
+                
+                if (!respuesta.getEstado()) {
+                    // Obtener un mensaje de error amigable para el usuario
+                    String errorMsg = respuesta.getMensaje();
+                    
+                    // Si el mensaje contiene HTML o es muy técnico, mostrar un mensaje genérico
+                    if (errorMsg == null || errorMsg.isEmpty() || errorMsg.contains("<html") || errorMsg.contains("<!DOCTYPE")) {
+                        errorMsg = "No se pudo crear el usuario. Por favor, inténtelo nuevamente.";
+                    }
+                    
+                    showMessage("Error al guardar usuario: " + errorMsg);
+                    
+                    // Registrar el error técnico completo en la consola para debugging
+                    System.err.println("Error técnico completo: " + respuesta.getMensajeInterno());
+                    
+                    // Rehabilitar controles
+                    btnAdd.setDisable(false);
+                    btnCancel.setDisable(false);
+                    btnAdd.setText("Añadir");
+                } else {
+                    showMessage("Usuario guardado correctamente");
+                    
+                    // Notificar al controlador padre que se agregó un usuario
+                    UsersMgmtController parentController = (UsersMgmtController) 
+                            FlowController.getInstance().getController(AppKeys.USERS_MGMT);
+                    
+                    if (parentController != null) {
+                        // Asegurarse de pasar el nombre correctamente
+                        parentController.addUser(username, name, role, status);
+                        // También podríamos refrescar toda la lista llamando a cargarUsuarios()
+                        // parentController.cargarUsuarios();
+                    }
+                    
+                    // Cerrar ventana
+                    getStage().close();
+                }
+            });
+        });
+        
+        task.setOnFailed(e -> {
+            Platform.runLater(() -> {
+                Throwable exception = task.getException();
+                
+                // Registrar el error técnico en la consola para debugging
+                if (exception != null) {
+                    exception.printStackTrace();
+                    System.err.println("Error técnico completo: " + exception.getMessage());
+                }
+                
+                // Mostrar un mensaje de error amigable al usuario
+                showMessage("No se pudo conectar con el servidor. Por favor, verifique su conexión e inténtelo nuevamente.");
+                
+                // Rehabilitar controles
+                btnAdd.setDisable(false);
+                btnCancel.setDisable(false);
+                btnAdd.setText("Añadir");
+            });
+        });
+        
+        // Ejecutar la tarea en un hilo separado
+        Thread thread = new Thread(task);
+        thread.setDaemon(true);
+        thread.start();
     }
 
     @FXML

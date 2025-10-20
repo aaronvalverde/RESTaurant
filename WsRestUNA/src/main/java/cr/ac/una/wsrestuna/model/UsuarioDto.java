@@ -20,6 +20,11 @@ public class UsuarioDto implements Serializable {
     @Size(max = 50, message = "El usuario no puede exceder 50 caracteres")
     @JsonbProperty("usuario")
     private String usuario;
+    
+    @NotBlank(message = "El nombre es obligatorio")
+    @Size(max = 100, message = "El nombre no puede exceder 100 caracteres")
+    @JsonbProperty("nombre")
+    private String nombre;
 
     @NotBlank(message = "El rol es obligatorio")
     @Pattern(regexp = "^(ADMINISTRADOR|CAJERO|SALONERO)$", message = "El rol debe ser ADMINISTRADOR, CAJERO o SALONERO")
@@ -54,6 +59,7 @@ public class UsuarioDto implements Serializable {
         if (usuario != null) {
             this.idUsuario = usuario.getIdUsuario();
             this.usuario = usuario.getUsuario();
+            this.nombre = usuario.getNombre();  // Agregar el nombre
             this.rol = usuario.getRol();
             this.estado = usuario.getEstado();
             this.fechaCreacion = usuario.getFechaCreacion();
@@ -104,6 +110,14 @@ public class UsuarioDto implements Serializable {
 
     public void setUsuario(String usuario) {
         this.usuario = usuario;
+    }
+    
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
     }
 
     public String getRol() {
@@ -177,6 +191,7 @@ public class UsuarioDto implements Serializable {
         return "UsuarioDto{" +
                 "idUsuario=" + idUsuario +
                 ", usuario='" + usuario + '\'' +
+                ", nombre='" + nombre + '\'' +
                 ", rol='" + rol + '\'' +
                 ", estado='" + estado + '\'' +
                 '}';
