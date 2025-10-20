@@ -28,10 +28,11 @@ CREATE SEQUENCE SEQ_ARCHIVO           START WITH 1 INCREMENT BY 1 NOMAXVALUE NOM
 -- 2) TABLAS
 -----------------------------------------------------------
 
--- USUARIO (Administradores, Cajeros, Saloneros) - ESTRUCTURA SIMPLIFICADA
+-- USUARIO (Administradores, Cajeros, Saloneros)
 CREATE TABLE USUARIO(
   ID_USUARIO           NUMBER         NOT NULL,
   USUARIO              VARCHAR2(50)   NOT NULL,
+  NOMBRE               VARCHAR2(100)  NOT NULL,
   CONTRASENA           VARCHAR2(255)  NOT NULL,
   ROL                  VARCHAR2(20)   NOT NULL,
   ESTADO               CHAR(1)        NOT NULL,
@@ -647,9 +648,10 @@ END;
 -----------------------------------------------------------
 
 -- USUARIO
-COMMENT ON TABLE  USUARIO IS 'Usuarios del sistema: administradores, cajeros y saloneros con autenticación y roles - ESTRUCTURA SIMPLIFICADA (sin nombre, apellidos, correo, version).';
+COMMENT ON TABLE  USUARIO IS 'Usuarios del sistema: administradores, cajeros y saloneros con autenticación y roles.';
 COMMENT ON COLUMN USUARIO.ID_USUARIO           IS 'Identificador único del usuario (asignado por secuencia).';
 COMMENT ON COLUMN USUARIO.USUARIO              IS 'Nombre de usuario para login (único en el sistema).';
+COMMENT ON COLUMN USUARIO.NOMBRE               IS 'Nombre completo o visible del usuario.';
 COMMENT ON COLUMN USUARIO.CONTRASENA           IS 'Contraseña en texto plano (temporal, se cifrará con JWTokenHelper más adelante).';
 COMMENT ON COLUMN USUARIO.ROL                  IS 'Rol del usuario: ADMINISTRADOR, CAJERO o SALONERO.';
 COMMENT ON COLUMN USUARIO.ESTADO               IS 'Estado del usuario: A=Activo, I=Inactivo.';
