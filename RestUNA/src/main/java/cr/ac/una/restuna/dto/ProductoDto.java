@@ -4,6 +4,7 @@
  */
 package cr.ac.una.restuna.dto;
 
+import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
 import java.io.Serializable;
 import java.time.LocalDate;
 
@@ -11,7 +12,7 @@ import java.time.LocalDate;
  *
  * @author fonse
  */
-public class ProductoDto implements Serializable {
+public class ProductoDto extends RecursiveTreeObject<ProductoDto> implements Serializable {
     
     private Long idProducto;
     private Long idGrupoProducto;

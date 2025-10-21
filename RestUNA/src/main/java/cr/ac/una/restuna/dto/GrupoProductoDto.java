@@ -4,13 +4,14 @@
  */
 package cr.ac.una.restuna.dto;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
 /**
  *
  * @author fonse
  */
-public class GrupoProductoDto {
+public class GrupoProductoDto implements Serializable {
     
     private String nombre;
     private String descripcion;
