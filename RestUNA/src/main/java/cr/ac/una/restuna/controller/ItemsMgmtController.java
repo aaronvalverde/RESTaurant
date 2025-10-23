@@ -70,14 +70,14 @@ public class ItemsMgmtController extends Controller implements Initializable {
         cmbGroups.getItems().setAll("Bebidas Calientes", "Bebidas Frias", "Platos Fuertes", "Entradas", "Postres");
         cmbStatus.getItems().setAll("A", "I");
 
-        // Configurar columnas con LAMBDAS (como en UsersMgmtController)
+    
         tbcID.setCellValueFactory(x -> x.getValue().getValue().idProductoProperty().asObject());
         tbcName.setCellValueFactory(x -> x.getValue().getValue().nombreProperty());
         tbcPrice.setCellValueFactory(x -> x.getValue().getValue().precioProperty().asObject());
         tbcShortcut.setCellValueFactory(x -> x.getValue().getValue().nombreCortoProperty());
         tbcStatus.setCellValueFactory(x -> x.getValue().getValue().estadoProperty());
 
-        // Usar RecursiveTreeItem para actualización automática
+        
         TreeItem<ProductoDto> root = new RecursiveTreeItem<>(product, RecursiveTreeObject::getChildren);
         tbvMenuItems.setRoot(root);
         tbvMenuItems.setShowRoot(false);
@@ -114,6 +114,7 @@ public class ItemsMgmtController extends Controller implements Initializable {
 
     }
 
+    // este onAction no se esta usando por el momento 
     @FXML
     private void onEditSection(ProductoDto produ) {
         SeccionDto seccion = new SeccionDto();

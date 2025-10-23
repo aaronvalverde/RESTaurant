@@ -164,7 +164,7 @@ public class NewItemController extends Controller implements Initializable {
             String shortcut = cbShortcut.isSelected() ? "S" : "N";
             String status = cbStatus.isSelected() ? "A" : "I";
 
-            // Obtener el controlador principal y agregar el producto
+            
             ItemsMgmtController mainController = (ItemsMgmtController) FlowController.getInstance().getController(AppKeys.MENU_ITEMS_MGMT);
             mainController.addProduct(name, shortName, price, description, shortcut, status);
 
@@ -206,15 +206,15 @@ public class NewItemController extends Controller implements Initializable {
         String errors = "";
 
         if (txfName.getText() == null || txfName.getText().trim().isEmpty()) {
-            errors += "• Nombre vacío\n";
+            errors += "• Nombre vacio\n";
         }
 
         if (txfShortName.getText() == null || txfShortName.getText().trim().isEmpty()) {
-            errors += "• Nombre corto vacío\n";
+            errors += "• Nombre corto vacio\n";
         }
 
         if (txfPrice.getText() == null || txfPrice.getText().trim().isEmpty()) {
-            errors += "• Precio vacío\n";
+            errors += "• Precio vacio\n";
         } else {
             try {
                 Double.parseDouble(txfPrice.getText().trim());
@@ -224,10 +224,10 @@ public class NewItemController extends Controller implements Initializable {
         }
 
         if (!errors.isEmpty()) {
-            return new Respuesta(false, "Error en la validación", "Complete los campos correctamente:", "errores", errors);
+            return new Respuesta(false, "Error en la validacion", "Complete los campos correctamente:", "errores", errors);
         }
 
-        return new Respuesta(true, "Validación correcta", "Campos validados con éxito");
+        return new Respuesta(true, "Validacion correcta", "Campos validados con exito");
     }
 
     private void closeWindow() {
@@ -239,7 +239,7 @@ public class NewItemController extends Controller implements Initializable {
     private void showMessage(Respuesta respuesta) {
         Alert.AlertType alertType = respuesta.getEstado() ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR;
         Alert alert = new Alert(alertType);
-        alert.setTitle(respuesta.getEstado() ? "Éxito" : "Error");
+        alert.setTitle(respuesta.getEstado() ? "Exito" : "Error");
         alert.setHeaderText(null);
         alert.setContentText(respuesta.getMensaje());
         alert.showAndWait();
