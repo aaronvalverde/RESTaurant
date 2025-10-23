@@ -45,6 +45,8 @@ public class UsersMgmtController extends Controller implements Initializable {
     @FXML
     private MFXButton btnAdd;
     @FXML
+    private MFXButton btnClearFilters;
+    @FXML
     private TreeTableColumn<UserRow, String> tbcUser;
     @FXML
     private TreeTableColumn<UserRow, String> tbcName;
@@ -70,14 +72,14 @@ public class UsersMgmtController extends Controller implements Initializable {
         tbvUsers.prefWidthProperty().bind(tableRoot.widthProperty());
 
         // Configurar ComboBoxes de filtros
-        cmbRole.getItems().addAll("ADMINISTRADOR", "CAJERO", "SALONERO");
-        cmbStatus.getItems().addAll("A", "I"); // A = Activo, I = Inactivo
+        cmbRole.getItems().addAll("Administrador", "Cajero", "Salonero");
+        cmbStatus.getItems().addAll("Activo", "Inactivo");
 
         // Configurar columnas de la tabla (estructura simplificada)
         tbcUser.setCellValueFactory(x -> x.getValue().getValue().getUsername());
         tbcName.setCellValueFactory(x -> x.getValue().getValue().getName());
-        tbcRole.setCellValueFactory(x -> x.getValue().getValue().getRole());
-        tbcStatus.setCellValueFactory(x -> x.getValue().getValue().getStatus());
+        tbcRole.setCellValueFactory(x -> x.getValue().getValue().getRoleDisplay()); // Mostrar rol capitalizado
+        tbcStatus.setCellValueFactory(x -> x.getValue().getValue().getStatusDisplay()); // Mostrar "Activo"/"Inactivo"
 
         // Configurar raíz de la tabla
         TreeItem<UserRow> root = new RecursiveTreeItem<>(userList, RecursiveTreeObject::getChildren);
@@ -205,12 +207,34 @@ public class UsersMgmtController extends Controller implements Initializable {
         
         ObservableList<UserRow> filter = userList.filtered(x -> 
             x.getUsername().get().toLowerCase().contains(search)
-        ).filtered(f -> filterRol == null || filterRol.isEmpty() || f.getRole().get().equals(filterRol)
-        ).filtered(s -> filterStatus == null || filterStatus.isEmpty() || s.getStatus().get().equals(filterStatus));
+        ).filtered(f -> {
+            if (filterRol == null || filterRol.isEmpty()) return true;
+            // Convertir rol capitalizado a mayúsculas para comparar
+            String rolCode = filterRol.toUpperCase();
+            return f.getRole().get().equals(rolCode);
+        }).filtered(s -> {
+            if (filterStatus == null || filterStatus.isEmpty()) return true;
+            // Convertir "Activo" a "A" e "Inactivo" a "I" para comparar
+            String statusCode = filterStatus.equals("Activo") ? "A" : "I";
+            return s.getStatus().get().equals(statusCode);
+        });
         
         TreeItem<UserRow> root = new RecursiveTreeItem<>(filter, RecursiveTreeObject::getChildren);
         tbvUsers.setRoot(root);
         tbvUsers.setShowRoot(false);
+    }
+    
+    @FXML
+    private void onActionBtnClearFilters(ActionEvent event) {
+        // Limpiar campo de búsqueda
+        txfSearch.clear();
+        
+        // Limpiar ComboBoxes
+        cmbRole.clearSelection();
+        cmbStatus.clearSelection();
+        
+        // Aplicar filtros (mostrará todos los usuarios)
+        filters();
     }
     
     /**
