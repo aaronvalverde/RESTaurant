@@ -1,6 +1,8 @@
 package cr.ac.una.restuna.controller;
 
 import com.jfoenix.controls.JFXTreeTableView;
+import com.jfoenix.controls.RecursiveTreeItem;
+import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
 import cr.ac.una.restuna.dto.ProductoDto;
 import cr.ac.una.restuna.dto.SeccionDto;
 import cr.ac.una.restuna.util.AppKeys;
@@ -16,6 +18,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
@@ -40,15 +43,15 @@ public class ItemsMgmtController extends Controller implements Initializable {
     @FXML
     private TreeTableColumn<ProductoDto, Long> tbcActions;
     @FXML
-    private TreeTableColumn<ProductoDto, String> tbcID;
+    private TreeTableColumn<ProductoDto, Long> tbcID;
     @FXML
-    private TreeTableColumn<ProductoDto, Double> tbcName;
+    private TreeTableColumn<ProductoDto, String> tbcName;
     @FXML
-    private TreeTableColumn<ProductoDto, String> tbcPrice;
+    private TreeTableColumn<ProductoDto, Double> tbcPrice;
     @FXML
     private TreeTableColumn<ProductoDto, String> tbcShortcut;
     @FXML
-    private TreeTableColumn<ProductoDto, Void> tbcStatus;
+    private TreeTableColumn<ProductoDto, String> tbcStatus;
     @FXML
     private JFXTreeTableView<ProductoDto> tbvMenuItems;
     @FXML
@@ -67,13 +70,18 @@ public class ItemsMgmtController extends Controller implements Initializable {
         cmbGroups.getItems().setAll("Bebidas Calientes", "Bebidas Frias", "Platos Fuertes", "Entradas", "Postres");
         cmbStatus.getItems().setAll("A", "I");
 
-        tbcID.setCellValueFactory(new TreeItemPropertyValueFactory<>("idProducto"));
-        tbcName.setCellValueFactory(new TreeItemPropertyValueFactory<>("nombre"));
-        tbcPrice.setCellValueFactory(new TreeItemPropertyValueFactory<>("precio"));
-        tbcShortcut.setCellValueFactory(new TreeItemPropertyValueFactory<>("nombreCorto"));
-        tbcStatus.setCellValueFactory(new TreeItemPropertyValueFactory<>("estado"));
+        // Configurar columnas con LAMBDAS (como en UsersMgmtController)
+        tbcID.setCellValueFactory(x -> x.getValue().getValue().idProductoProperty().asObject());
+        tbcName.setCellValueFactory(x -> x.getValue().getValue().nombreProperty());
+        tbcPrice.setCellValueFactory(x -> x.getValue().getValue().precioProperty().asObject());
+        tbcShortcut.setCellValueFactory(x -> x.getValue().getValue().nombreCortoProperty());
+        tbcStatus.setCellValueFactory(x -> x.getValue().getValue().estadoProperty());
 
-        reloadTable();
+        // Usar RecursiveTreeItem para actualización automática
+        TreeItem<ProductoDto> root = new RecursiveTreeItem<>(product, RecursiveTreeObject::getChildren);
+        tbvMenuItems.setRoot(root);
+        tbvMenuItems.setShowRoot(false);
+
         confEvent();
     }
 
@@ -90,34 +98,20 @@ public class ItemsMgmtController extends Controller implements Initializable {
         });
     }
 
-    private void reloadTable() {
-
-        TreeItem<ProductoDto> root = new TreeItem<>();
-        for (ProductoDto pro : product) {
-            root.getChildren().add(new TreeItem<>(pro));
-        }
-
-        tbvMenuItems.setRoot(root);
-        tbvMenuItems.setShowRoot(false);
-    }
-
     @Override
     public void initialize() {
     }
 
     @FXML
     void onActionBtnAdd(ActionEvent event) {
-        NewItemController item = new NewItemController();
-        FlowController.getInstance().goViewInWindowModal(AppKeys.NEW_MENU_ITEM, new Stage(), false);
-        item.loadSection(null);
-        
-        
-        ProductoDto nuevoProducto = item.getProductoCreado();
-        if (nuevoProducto != null) {
-            nuevoProducto.setIdProducto((long) (product.size() + 1));
-            product.add(nuevoProducto);
-            reloadTable();
+        try {
+            NewItemController item = (NewItemController) FlowController.getInstance().getController(AppKeys.NEW_MENU_ITEM);
+            item.clear(); 
+            FlowController.getInstance().goViewInWindowModal(AppKeys.NEW_MENU_ITEM, new Stage(), false);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
     }
 
     @FXML
@@ -127,6 +121,35 @@ public class ItemsMgmtController extends Controller implements Initializable {
         FlowController.getInstance().goViewInWindowModal(AppKeys.NEW_MENU_ITEM, new Stage(), false);
         controller.loadSection(seccion);
         controller.loadProduct(produ);
+
     }
 
+    public void addProduct(String name, String shortName, double price, String description, String shortcut, String status) {
+
+        for (ProductoDto product : product) {
+            if (product.getNombre().equalsIgnoreCase(name)) {
+                showMessage("El producto ya existe: " + name);
+                return;
+            }
+        }
+        ProductoDto newProduct = new ProductoDto();
+        newProduct.setIdProducto(System.currentTimeMillis());
+        newProduct.setNombre(name);
+        newProduct.setNombreCorto(shortName);
+        newProduct.setPrecio(price);
+        newProduct.setDescripcion(description);
+        newProduct.setAccesoRapido(shortcut);
+        newProduct.setEstado(status);
+
+        product.add(newProduct);
+
+    }
+
+    private void showMessage(String msg) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Información");
+        alert.setHeaderText(null);
+        alert.setContentText(msg);
+        alert.showAndWait();
+    }
 }
