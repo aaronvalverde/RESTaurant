@@ -5,6 +5,7 @@ import java.util.ResourceBundle;
 import com.jfoenix.controls.JFXTreeTableView;
 import com.jfoenix.controls.RecursiveTreeItem;
 import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
+import cr.ac.una.restuna.dto.GrupoProductoDto;
 import cr.ac.una.restuna.util.AppKeys;
 import cr.ac.una.restuna.util.FlowController;
 import io.github.palexdev.materialfx.controls.MFXButton;
@@ -37,23 +38,23 @@ public class GroupsMgmtController extends Controller implements Initializable {
     @FXML
     private MFXScrollPane tableRoot;
     @FXML
-    private TreeTableColumn<Groups, String> tbcActions;
+    private TreeTableColumn<GrupoProductoDto, String> tbcActions;
     @FXML
-    private TreeTableColumn<Groups, String> tbcDescription;
+    private TreeTableColumn<GrupoProductoDto, String> tbcDescription;
     @FXML
-    private TreeTableColumn<Groups, String> tbcID;
+    private TreeTableColumn<GrupoProductoDto, Long> tbcID;
     @FXML
-    private TreeTableColumn<Groups, String> tbcName;
+    private TreeTableColumn<GrupoProductoDto, String> tbcName;
     @FXML
-    private TreeTableColumn<Groups, String> tbcShortcut;
+    private TreeTableColumn<GrupoProductoDto, String> tbcShortcut;
     @FXML
-    private TreeTableColumn<Groups, String> tbcStatus;
+    private TreeTableColumn<GrupoProductoDto, String> tbcStatus;
     @FXML
-    private JFXTreeTableView<Groups> tbvMenuGroups;
+    private JFXTreeTableView<GrupoProductoDto> tbvMenuGroups;
     @FXML
     private MFXTextField txfSearch;
 
-    private final ObservableList<Groups> group = FXCollections.observableArrayList();
+    private final ObservableList<GrupoProductoDto> group = FXCollections.observableArrayList();
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -61,15 +62,15 @@ public class GroupsMgmtController extends Controller implements Initializable {
         tbvMenuGroups.prefWidthProperty().bind(tableRoot.widthProperty());
 
         cmbStatus.getItems().addAll("A", "I");
-        //cmbShortcut 
+        cmbShortcut.getItems().addAll("S", "N");
 
-        tbcID.setCellValueFactory(x -> x.getValue().getValue().getIdGroup());
-        tbcName.setCellValueFactory(x -> x.getValue().getValue().getNameGroup());
-        tbcDescription.setCellValueFactory(x -> x.getValue().getValue().getDescription());
-        tbcShortcut.setCellValueFactory(x -> x.getValue().getValue().getQuickAccess());
-        tbcStatus.setCellValueFactory(x -> x.getValue().getValue().getStatus());
+        tbcID.setCellValueFactory(x -> x.getValue().getValue().idGrupoProductoProperty().asObject());
+        tbcName.setCellValueFactory(x -> x.getValue().getValue().nombreProperty());
+        tbcDescription.setCellValueFactory(x -> x.getValue().getValue().descripcionProperty());
+        tbcShortcut.setCellValueFactory(x -> x.getValue().getValue().accesoRapidoProperty());
+        tbcStatus.setCellValueFactory(x -> x.getValue().getValue().estadoProperty());
 
-        TreeItem<Groups> root = new RecursiveTreeItem<>(group, RecursiveTreeObject::getChildren);
+        TreeItem<GrupoProductoDto> root = new RecursiveTreeItem<>(group, RecursiveTreeObject::getChildren);
         tbvMenuGroups.setRoot(root);
         tbvMenuGroups.setShowRoot(false);
 
@@ -84,7 +85,13 @@ public class GroupsMgmtController extends Controller implements Initializable {
 
     @FXML
     void onActionBtnAdd(ActionEvent event) {
-        FlowController.getInstance().goViewInWindowModal(AppKeys.NEW_MENU_GROUP, new Stage(), false);
+        try {
+            NewGroupController item = (NewGroupController) FlowController.getInstance().getController(AppKeys.NEW_MENU_GROUP);
+            item.clear(); 
+            FlowController.getInstance().goViewInWindowModal(AppKeys.NEW_MENU_GROUP, new Stage(), false);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
@@ -94,19 +101,25 @@ public class GroupsMgmtController extends Controller implements Initializable {
         controller.loadSection(/*DTO de la seccion*/);
     }
 
-    public void addGroup(String idGroup, String nameGroup, String description, String shorcut, String status) {
+    public void addGroup(String nameGroup, String description, String shorcut, String status) {
 
-        for (Groups grp : group) {
+        for (GrupoProductoDto grp : group) {
 
-            if (grp.getIdGroup().get().equalsIgnoreCase(idGroup)) {
+            if (grp.getNombre().equals(nameGroup)) {
 
-                showMessage("El grupo ya existe: " + idGroup);
+                showMessage("El grupo ya existe: " + nameGroup);
                 return;
             }
 
         }
+        GrupoProductoDto addGroups = new GrupoProductoDto();
+        addGroups.setIdGrupoProducto(System.currentTimeMillis());
+        addGroups.setNombre(nameGroup);
+        addGroups.setDescripcion(description);
+        addGroups.setAccesoRapido(shorcut);
+        addGroups.setEstado(status);
 
-        group.add(new Groups(nameGroup, idGroup, description, shorcut, status));
+        group.add(addGroups);
         groupFilter();
     }
 
@@ -116,12 +129,12 @@ public class GroupsMgmtController extends Controller implements Initializable {
         String shorcut = cmbShortcut.getValue();
         String status = cmbStatus.getValue();
 
-        ObservableList<Groups> filter = group.filtered(x
-                -> x.getNameGroup().get().toLowerCase().contains(search) || x.getDescription().get().toLowerCase().contains(search))
-                .filtered(x -> shorcut == null || shorcut.isEmpty() || x.getQuickAccess().get().equals(shorcut))
-                .filtered(x -> status == null || status.isEmpty() || x.getStatus().get().equals(status));
+        ObservableList<GrupoProductoDto> filter = group.filtered(x
+                -> x.getNombre().toLowerCase().contains(search) || x.getDescripcion().toLowerCase().contains(search))
+                .filtered(x -> shorcut == null || shorcut.isEmpty() || x.getAccesoRapido().equals(shorcut))
+                .filtered(x -> status == null || status.isEmpty() || x.getEstado().equals(status));
 
-        TreeItem<Groups> root = new RecursiveTreeItem<>(filter, RecursiveTreeObject::getChildren);
+        TreeItem<GrupoProductoDto> root = new RecursiveTreeItem<>(filter, RecursiveTreeObject::getChildren);
         tbvMenuGroups.setRoot(root);
         tbvMenuGroups.setShowRoot(false);
     }

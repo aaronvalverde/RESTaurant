@@ -27,7 +27,7 @@ public class NewGroupController extends Controller implements Initializable {
     @FXML
     private TextArea txaDescription;
     @FXML
-    private MFXCheckbox cbShortcut; 
+    private MFXCheckbox cbShortcut;
     @FXML
     private MFXCheckbox cbStatus;
     @FXML
@@ -146,14 +146,14 @@ public class NewGroupController extends Controller implements Initializable {
     private void addGroup() {
 
         try {
-            String id = "id" + System.currentTimeMillis();
+           
             String name = txfName.getText().trim();
             String description = txaDescription.getText().trim();
             String shortcut = cbShortcut.isSelected() ? "S" : "N";
             String status = cbStatus.isSelected() ? "A" : "I";
 
             GroupsMgmtController mainController = (GroupsMgmtController) FlowController.getInstance().getController(AppKeys.MENU_GROUPS_MGMT);
-            mainController.addGroup(id, name, description, shortcut, status);
+            mainController.addGroup(name, description, shortcut, status);
 
             Respuesta respuesta = new Respuesta(true, "Éxito", "Grupo guardado correctamente");
             showMessage(respuesta);
