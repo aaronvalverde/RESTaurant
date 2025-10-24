@@ -1,5 +1,7 @@
 package cr.ac.una.restuna.controller;
 
+import cr.ac.una.restuna.util.AppKeys;
+import cr.ac.una.restuna.util.FlowController;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXScrollPane;
@@ -99,6 +101,7 @@ public class OrderController extends Controller implements Initializable {
 
     @FXML
     private void onActionBtnToBill(ActionEvent event) {
+        FlowController.getInstance().goView(AppKeys.BILLING);
     }
     
     private void initBoxes(){

@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXTreeTableView?>
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import io.github.palexdev.materialfx.controls.MFXTextField?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TreeTableColumn?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane id="AnchorPane" prefHeight="800.0" prefWidth="1280.0" stylesheets="@Styles.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cr.ac.una.restuna.controller.BillingController">
+   <children>
+      <VBox layoutX="113.0" layoutY="117.0" prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <HBox alignment="CENTER_LEFT" prefHeight="65.0" prefWidth="1280.0">
+               <children>
+                  <Label text="%lb.billing" />
+               </children>
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding></HBox>
+            <HBox prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+               <children>
+                  <VBox prefHeight="700.0" prefWidth="119.0" spacing="10.0">
+                     <children>
+                        <MFXButton fx:id="btnCash" contentDisplay="TOP" maxWidth="1.7976931348623157E308" onAction="#onActionBtnCash" prefHeight="80.0" text="%btn.cash">
+                           <graphic>
+                              <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true" />
+                           </graphic></MFXButton>
+                        <MFXButton fx:id="btnCard" contentDisplay="TOP" maxWidth="1.7976931348623157E308" onAction="#onActionBtnCard" prefHeight="80.0" text="%btn.card">
+                           <graphic>
+                              <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true" />
+                           </graphic></MFXButton>
+                        <MFXButton fx:id="btnSinpe" contentDisplay="TOP" maxWidth="1.7976931348623157E308" onAction="#onActionBtnSinpe" prefHeight="80.0" text="%btn.sinpe">
+                           <graphic>
+                              <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true" />
+                           </graphic></MFXButton>
+                        <MFXButton fx:id="btnTip" contentDisplay="TOP" maxWidth="1.7976931348623157E308" onAction="#onActionBtnTip" prefHeight="80.0" text="%btn.tip">
+                           <graphic>
+                              <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true" />
+                           </graphic></MFXButton>
+                     </children>
+                     <padding>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                     </padding>
+                  </VBox>
+                  <VBox prefHeight="700.0" prefWidth="370.0" spacing="10.0">
+                     <children>
+                        <MFXTextField fx:id="txfAmount" floatMode="DISABLED" maxWidth="1.7976931348623157E308" />
+                        <GridPane hgap="5.0" vgap="5.0" VBox.vgrow="ALWAYS">
+                          <columnConstraints>
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                          </columnConstraints>
+                          <rowConstraints>
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                          </rowConstraints>
+                           <children>
+                              <MFXButton fx:id="btnSeven" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#onActionBtnSeven" text="7" />
+                              <MFXButton fx:id="btnEight" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#onActionBtnEight" text="8" GridPane.columnIndex="1" />
+                              <MFXButton fx:id="btnNine" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#onActionBtnNine" text="9" GridPane.columnIndex="2" />
+                              <MFXButton fx:id="btnFour" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#onActionBtnFour" text="4" GridPane.rowIndex="1" />
+                              <MFXButton fx:id="btnFive" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#onActionBtnFive" text="5" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                              <MFXButton fx:id="btnSix" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#onActionBtnSix" text="6" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                              <MFXButton fx:id="btnOne" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#onActionBtnOne" text="1" GridPane.rowIndex="2" />
+                              <MFXButton fx:id="btnTwo" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#onActionBtnTwo" text="2" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                              <MFXButton fx:id="btnThree" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#onActionBtnThree" text="3" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                              <MFXButton fx:id="btnDot" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#onActionBtnDot" text="." GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                              <MFXButton fx:id="btnZero" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#onActionBtnZero" text="0" GridPane.rowIndex="3" />
+                              <MFXButton fx:id="btnErase" contentDisplay="GRAPHIC_ONLY" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#onActionBtnErase" GridPane.columnIndex="2" GridPane.rowIndex="3">
+                                 <graphic>
+                                    <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true" />
+                                 </graphic></MFXButton>
+                           </children>
+                        </GridPane>
+                        <MFXButton fx:id="btnRegisterAmount" contentDisplay="GRAPHIC_ONLY" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" onAction="#onActionBtnRegisterAmount" prefHeight="50.0" prefWidth="60.0" VBox.vgrow="ALWAYS">
+                           <graphic>
+                              <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true" />
+                           </graphic></MFXButton>
+                     </children>
+                     <padding>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                     </padding>
+                  </VBox>
+                  <VBox prefHeight="200.0" prefWidth="100.0" spacing="10.0" HBox.hgrow="ALWAYS">
+                     <padding>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                     </padding>
+                     <children>
+                        <HBox prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+                           <children>
+                              <VBox prefHeight="100.0" prefWidth="280.0" spacing="10.0">
+                                 <children>
+                                    <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0">
+                                       <children>
+                                          <HBox alignment="CENTER_LEFT" prefHeight="50.0" prefWidth="80.0">
+                                             <children>
+                                                <Label text="%lb.amount" HBox.hgrow="ALWAYS" />
+                                             </children>
+                                          </HBox>
+                                          <MFXTextField fx:id="txfTotalDue" floatMode="DISABLED" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
+                                       </children>
+                                    </HBox>
+                                    <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0">
+                                       <children>
+                                          <HBox alignment="CENTER_LEFT" prefHeight="50.0" prefWidth="80.0">
+                                             <children>
+                                                <Label text="%lb.tip" HBox.hgrow="ALWAYS" />
+                                             </children>
+                                          </HBox>
+                                          <MFXTextField fx:id="txfTotalTip" floatMode="DISABLED" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
+                                       </children>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+                              <HBox prefHeight="110.0" prefWidth="292.0" HBox.hgrow="ALWAYS">
+                                 <children>
+                                    <VBox prefHeight="100.0" prefWidth="280.0" spacing="10.0">
+                                       <children>
+                                          <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0">
+                                             <children>
+                                                <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="80.0">
+                                                   <children>
+                                                      <Label text="%lb.client.bill" HBox.hgrow="ALWAYS" />
+                                                   </children>
+                                                </HBox>
+                                                <MFXTextField fx:id="txfClient" floatMode="DISABLED" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
+                                             </children>
+                                          </HBox>
+                                          <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0">
+                                             <children>
+                                                <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="80.0">
+                                                   <children>
+                                                      <Label text="%lb.email" HBox.hgrow="ALWAYS" />
+                                                   </children>
+                                                </HBox>
+                                                <MFXTextField fx:id="txfClientEmail" floatMode="DISABLED" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
+                                             </children>
+                                          </HBox>
+                                       </children>
+                                    </VBox>
+                                 </children></HBox>
+                              <MFXButton fx:id="btnOk" contentDisplay="TOP" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#onActionBtnOk" prefWidth="95.0" text="%btn.ok" HBox.hgrow="ALWAYS">
+                                 <graphic>
+                                    <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true" />
+                                 </graphic></MFXButton>
+                              <MFXButton fx:id="btnCancel" contentDisplay="TOP" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#onActionBtnCancel" prefWidth="95.0" text="%btn.cancel" HBox.hgrow="ALWAYS">
+                                 <graphic>
+                                    <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true" />
+                                 </graphic></MFXButton>
+                           </children>
+                        </HBox>
+                        <HBox prefHeight="100.0" prefWidth="200.0" spacing="21.0">
+                           <children>
+                              <VBox alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="100.0" spacing="10.0" HBox.hgrow="ALWAYS">
+                                 <children>
+                                    <Label text="%lb.amount.tendered" />
+                                    <MFXTextField fx:id="txfAmountTendered" floatMode="DISABLED" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS" />
+                                 </children>
+                              </VBox>
+                              <VBox alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="100.0" spacing="10.0" HBox.hgrow="ALWAYS">
+                                 <children>
+                                    <Label text="%lb.change" />
+                                    <MFXTextField fx:id="txfChange" floatMode="DISABLED" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS" />
+                                 </children>
+                              </VBox>
+                           </children>
+                        </HBox>
+                        <HBox prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+                           <children>
+                              <JFXTreeTableView fx:id="tbvPaymentBreakdown" HBox.hgrow="ALWAYS">
+                                 <columns>
+                                    <TreeTableColumn fx:id="tbcKey" editable="false" prefWidth="200.0" sortable="false" text="%tbc.description" />
+                                    <TreeTableColumn fx:id="tbcTotalAmount" editable="false" prefWidth="250.0" sortable="false" text="%tbc.total.amount" />
+                                 </columns>
+                              </JFXTreeTableView>
+                           </children>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" prefHeight="58.0" prefWidth="771.0" spacing="20.0">
+                           <children>
+                              <Label text="%lb.amount.due" HBox.hgrow="ALWAYS" />
+                              <MFXTextField fx:id="txfAmountDue" floatMode="DISABLED" prefWidth="180.0" />
+                           </children></HBox>
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>
