@@ -1,5 +1,6 @@
 package cr.ac.una.restuna.controller;
 
+import cr.ac.una.restuna.dto.SeccionDto;
 import cr.ac.una.restuna.util.AppKeys;
 import cr.ac.una.restuna.util.FlowController;
 import io.github.palexdev.materialfx.controls.MFXButton;
@@ -53,7 +54,7 @@ public class NewSectionController extends Controller implements Initializable {
     private MFXCheckbox cbSalesTax;
 
     private boolean editMode = false;
-    private Sections section;
+    private SeccionDto section;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -96,14 +97,13 @@ public class NewSectionController extends Controller implements Initializable {
     private void onActionBtnSaveChanges(ActionEvent event) {
 
         if (section != null) {
-
-            section.getName().set(txfName.getText());
-            section.getType().set(cmbType.getValue());
-            section.getTax().set(cbSalesTax.isSelected());
-            section.getImage().set(imvTableGraphic.getUserData() != null ? imvTableGraphic.getUserData().toString() : "");
-
+            section.setNombre(txfName.getText());
+            section.setTipo(cmbType.getValue());
+            section.setCobraImpuesto(cbSalesTax.isSelected() ? "S" : "N");
+            if (imvTableGraphic.getUserData() != null) {
+                section.setIdArchivoImagen(1L);
+            }
         }
-
         getStage().close();
     }
 
@@ -112,11 +112,10 @@ public class NewSectionController extends Controller implements Initializable {
 
         String name = txfName.getText();
         String type = cmbType.getValue();
-        boolean tax = cbSalesTax.isSelected();
-        String image = imvTableGraphic.getUserData() != null ? imvTableGraphic.getUserData().toString() : "";
+        String tax = cbSalesTax.isSelected() ? "S" : "N";
+        Long image = imvTableGraphic.getUserData() != null ? System.currentTimeMillis() : null; // ID simulado
 
         if (name.isEmpty() || type == null) {
-
             showMessage("Campos obligatorios");
             return;
         }
@@ -172,17 +171,12 @@ public class NewSectionController extends Controller implements Initializable {
         event.consume();
     }
 
-    public void loadSection(Sections sectionLoad) {
+    public void loadSection(SeccionDto sectionLoad) {
         editMode = true;
         section = sectionLoad;
-        txfName.setText(sectionLoad.getName().get());
-        cmbType.getSelectionModel().selectItem(sectionLoad.getType().get());
-        cbSalesTax.setSelected(sectionLoad.getTax().get());
-        
-        if (sectionLoad.getImage().get() != null && !sectionLoad.getImage().get().isEmpty()) {
-            imvTableGraphic.setImage(new Image(new File(sectionLoad.getImage().get()).toURI().toString()));
-            imvTableGraphic.setUserData(sectionLoad.getImage().get());
-        }
+        txfName.setText(sectionLoad.getNombre());
+        cmbType.getSelectionModel().selectItem(sectionLoad.getTipo());
+        cbSalesTax.setSelected("S".equals(sectionLoad.getCobraImpuesto()));
 
         initButtons();
     }

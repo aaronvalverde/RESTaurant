@@ -33,7 +33,7 @@ public class ProductoDto extends RecursiveTreeObject<ProductoDto> implements Ser
         this.fechaCreacion = new SimpleObjectProperty<>();
     }
 
-    // Getters normales
+   
     public Long getIdProducto() {
         return idProducto.get();
     }
@@ -78,7 +78,7 @@ public class ProductoDto extends RecursiveTreeObject<ProductoDto> implements Ser
         return grupoProducto;
     }
 
-    // Setters normales
+
     public void setIdProducto(Long idProducto) {
         this.idProducto.set(idProducto);
     }
@@ -123,7 +123,7 @@ public class ProductoDto extends RecursiveTreeObject<ProductoDto> implements Ser
         this.grupoProducto = grupoProducto;
     }
 
-    // Getters de properties
+  
     public LongProperty idProductoProperty() {
         return idProducto;
     }

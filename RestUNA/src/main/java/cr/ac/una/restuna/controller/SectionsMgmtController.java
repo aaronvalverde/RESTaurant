@@ -3,6 +3,7 @@ package cr.ac.una.restuna.controller;
 import com.jfoenix.controls.JFXTreeTableView;
 import com.jfoenix.controls.RecursiveTreeItem;
 import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
+import cr.ac.una.restuna.dto.SeccionDto;
 import cr.ac.una.restuna.util.AppKeys;
 import cr.ac.una.restuna.util.FlowController;
 import io.github.palexdev.materialfx.controls.MFXButton;
@@ -31,19 +32,19 @@ public class SectionsMgmtController extends Controller implements Initializable 
     @FXML
     private MFXScrollPane tableRoot;
     @FXML
-    private TreeTableColumn<Sections, String> tbcName;
+    private TreeTableColumn<SeccionDto, String> tbcName;
     @FXML
-    private TreeTableColumn<Sections, String> tbcTableGraphic;
+    private TreeTableColumn<SeccionDto, String> tbcTableGraphic;
     @FXML
-    private TreeTableColumn<Sections, String> tbcTax;
+    private TreeTableColumn<SeccionDto, String> tbcTax;
     @FXML
-    private TreeTableColumn<Sections, String> tbcType;
+    private TreeTableColumn<SeccionDto, String> tbcType;
     @FXML
-    private JFXTreeTableView<Sections> tbvSections;
+    private JFXTreeTableView<SeccionDto> tbvSections;
     @FXML
     private MFXTextField txfSearch;
 
-    private final ObservableList<Sections> listSections = FXCollections.observableArrayList();
+    private final ObservableList<SeccionDto> listSections = FXCollections.observableArrayList();
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -52,18 +53,20 @@ public class SectionsMgmtController extends Controller implements Initializable 
 
         cmbType.getItems().addAll("Salon", "VentaDirecta");
 
-        tbcName.setCellValueFactory(x -> x.getValue().getValue().getName());
-        tbcTax.setCellValueFactory(x -> new ReadOnlyStringWrapper(x.getValue().getValue().getTax().get() ? "si" : "no"));
-        tbcType.setCellValueFactory(x -> x.getValue().getValue().getType());
-        tbcTableGraphic.setCellValueFactory(x -> x.getValue().getValue().getImage());
+        tbcName.setCellValueFactory(x -> x.getValue().getValue().nombreProperty());
+        tbcTax.setCellValueFactory(x -> new ReadOnlyStringWrapper("S".equals(x.getValue().getValue().cobraImpuestoProperty()) ? "si" : "no"));
+        tbcType.setCellValueFactory(x -> x.getValue().getValue().tipoProperty());
+        tbcTableGraphic.setCellValueFactory(x -> new ReadOnlyStringWrapper(
+                x.getValue().getValue().getIdArchivoImagen() != null
+                ? x.getValue().getValue().getIdArchivoImagen().toString() : "Sin imagen"));
         tbvSections.setOnMouseClicked(x -> {
             if (x.getClickCount() == 2 && tbvSections.getSelectionModel().getSelectedItem() != null) {
-                Sections selected = tbvSections.getSelectionModel().getSelectedItem().getValue();
+                SeccionDto selected = tbvSections.getSelectionModel().getSelectedItem().getValue();
                 onEditSection(selected);
             }
         });
 
-        TreeItem<Sections> root = new RecursiveTreeItem<>(listSections, RecursiveTreeObject::getChildren);
+        TreeItem<SeccionDto> root = new RecursiveTreeItem<>(listSections, RecursiveTreeObject::getChildren);
         tbvSections.setRoot(root);
         tbvSections.setShowRoot(false);
 
@@ -83,7 +86,7 @@ public class SectionsMgmtController extends Controller implements Initializable 
     }
 
     @FXML
-    private void onEditSection(Sections sect) {
+    private void onEditSection(SeccionDto sect) {
         NewSectionController controller = (NewSectionController) FlowController.getInstance().getController(AppKeys.NEW_SECTION);
 
         controller.loadSection(sect);
@@ -91,9 +94,17 @@ public class SectionsMgmtController extends Controller implements Initializable 
 
     }
 
-    public void addSection(String name, String type, boolean tax, String image) {
+    public void addSection(String name, String type, String tax, Long image) {
 
-        listSections.add(new Sections(name, type, tax, image));
+        SeccionDto newSection = new SeccionDto();
+        newSection.setIdSeccion(System.currentTimeMillis());
+        newSection.setNombre(name);
+        newSection.setTipo(type);
+        newSection.setCobraImpuesto(tax);
+        newSection.setEstado("A");
+        newSection.setIdArchivoImagen(image);
+
+        listSections.add(newSection);
         filters();
     }
 
@@ -102,11 +113,12 @@ public class SectionsMgmtController extends Controller implements Initializable 
         String search = txfSearch.getText() == null ? "" : txfSearch.getText().toLowerCase();
         String type = cmbType.getValue();
 
-        ObservableList<Sections> filter = listSections.filtered(x
-                -> x.getName().get().toLowerCase().contains(search) || x.getType().get().toLowerCase().contains(search))
-                .filtered(t -> type == null || type.isEmpty() || t.getType().get().equals(type));
+        ObservableList<SeccionDto> filter = listSections.filtered(x
+                -> x.getNombre().toLowerCase().contains(search)
+                || x.getTipo().toLowerCase().contains(search))
+                .filtered(t -> type == null || type.isEmpty() || t.getTipo().equals(type));
 
-        TreeItem<Sections> root = new RecursiveTreeItem<>(filter, RecursiveTreeObject::getChildren);
+        TreeItem<SeccionDto> root = new RecursiveTreeItem<>(filter, RecursiveTreeObject::getChildren);
         tbvSections.setRoot(root);
         tbvSections.setShowRoot(false);
 
