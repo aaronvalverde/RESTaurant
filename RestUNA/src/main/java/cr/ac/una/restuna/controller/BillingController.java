@@ -6,9 +6,13 @@ import javafx.fxml.Initializable;
 import com.jfoenix.controls.JFXTreeTableView;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import java.io.IOException;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.TreeTableColumn;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.VBox;
 
 /**
  * FXML Controller class
@@ -17,7 +21,7 @@ import javafx.scene.control.TreeTableColumn;
  */
 public class BillingController extends Controller implements Initializable {
 
-    /*métodos de pago*/
+    //métodos de pago
     @FXML
     private MFXButton btnCash;
     @FXML
@@ -26,37 +30,12 @@ public class BillingController extends Controller implements Initializable {
     private MFXButton btnSinpe;
     @FXML
     private MFXButton btnTip;
-    /*digitación de monto*/
-    @FXML
-    private MFXButton btnNine;
-    @FXML
-    private MFXButton btnEight;
-    @FXML
-    private MFXButton btnSeven;
-    @FXML
-    private MFXButton btnSix;
-    @FXML
-    private MFXButton btnFive;
-    @FXML
-    private MFXButton btnFour;
-    @FXML
-    private MFXButton btnThree;
-    @FXML
-    private MFXButton btnTwo;
-    @FXML
-    private MFXButton btnOne;
-    @FXML
-    private MFXButton btnZero;
-    @FXML
-    private MFXButton btnDot;
-    @FXML
-    private MFXButton btnErase;
 
     @FXML
     private MFXButton btnOk;
     @FXML
     private MFXButton btnCancel;
-    
+
     @FXML
     private MFXTextField txfAmount; //se actualiza en cada interacción con los botones de digitación.
     @FXML
@@ -79,17 +58,21 @@ public class BillingController extends Controller implements Initializable {
     private MFXTextField txfTotalDue; //monto a pagar (es fijo).
     @FXML
     private MFXTextField txfTotalTip; //propina. 
+    @FXML
+    private VBox numberKeypadRoot;
+    @FXML
+    private MFXButton btnRegisterAmount;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
+        loadNumberKeypad();
     }
 
     @Override
     public void initialize() {
     }
 
-    /*métodos de pago*/
+    //métodos de pago
     @FXML
     void onActionBtnCash(ActionEvent event) {
 
@@ -110,68 +93,7 @@ public class BillingController extends Controller implements Initializable {
 
     }
 
-    /*digitar monto*/
-    @FXML
-    void onActionBtnNine(ActionEvent event) {
-
-    }
-
-    @FXML
-    void onActionBtnEight(ActionEvent event) {
-
-    }
-
-    @FXML
-    void onActionBtnSeven(ActionEvent event) {
-
-    }
-
-    @FXML
-    void onActionBtnSix(ActionEvent event) {
-
-    }
-
-    @FXML
-    void onActionBtnFive(ActionEvent event) {
-
-    }
-
-    @FXML
-    void onActionBtnFour(ActionEvent event) {
-
-    }
-
-    @FXML
-    void onActionBtnThree(ActionEvent event) {
-
-    }
-
-    @FXML
-    void onActionBtnTwo(ActionEvent event) {
-
-    }
-
-    @FXML
-    void onActionBtnOne(ActionEvent event) {
-
-    }
-
-    @FXML
-    void onActionBtnZero(ActionEvent event) {
-
-    }
-
-    @FXML
-    void onActionBtnDot(ActionEvent event) {
-
-    }
-
-    @FXML
-    void onActionBtnErase(ActionEvent event) {
-
-    }
-
-    /*facturar*/
+    //facturar
     @FXML
     void onActionBtnOk(ActionEvent event) {
 
@@ -180,5 +102,27 @@ public class BillingController extends Controller implements Initializable {
     @FXML
     void onActionBtnCancel(ActionEvent event) {
 
+    }
+
+    @FXML
+    private void onActionBtnRegisterAmount(ActionEvent event) {
+    }
+
+    private void loadNumberKeypad() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/cr/ac/una/restuna/view/NumberKeypad.fxml"));
+            AnchorPane keypadView = loader.load();
+            NumberKeypadController numberKeypad = loader.getController();
+
+            numberKeypad.setInputRoot(txfAmount);
+            numberKeypadRoot.getChildren().add(keypadView);
+            
+            keypadView.prefHeightProperty().bind(numberKeypadRoot.heightProperty());
+            keypadView.prefWidthProperty().bind(numberKeypadRoot.widthProperty());
+            
+        } catch (IOException ex) {
+            System.getLogger(BillingController.class.getName())
+                    .log(System.Logger.Level.ERROR, (String) null, ex);
+        }
     }
 }

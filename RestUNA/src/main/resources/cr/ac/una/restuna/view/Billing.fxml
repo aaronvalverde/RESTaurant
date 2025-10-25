@@ -8,10 +8,7 @@
 <?import javafx.scene.control.TreeTableColumn?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
 <AnchorPane id="AnchorPane" prefHeight="800.0" prefWidth="1280.0" stylesheets="@Styles.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cr.ac.una.restuna.controller.BillingController">
@@ -53,36 +50,7 @@
                   <VBox prefHeight="700.0" prefWidth="370.0" spacing="10.0">
                      <children>
                         <MFXTextField fx:id="txfAmount" floatMode="DISABLED" maxWidth="1.7976931348623157E308" />
-                        <GridPane hgap="5.0" vgap="5.0" VBox.vgrow="ALWAYS">
-                          <columnConstraints>
-                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                          </columnConstraints>
-                          <rowConstraints>
-                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                          </rowConstraints>
-                           <children>
-                              <MFXButton fx:id="btnSeven" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#onActionBtnSeven" text="7" />
-                              <MFXButton fx:id="btnEight" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#onActionBtnEight" text="8" GridPane.columnIndex="1" />
-                              <MFXButton fx:id="btnNine" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#onActionBtnNine" text="9" GridPane.columnIndex="2" />
-                              <MFXButton fx:id="btnFour" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#onActionBtnFour" text="4" GridPane.rowIndex="1" />
-                              <MFXButton fx:id="btnFive" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#onActionBtnFive" text="5" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                              <MFXButton fx:id="btnSix" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#onActionBtnSix" text="6" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                              <MFXButton fx:id="btnOne" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#onActionBtnOne" text="1" GridPane.rowIndex="2" />
-                              <MFXButton fx:id="btnTwo" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#onActionBtnTwo" text="2" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                              <MFXButton fx:id="btnThree" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#onActionBtnThree" text="3" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-                              <MFXButton fx:id="btnDot" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#onActionBtnDot" text="." GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                              <MFXButton fx:id="btnZero" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#onActionBtnZero" text="0" GridPane.rowIndex="3" />
-                              <MFXButton fx:id="btnErase" contentDisplay="GRAPHIC_ONLY" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#onActionBtnErase" GridPane.columnIndex="2" GridPane.rowIndex="3">
-                                 <graphic>
-                                    <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true" />
-                                 </graphic></MFXButton>
-                           </children>
-                        </GridPane>
+                        <VBox fx:id="numberKeypadRoot" prefHeight="200.0" prefWidth="100.0" VBox.vgrow="ALWAYS" />
                         <MFXButton fx:id="btnRegisterAmount" contentDisplay="GRAPHIC_ONLY" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" onAction="#onActionBtnRegisterAmount" prefHeight="50.0" prefWidth="60.0" VBox.vgrow="ALWAYS">
                            <graphic>
                               <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true" />
