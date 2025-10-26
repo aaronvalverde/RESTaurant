@@ -148,8 +148,8 @@
                            <children>
                               <JFXTreeTableView fx:id="tbvPaymentBreakdown" HBox.hgrow="ALWAYS">
                                  <columns>
-                                    <TreeTableColumn fx:id="tbcKey" editable="false" prefWidth="200.0" sortable="false" text="%tbc.description" />
-                                    <TreeTableColumn fx:id="tbcTotalAmount" editable="false" prefWidth="250.0" sortable="false" text="%tbc.total.amount" />
+                                    <TreeTableColumn fx:id="tbcKey" editable="false" prefWidth="285.0" sortable="false" text="%tbc.description" />
+                                    <TreeTableColumn fx:id="tbcTotalAmount" editable="false" prefWidth="197.0" sortable="false" text="%tbc.total.amount" />
                                  </columns>
                               </JFXTreeTableView>
                            </children>

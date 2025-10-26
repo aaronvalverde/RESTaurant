@@ -183,6 +183,7 @@ public class MainController extends Controller implements Initializable {
 
     @FXML
     private void onActionBtnCashClosing(ActionEvent event) {
+        FlowController.getInstance().goViewInWindowModal(AppKeys.CASH_CLOSING, new Stage(), false);
     }
 
     @FXML

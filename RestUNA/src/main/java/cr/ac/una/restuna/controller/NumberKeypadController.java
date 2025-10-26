@@ -175,6 +175,7 @@ public class NumberKeypadController extends Controller implements Initializable 
             btnErase.setDisable(true);
             return;
         }
+        btnErase.setDisable(false);
         String number = txfInput.getText().substring(0, txfInput.getText().length()-1);
         txfInput.setText(number);
     }
