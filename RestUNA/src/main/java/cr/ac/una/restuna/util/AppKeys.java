@@ -18,4 +18,5 @@ public class AppKeys {
     public static final String NEW_MENU_ITEM = "NewItem";
     public static final String SECTIONS = "Sections";
     public static final String BILLING = "Billing";
+    public static final String CASH_OPENING = "CashOpening";
 }

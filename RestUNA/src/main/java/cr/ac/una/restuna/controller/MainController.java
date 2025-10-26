@@ -20,6 +20,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import javafx.stage.Stage;
 
 /**
  * FXML Controller class
@@ -214,5 +215,6 @@ public class MainController extends Controller implements Initializable {
 
     @FXML
     private void onActionBtnCashOpening(ActionEvent event) {
+        FlowController.getInstance().goViewInWindowModal(AppKeys.CASH_OPENING, new Stage(), false);
     }
 }

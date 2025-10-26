@@ -186,7 +186,6 @@ public class NewGroupController extends Controller implements Initializable {
     }
 
     private void closeWindow() {
-
         Stage stage = (Stage) btnCancel.getScene().getWindow();
         stage.close();
     }
