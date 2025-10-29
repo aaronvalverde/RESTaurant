@@ -55,11 +55,8 @@ public class SettingsController extends Controller implements Initializable {
         loadLanguageOptions();
         loadCurrencyOptions();
 
-        if (cmbLanguage.getSelectedItem().equals("Español")|| cmbLanguage.getSelectedItem().equals("Spanish")) {
-            checkLanguage("es");
-        } else {
-            checkLanguage("en");
-        }
+        settingsContainer.prefHeightProperty().bind(settingsRoot.heightProperty());
+        settingsContainer.prefWidthProperty().bind(settingsRoot.widthProperty());
     }
 
     @Override
@@ -72,6 +69,20 @@ public class SettingsController extends Controller implements Initializable {
 
     @FXML
     private void onActionBtnCancel(ActionEvent event) {
+    }
+
+    @FXML
+    private void onActionCmbLanguage(ActionEvent event) {
+        if (cmbLanguage.getSelectedItem().equals("Español") || cmbLanguage.getSelectedItem().equals("Spanish")) {
+            checkLanguage("es");
+        } else {
+            checkLanguage("en");
+        }
+    }
+
+    @FXML
+    private void onActionCmbCurrency(ActionEvent event) {
+        
     }
 
     private void loadLanguageOptions() {

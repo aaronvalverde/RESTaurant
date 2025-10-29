@@ -53,7 +53,7 @@
                                                       <Label text="%lb.language" />
                                                    </children>
                                                 </HBox>
-                                                <MFXComboBox fx:id="cmbLanguage" floatMode="DISABLED" maxWidth="1.7976931348623157E308" />
+                                                <MFXComboBox fx:id="cmbLanguage" floatMode="DISABLED" maxWidth="1.7976931348623157E308" onAction="#onActionCmbLanguage" />
                                              </children>
                                           </VBox>
                                           <VBox prefHeight="200.0" prefWidth="100.0" VBox.vgrow="ALWAYS">
@@ -64,7 +64,7 @@
                                                       <Label text="%lb.currency" />
                                                    </children>
                                                 </HBox>
-                                                <MFXComboBox fx:id="cmbCurrency" floatMode="DISABLED" maxWidth="1.7976931348623157E308" />
+                                                <MFXComboBox fx:id="cmbCurrency" floatMode="DISABLED" maxWidth="1.7976931348623157E308" onAction="#onActionCmbCurrency" />
                                              </children>
                                           </VBox>
                                        </children>
@@ -92,7 +92,7 @@
                                                       <Label text="%lb.restaurant.name" />
                                                    </children>
                                                 </HBox>
-                                                <MFXTextField fx:id="txfRestaurantName" floatMode="DISABLED" maxWidth="1.7976931348623157E308" />
+                                                <MFXTextField fx:id="txfRestaurantName" floatMode="DISABLED" maxWidth="1.7976931348623157E308" promptText="%txf.name.prompt" />
                                              </children>
                                           </VBox>
                                        </children>
@@ -167,7 +167,7 @@
                                                       <Label text="%lb.phone" />
                                                    </children>
                                                 </HBox>
-                                                <MFXTextField fx:id="txfPhone" floatMode="DISABLED" maxWidth="1.7976931348623157E308" promptText="%lb.phone.prompt" />
+                                                <MFXTextField fx:id="txfPhone" floatMode="DISABLED" maxWidth="1.7976931348623157E308" promptText="%txf.phone.prompt" />
                                              </children>
                                           </VBox>
                                           <VBox prefHeight="200.0" prefWidth="100.0" VBox.vgrow="ALWAYS">
@@ -178,7 +178,7 @@
                                                       <Label text="%lb.secondary.phone" />
                                                    </children>
                                                 </HBox>
-                                                <MFXTextField fx:id="txfSecondaryPhone" floatMode="DISABLED" maxWidth="1.7976931348623157E308" promptText="%lb.phone.prompt" />
+                                                <MFXTextField fx:id="txfSecondaryPhone" floatMode="DISABLED" maxWidth="1.7976931348623157E308" promptText="%txf.phone.prompt" />
                                              </children>
                                           </VBox>
                                           <VBox prefHeight="200.0" prefWidth="100.0">
@@ -189,7 +189,7 @@
                                                       <Label text="%lb.email" />
                                                    </children>
                                                 </HBox>
-                                                <MFXTextField fx:id="txfEmail" floatMode="DISABLED" maxWidth="1.7976931348623157E308" promptText="%lb.email.prompt" />
+                                                <MFXTextField fx:id="txfEmail" floatMode="DISABLED" maxWidth="1.7976931348623157E308" promptText="%txf.email.prompt" />
                                              </children>
                                           </VBox>
                                           <VBox prefHeight="200.0" prefWidth="100.0">
@@ -200,7 +200,7 @@
                                                       <Label text="%lb.address" />
                                                    </children>
                                                 </HBox>
-                                                <MFXTextField fx:id="txfAddress" floatMode="DISABLED" maxWidth="1.7976931348623157E308" promptText="%lb.address.prompt" />
+                                                <MFXTextField fx:id="txfAddress" floatMode="DISABLED" maxWidth="1.7976931348623157E308" promptText="%txf.address.prompt" />
                                              </children>
                                           </VBox>
                                        </children>
@@ -216,7 +216,7 @@
                   </MFXScrollPane>
                   <HBox alignment="CENTER_RIGHT" prefHeight="80.0" prefWidth="200.0" spacing="10.0">
                      <children>
-                        <MFXButton fx:id="btnSave" maxHeight="1.7976931348623157E308" onAction="#onActionBtnSave" prefWidth="200.0" text="%btn.save" />
+                        <MFXButton fx:id="btnSave" maxHeight="1.7976931348623157E308" onAction="#onActionBtnSave" prefWidth="200.0" text="%btn.save.changes" />
                         <MFXButton fx:id="btnCancel" maxHeight="1.7976931348623157E308" onAction="#onActionBtnCancel" prefWidth="100.0" text="%btn.cancel" />
                      </children>
                      <padding>
