@@ -6,6 +6,7 @@ import cr.ac.una.restuna.service.ArchivoService;
 import cr.ac.una.restuna.service.SeccionService;
 import cr.ac.una.restuna.util.ImagenUtil;
 import cr.ac.una.restuna.util.Respuesta;
+import cr.ac.una.restuna.util.AppKeys;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXCheckbox;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
@@ -65,6 +66,8 @@ public class NewSectionController extends Controller implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        // Use AppKeys constant for the view name/title so FlowController can set window title
+        setNombreVista(AppKeys.NEW_SECTION);
         cmbType.getItems().addAll("SALON", "BARRA", "TERRAZA");
         initButtons();
     }
