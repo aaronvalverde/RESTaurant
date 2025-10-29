@@ -80,6 +80,8 @@ public class GroupsMgmtController extends Controller implements Initializable {
         txfSearch.textProperty().addListener((obs, oldVal, newVal) -> groupFilter());
         cmbShortcut.valueProperty().addListener((obs, oldVal, newVal) -> groupFilter());
         cmbStatus.valueProperty().addListener((obs, oldVal, newVal) -> groupFilter());
+        
+        setActionsColumn();
     }
 
     @Override

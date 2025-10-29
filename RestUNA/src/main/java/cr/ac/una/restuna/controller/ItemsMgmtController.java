@@ -83,6 +83,7 @@ public class ItemsMgmtController extends Controller implements Initializable {
         tbvMenuItems.setShowRoot(false);
 
         confEvent();
+        setActionsColumn();
     }
 
     private void confEvent() {

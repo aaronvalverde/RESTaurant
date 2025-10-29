@@ -61,6 +61,7 @@ public class NewUserController extends Controller implements Initializable {
         // Configurar ComboBoxes con valores correctos de BD
         cmbRole.getItems().addAll("ADMINISTRADOR", "CAJERO", "SALONERO");
         cmbStatus.getItems().addAll("A", "I"); // A = Activo, I = Inactivo
+        initButtons();
     }
 
     @Override

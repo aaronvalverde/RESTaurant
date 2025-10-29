@@ -92,6 +92,7 @@ public class SectionsMgmtController extends Controller implements Initializable 
 
         // Cargar secciones al inicializar
         cargarSecciones();
+        setActionsColumn();
     }
 
     @Override

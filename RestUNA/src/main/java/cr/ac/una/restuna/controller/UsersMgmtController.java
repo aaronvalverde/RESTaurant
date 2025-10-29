@@ -100,6 +100,7 @@ public class UsersMgmtController extends Controller implements Initializable {
 
         // Cargar usuarios desde el servidor
         cargarUsuarios();
+        setActionsColumn();
     }
 
     /**
@@ -138,9 +139,6 @@ public class UsersMgmtController extends Controller implements Initializable {
                     showMessage("Error cargando usuarios: " + mensaje);
                 }
 
-                // Restaurar botón
-                btnAdd.setDisable(false);
-                btnAdd.setText("Añadir");
             });
         });
 
