@@ -5,7 +5,7 @@ module cr.ac.una.restuna {
     requires java.base;
     requires MaterialFX;
     requires com.jfoenix;
-    requires javafx.web; 
+    requires javafx.web;
 
     opens cr.ac.una.restuna to javafx.fxml;
     opens cr.ac.una.restuna.controller to javafx.fxml;

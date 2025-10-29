@@ -9,19 +9,19 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 /**
- *
- * @author fonse
+ * DTO para gestión de secciones/salones del restaurante
+ * Compatible con JFXTreeTableView
  */
 public class SeccionDto extends RecursiveTreeObject<SeccionDto> implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+    
     private StringProperty nombre;
     private StringProperty tipo;
     private StringProperty cobraImpuesto;
@@ -29,15 +29,19 @@ public class SeccionDto extends RecursiveTreeObject<SeccionDto> implements Seria
     private LongProperty idSeccion;
     private ObjectProperty<LocalDate> fechaCreacion;
     private LongProperty idArchivoImagen;
+    private ObjectProperty<ArchivoDto> imagen;
+    private Boolean modificado;
 
     public SeccionDto() {
         this.idSeccion = new SimpleLongProperty();
         this.idArchivoImagen = new SimpleLongProperty();
         this.nombre = new SimpleStringProperty();
-        this.estado = new SimpleStringProperty();
+        this.estado = new SimpleStringProperty("A");
         this.tipo = new SimpleStringProperty();
-        this.cobraImpuesto = new SimpleStringProperty();
+        this.cobraImpuesto = new SimpleStringProperty("N");
         this.fechaCreacion = new SimpleObjectProperty<>();
+        this.imagen = new SimpleObjectProperty<>();
+        this.modificado = false;
     }
 
     public void setNombre(String nombre) {
@@ -124,8 +128,41 @@ public class SeccionDto extends RecursiveTreeObject<SeccionDto> implements Seria
         return idArchivoImagen;
     }
     
+    public ArchivoDto getImagen() {
+        return imagen.get();
+    }
+    
+    public void setImagen(ArchivoDto imagen) {
+        this.imagen.set(imagen);
+    }
+    
+    public ObjectProperty<ArchivoDto> imagenProperty() {
+        return imagen;
+    }
+    
+    public Boolean getModificado() {
+        return modificado;
+    }
+    
+    public void setModificado(Boolean modificado) {
+        this.modificado = modificado;
+    }
+    
+    // Métodos de utilidad
+    public boolean isActiva() {
+        return "A".equals(getEstado());
+    }
+    
+    public boolean cobraImpuesto() {
+        return "S".equals(getCobraImpuesto());
+    }
+    
+    public boolean tieneImagen() {
+        return idArchivoImagen.get() > 0;
+    }
+    
     @Override
     public String toString() {
-        return nombre + "(" + tipo + ")";
+        return nombre.get() + " (" + tipo.get() + ")";
     }
 }
