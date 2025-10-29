@@ -1,5 +1,4 @@
-package cr.ac.una.restuna.model;
-
+package cr.ac.una.restuna.controller;
 
 import cr.ac.una.restuna.controller.Controller;
 import cr.ac.una.restuna.model.UsuarioDto;
