@@ -42,10 +42,6 @@ public class MainController extends Controller implements Initializable {
     private MFXButton btnBilling;
     @FXML
     private MFXButton btnCashClosing;
-    private MFXButton btnUsers;
-    private MFXButton btnSectionsMgmt;
-    private MFXButton btnMenuGroups;
-    private MFXButton btnMenuItems;
     @FXML
     private MFXButton btnReports;
     @FXML
@@ -117,10 +113,7 @@ public class MainController extends Controller implements Initializable {
         configurarVisibilidadBoton(btnCashClosing, session.canAccessCierreCaja());
 
         // Botones de mantenimiento (solo administradores)
-        configurarVisibilidadBoton(btnUsers, session.canAccessMantenimientos());
-        configurarVisibilidadBoton(btnSectionsMgmt, session.canAccessMantenimientos());
-        configurarVisibilidadBoton(btnMenuGroups, session.canAccessMantenimientos());
-        configurarVisibilidadBoton(btnMenuItems, session.canAccessMantenimientos());
+        configurarVisibilidadBoton(btnManagement, session.canAccessMantenimientos());
 
         // Botones del sistema (solo administradores)
         configurarVisibilidadBoton(btnReports, session.canAccessReportes());
@@ -149,10 +142,7 @@ public class MainController extends Controller implements Initializable {
         configurarVisibilidadBoton(btnOrders, false);
         configurarVisibilidadBoton(btnBilling, false);
         configurarVisibilidadBoton(btnCashClosing, false);
-        configurarVisibilidadBoton(btnUsers, false);
-        configurarVisibilidadBoton(btnSectionsMgmt, false);
-        configurarVisibilidadBoton(btnMenuGroups, false);
-        configurarVisibilidadBoton(btnMenuItems, false);
+        configurarVisibilidadBoton(btnManagement, false);
         configurarVisibilidadBoton(btnReports, false);
         configurarVisibilidadBoton(btnSettings, false);
         configurarVisibilidadBoton(btnLogout, true); // Logout siempre visible
@@ -184,22 +174,6 @@ public class MainController extends Controller implements Initializable {
         FlowController.getInstance().goViewInWindowModal(AppKeys.CASH_CLOSING, new Stage(), false);
     }
 
-    private void onActionBtnUsers(ActionEvent event) {
-        FlowController.getInstance().goView(AppKeys.USERS_MGMT);
-    }
-
-    private void onActionBtnSectionsMgmt(ActionEvent event) {
-        FlowController.getInstance().goView(AppKeys.SECTIONS_MGMT);
-    }
-
-    private void onActionBtnMenuGroups(ActionEvent event) {
-        FlowController.getInstance().goView(AppKeys.MENU_GROUPS_MGMT);
-    }
-
-    private void onActionBtnMenuItems(ActionEvent event) {
-        FlowController.getInstance().goView(AppKeys.MENU_ITEMS_MGMT);
-    }
-
     @FXML
     private void onActionBtnReports(ActionEvent event) {
         FlowController.getInstance().goView(AppKeys.REPORTS);
@@ -207,6 +181,7 @@ public class MainController extends Controller implements Initializable {
 
     @FXML
     private void onActionBtnSettings(ActionEvent event) {
+        FlowController.getInstance().goView(AppKeys.SETTINGS);
     }
 
     @FXML

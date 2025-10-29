@@ -17,12 +17,12 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        Locale locale = new Locale("");
+        Locale locale = new Locale("en");
         ResourceBundle bundle = ResourceBundle.getBundle("cr.ac.una.restuna.i18n.text", locale);
         new FlowController(stage, bundle);
         FlowController.getInstance().goMain(AppKeys.LOGIN);
         stage.setScene(scene);
-        stage.setTitle("BeanyWoodCafé");
+        stage.setTitle("RESTuna");
         stage.show();
     }
 

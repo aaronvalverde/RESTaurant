@@ -22,4 +22,5 @@ public class AppKeys {
     public static final String CASH_CLOSING = "CashClosing";
     public static final String MANAGEMENT = "Management";
     public static final String REPORTS = "Reports";
+    public static final String SETTINGS = "Settings";
 }
