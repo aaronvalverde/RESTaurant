@@ -449,8 +449,8 @@ public class UsersMgmtController extends Controller implements Initializable {
             MFXButton btnDelete = new MFXButton();
 
             {
-                btnEdit.setGraphic(new ImageView(new Image("../resources/icons/icons8-edit-50.png")));
-                btnDelete.setGraphic(new ImageView(new Image("../resources/icons/icons8-delete-50.png")));
+                btnEdit.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/cr/ac/una/restuna/resources/icons/icons8-edit-50.png"))));
+                btnDelete.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/cr/ac/una/restuna/resources/icons/icons8-delete-50.png"))));
 
                 btnEdit.setOnAction(e -> {
                     UsuarioDto usuarioDto = getTreeTableRow().getItem();
