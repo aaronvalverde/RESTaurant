@@ -1,5 +1,6 @@
 package cr.ac.una.restuna.controller;
 
+import cr.ac.una.restuna.model.GrupoProductoDto;
 import cr.ac.una.restuna.util.AppKeys;
 import cr.ac.una.restuna.util.FlowController;
 import cr.ac.una.restuna.util.Respuesta;
@@ -39,6 +40,7 @@ public class NewGroupController extends Controller implements Initializable {
 
     private boolean editMode = false;
     private String groupId;
+    private GroupsMgmtController parentController;
 
     /**
      * Initializes the controller class.
@@ -146,7 +148,7 @@ public class NewGroupController extends Controller implements Initializable {
     private void addGroup() {
 
         try {
-           
+
             String name = txfName.getText().trim();
             String description = txaDescription.getText().trim();
             String shortcut = cbShortcut.isSelected() ? "S" : "N";
@@ -223,5 +225,24 @@ public class NewGroupController extends Controller implements Initializable {
         cbStatus.setSelected(true);
         txfName.setStyle("");
         txaDescription.setStyle("");
+    }
+
+    public void setParentController(GroupsMgmtController parent) {
+        this.parentController = parent;
+    }
+
+    public void loadSection(GrupoProductoDto gpDto) {
+        editMode = true;
+
+        // Set the group ID for saving changes later
+        this.groupId = gpDto.getIdGrupoProducto()!= null ? gpDto.getIdGrupoProducto().toString() : null;
+
+        // Load the group data into the form fields
+        txfName.setText(gpDto.getNombre());
+        txaDescription.setText(gpDto.getDescripcion());
+        cbShortcut.setSelected("S".equals(gpDto.getAccesoRapido()));
+        cbStatus.setSelected("A".equals(gpDto.getEstado()));
+
+        initButtons();
     }
 }

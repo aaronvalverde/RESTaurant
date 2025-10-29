@@ -93,6 +93,11 @@
                      <cursor>
                         <Cursor fx:constant="HAND" />
                      </cursor></MFXButton>
+                  <MFXButton fx:id="btnSaveChanges" onAction="#onActionBtnSaveChanges" text="%btn.save.changes">
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                  </MFXButton>
                   <MFXButton fx:id="btnCancel" onAction="#onActionBtnCancel" text="%btn.cancel">
                      <cursor>
                         <Cursor fx:constant="HAND" />

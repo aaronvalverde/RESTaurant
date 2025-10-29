@@ -20,6 +20,9 @@ import javafx.scene.control.TreeTableColumn;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeTableCell;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 
 /**
@@ -38,7 +41,7 @@ public class GroupsMgmtController extends Controller implements Initializable {
     @FXML
     private MFXScrollPane tableRoot;
     @FXML
-    private TreeTableColumn<GrupoProductoDto, String> tbcActions;
+    private TreeTableColumn<GrupoProductoDto, Void> tbcActions;
     @FXML
     private TreeTableColumn<GrupoProductoDto, String> tbcDescription;
     @FXML
@@ -87,7 +90,7 @@ public class GroupsMgmtController extends Controller implements Initializable {
     void onActionBtnAdd(ActionEvent event) {
         try {
             NewGroupController item = (NewGroupController) FlowController.getInstance().getController(AppKeys.NEW_MENU_GROUP);
-            item.clear(); 
+            item.clear();
             FlowController.getInstance().goViewInWindowModal(AppKeys.NEW_MENU_GROUP, new Stage(), false);
         } catch (Exception e) {
             e.printStackTrace();
@@ -145,6 +148,41 @@ public class GroupsMgmtController extends Controller implements Initializable {
         alert.setHeaderText(null);
         alert.setContentText(msg);
         alert.showAndWait();
+    }
+
+    private void onEditGroup(GrupoProductoDto gpDto) {
+        NewGroupController controller = (NewGroupController) FlowController.getInstance()
+                .getController(AppKeys.NEW_MENU_GROUP);
+        controller.setParentController(this);
+        controller.loadSection(gpDto);
+        FlowController.getInstance().goViewInWindowModal(AppKeys.NEW_MENU_GROUP, new Stage(), false);
+    }
+
+    private void setActionsColumn() {
+        tbcActions.setCellFactory(col -> new TreeTableCell<GrupoProductoDto, Void>() {
+            MFXButton btnEdit = new MFXButton(" ");
+            MFXButton btnDelete = new MFXButton();
+
+            {
+                btnEdit.setGraphic(new ImageView(new Image("../resources/icons/icons8-edit-50.png")));
+                btnDelete.setGraphic(new ImageView(new Image("../resources/icons/icons8-delete-50.png")));
+
+                btnEdit.setOnAction(e -> {
+                    GrupoProductoDto gpDto = getTreeTableRow().getItem();
+                    if (gpDto != null) {
+                        onEditGroup(gpDto);
+                    }
+                });
+                btnDelete.setOnAction(e -> {
+                    //lógica para eliminar la columna de la tabla y DB.
+                });
+            }
+        });
+
+    }
+
+    private String getLanguageString(String key) {
+        return FlowController.getInstance().getLanguage().getString(key);
     }
 
 }

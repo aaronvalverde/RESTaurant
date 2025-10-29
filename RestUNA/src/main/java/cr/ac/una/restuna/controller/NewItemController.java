@@ -48,6 +48,7 @@ public class NewItemController extends Controller implements Initializable {
 
     private boolean editMode = false;
     private ProductoDto productEdit;
+    private ItemsMgmtController parentController;
 
     /**
      * Initializes the controller class.
@@ -86,34 +87,6 @@ public class NewItemController extends Controller implements Initializable {
     @FXML
     private void onActionBtnCancel(ActionEvent event) {
         closeWindow();
-    }
-
-    public void loadSection(SeccionDto section) {
-        if (section != null) {
-
-            editMode = true;
-
-            //cargar todas los items correspondientes.
-            txfName.setText(section.getNombre());
-            cmbGroup.getSelectionModel().selectItem(section.getTipo());
-
-            if ("S".equals(section.getCobraImpuesto())) {
-                cbShortcut.setSelected(true);
-            } else {
-                cbShortcut.setSelected(true);
-            }
-
-            cbStatus.setSelected("A".equals(section.getEstado()));
-            /*if (section.getImagePath() != null) {
-            imvTableGraphic.setImage(new Image(new File(section.getImagePath()).toURI().toString()));
-        }*/
-
-            initButtons();
-        } else {
-            editMode = false;
-
-            initButtons();
-        }
     }
 
     public void loadProduct(ProductoDto product) {
@@ -164,7 +137,6 @@ public class NewItemController extends Controller implements Initializable {
             String shortcut = cbShortcut.isSelected() ? "S" : "N";
             String status = cbStatus.isSelected() ? "A" : "I";
 
-            
             ItemsMgmtController mainController = (ItemsMgmtController) FlowController.getInstance().getController(AppKeys.MENU_ITEMS_MGMT);
             mainController.addProduct(name, shortName, price, description, shortcut, status);
 
@@ -243,6 +215,10 @@ public class NewItemController extends Controller implements Initializable {
         alert.setHeaderText(null);
         alert.setContentText(respuesta.getMensaje());
         alert.showAndWait();
+    }
+
+    public void setParentController(ItemsMgmtController parent) {
+        this.parentController = parent;
     }
 
     public void clear() {

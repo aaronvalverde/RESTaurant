@@ -58,6 +58,7 @@
                                 <TreeTableColumn fx:id="tbcType" prefWidth="75.0" text="%tbc.type" />
                                 <TreeTableColumn fx:id="tbcTax" prefWidth="75.0" text="%tbc.tax" />
                                 <TreeTableColumn fx:id="tbcTableGraphic" prefWidth="75.0" text="%tbc.table.graphic" />
+                        <TreeTableColumn fx:id="tbcActions" prefWidth="75.0" text="%tbc.actions" />
                             </columns>
                      <columnResizePolicy>
                         <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY" />

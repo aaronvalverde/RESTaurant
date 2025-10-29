@@ -31,6 +31,9 @@ import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeTableCell;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 public class SectionsMgmtController extends Controller implements Initializable {
 
@@ -56,6 +59,8 @@ public class SectionsMgmtController extends Controller implements Initializable 
     private final ObservableList<SeccionDto> listSections = FXCollections.observableArrayList();
     private final SeccionService seccionService = new SeccionService();
     private boolean cargando = false;
+    @FXML
+    private TreeTableColumn<SeccionDto, Void> tbcActions;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -66,11 +71,11 @@ public class SectionsMgmtController extends Controller implements Initializable 
 
         tbcName.setCellValueFactory(x -> x.getValue().getValue().nombreProperty());
         tbcTax.setCellValueFactory(x -> new ReadOnlyStringWrapper(
-            x.getValue().getValue().cobraImpuesto() ? "Sí" : "No"));
+                x.getValue().getValue().cobraImpuesto() ? "Sí" : "No"));
         tbcType.setCellValueFactory(x -> x.getValue().getValue().tipoProperty());
         tbcTableGraphic.setCellValueFactory(x -> new ReadOnlyStringWrapper(
                 x.getValue().getValue().tieneImagen() ? "Con imagen" : "Sin imagen"));
-        
+
         tbvSections.setOnMouseClicked(x -> {
             if (x.getClickCount() == 2 && tbvSections.getSelectionModel().getSelectedItem() != null) {
                 SeccionDto selected = tbvSections.getSelectionModel().getSelectedItem().getValue();
@@ -84,7 +89,7 @@ public class SectionsMgmtController extends Controller implements Initializable 
 
         txfSearch.textProperty().addListener((obs, oldVal, newVal) -> filters());
         cmbType.valueProperty().addListener((obs, oldVal, newVal) -> filters());
-        
+
         // Cargar secciones al inicializar
         cargarSecciones();
     }
@@ -106,7 +111,6 @@ public class SectionsMgmtController extends Controller implements Initializable 
         FlowController.getInstance().goViewInWindowModal(AppKeys.NEW_SECTION, new Stage(), false);
     }
 
-    @FXML
     private void onEditSection(SeccionDto sect) {
         NewSectionController controller = (NewSectionController) FlowController.getInstance()
                 .getController(AppKeys.NEW_SECTION);
@@ -120,11 +124,11 @@ public class SectionsMgmtController extends Controller implements Initializable 
             System.out.println("Ya hay una carga en progreso, ignorando...");
             return;
         }
-        
+
         System.out.println("Iniciando carga de secciones...");
         cargando = true;
         btnAdd.setDisable(true);
-        
+
         Task<Respuesta> task = new Task<>() {
             @Override
             protected Respuesta call() {
@@ -132,15 +136,15 @@ public class SectionsMgmtController extends Controller implements Initializable 
                 return seccionService.getSecciones();
             }
         };
-        
+
         task.setOnSucceeded(e -> {
             try {
                 Respuesta res = task.getValue();
-                
+
                 if (res != null && res.getEstado()) {
                     String jsonSecciones = (String) res.getResultado("Secciones");
                     System.out.println("JSON recibido: " + jsonSecciones);
-                    
+
                     if (jsonSecciones != null && !jsonSecciones.trim().isEmpty()) {
                         procesarSeccionesDesdeJson(jsonSecciones);
                     }
@@ -148,20 +152,20 @@ public class SectionsMgmtController extends Controller implements Initializable 
                     String mensaje = res != null ? res.getMensaje() : "Error desconocido";
                     showMessage("Error cargando secciones: " + mensaje);
                 }
-                
+
             } finally {
                 cargando = false;
                 btnAdd.setDisable(false);
             }
         });
-        
+
         task.setOnFailed(e -> {
             cargando = false;
             btnAdd.setDisable(false);
             Throwable ex = task.getException();
             System.err.println("Error cargando secciones: " + ex.getMessage());
             ex.printStackTrace();
-            
+
             Platform.runLater(() -> {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Error");
@@ -170,7 +174,7 @@ public class SectionsMgmtController extends Controller implements Initializable 
                 alert.showAndWait();
             });
         });
-        
+
         new Thread(task).start();
     }
 
@@ -178,20 +182,20 @@ public class SectionsMgmtController extends Controller implements Initializable 
         try {
             listSections.clear();
             System.out.println("Procesando JSON de secciones...");
-            
+
             String jsonTrimmed = seccionesJson.trim();
             if (jsonTrimmed.startsWith("[")) {
                 procesarArrayDeSecciones(seccionesJson);
             }
-            
+
             // Workaround para JFXTreeTableView
             TreeItem<SeccionDto> newRoot = new RecursiveTreeItem<>(listSections, RecursiveTreeObject::getChildren);
             tbvSections.setRoot(null);
             tbvSections.setRoot(newRoot);
             tbvSections.setShowRoot(false);
-            
+
             System.out.println("Secciones cargadas: " + listSections.size());
-            
+
         } catch (Exception e) {
             System.err.println("Error procesando secciones desde JSON: " + e.getMessage());
             e.printStackTrace();
@@ -204,21 +208,21 @@ public class SectionsMgmtController extends Controller implements Initializable 
             String contenido = arrayJson.substring(1, arrayJson.length() - 1);
             int nivelLlaves = 0;
             StringBuilder objetoSeccion = new StringBuilder();
-            
+
             for (int i = 0; i < contenido.length(); i++) {
                 char c = contenido.charAt(i);
-                
+
                 if (c == '{') {
                     nivelLlaves++;
                     objetoSeccion.append(c);
                 } else if (c == '}') {
                     nivelLlaves--;
                     objetoSeccion.append(c);
-                    
+
                     if (nivelLlaves == 0) {
                         procesarObjetoSeccion(objetoSeccion.toString());
                         objetoSeccion = new StringBuilder();
-                        
+
                         if (i + 1 < contenido.length() && contenido.charAt(i + 1) == ',') {
                             i++;
                         }
@@ -236,30 +240,38 @@ public class SectionsMgmtController extends Controller implements Initializable 
     private void procesarObjetoSeccion(String objetoJson) {
         try {
             SeccionDto seccion = new SeccionDto();
-            
+
             // Extraer ID
             String idStr = extraerValorNumerico(objetoJson, "idSeccion");
             if (idStr != null) {
                 seccion.setIdSeccion(Long.parseLong(idStr));
             }
-            
+
             // Extraer campos string
             String nombre = extraerValor(objetoJson, "nombre");
             String tipo = extraerValor(objetoJson, "tipo");
             String cobraImpuesto = extraerValor(objetoJson, "cobraImpuesto");
             String estado = extraerValor(objetoJson, "estado");
-            
-            if (nombre != null) seccion.setNombre(nombre);
-            if (tipo != null) seccion.setTipo(tipo);
-            if (cobraImpuesto != null) seccion.setCobraImpuesto(cobraImpuesto);
-            if (estado != null) seccion.setEstado(estado);
-            
+
+            if (nombre != null) {
+                seccion.setNombre(nombre);
+            }
+            if (tipo != null) {
+                seccion.setTipo(tipo);
+            }
+            if (cobraImpuesto != null) {
+                seccion.setCobraImpuesto(cobraImpuesto);
+            }
+            if (estado != null) {
+                seccion.setEstado(estado);
+            }
+
             // Extraer ID de imagen
             String idImagenStr = extraerValorNumerico(objetoJson, "idArchivoImagen");
             if (idImagenStr != null) {
                 seccion.setIdArchivoImagen(Long.parseLong(idImagenStr));
             }
-            
+
             // Extraer fecha
             String fechaStr = extraerValor(objetoJson, "fechaCreacion");
             if (fechaStr != null) {
@@ -269,9 +281,9 @@ public class SectionsMgmtController extends Controller implements Initializable 
                     System.err.println("Error parseando fecha: " + ex.getMessage());
                 }
             }
-            
+
             listSections.add(seccion);
-            
+
         } catch (Exception e) {
             System.err.println("Error procesando objeto de sección: " + e.getMessage());
             e.printStackTrace();
@@ -320,5 +332,30 @@ public class SectionsMgmtController extends Controller implements Initializable 
         TreeItem<SeccionDto> root = new RecursiveTreeItem<>(filter, RecursiveTreeObject::getChildren);
         tbvSections.setRoot(root);
         tbvSections.setShowRoot(false);
+    }
+
+    private void setActionsColumn() {
+        tbcActions.setCellFactory(col -> new TreeTableCell<SeccionDto, Void>() {
+            MFXButton btnEdit = new MFXButton(" ");
+            MFXButton btnDelete = new MFXButton();
+
+            {
+                btnEdit.setGraphic(new ImageView(new Image("../resources/icons/icons8-edit-50.png")));
+                btnDelete.setGraphic(new ImageView(new Image("../resources/icons/icons8-delete-50.png")));
+                
+                btnEdit.setOnAction(e -> {
+                    SeccionDto seccionDto = getTreeTableRow().getItem();
+                    if(seccionDto != null) onEditSection(seccionDto);
+                });
+                btnDelete.setOnAction(e -> {
+                    //lógica para eliminar la columna de la tabla y DB.
+                });
+            }
+        });
+
+    }
+
+    private String getLanguageString(String key) {
+        return FlowController.getInstance().getLanguage().getString(key);
     }
 }

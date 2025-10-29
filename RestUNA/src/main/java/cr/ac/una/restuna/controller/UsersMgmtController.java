@@ -7,6 +7,7 @@ package cr.ac.una.restuna.controller;
 import com.jfoenix.controls.JFXTreeTableView;
 import com.jfoenix.controls.RecursiveTreeItem;
 import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
+import cr.ac.una.restuna.model.UsuarioDto;
 import cr.ac.una.restuna.service.UsuarioService;
 import cr.ac.una.restuna.util.AppKeys;
 import cr.ac.una.restuna.util.FlowController;
@@ -27,7 +28,10 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 
 /**
@@ -59,6 +63,8 @@ public class UsersMgmtController extends Controller implements Initializable {
     private JFXTreeTableView<UserRow> tbvUsers;
     @FXML
     private MFXScrollPane tableRoot;
+    @FXML
+    private TreeTableColumn<UsuarioDto, Void> tbcActions;
 
     private final ObservableList<UserRow> userList = FXCollections.observableArrayList();
     private UsuarioService usuarioService;
@@ -67,7 +73,7 @@ public class UsersMgmtController extends Controller implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         // Inicializar servicio
         usuarioService = new UsuarioService();
-        
+
         // Configurar tabla
         tbvUsers.prefHeightProperty().bind(tableRoot.heightProperty());
         tbvUsers.prefWidthProperty().bind(tableRoot.widthProperty());
@@ -95,27 +101,27 @@ public class UsersMgmtController extends Controller implements Initializable {
         // Cargar usuarios desde el servidor
         cargarUsuarios();
     }
-    
+
     /**
-     * Carga todos los usuarios desde el servidor
-     * Método público para permitir recargar desde otros controladores
+     * Carga todos los usuarios desde el servidor Método público para permitir
+     * recargar desde otros controladores
      */
     public void cargarUsuarios() {
         // Mostrar indicador de carga si es necesario
         btnAdd.setDisable(true);
         btnAdd.setText("Cargando...");
-        
+
         Task<Respuesta> loadTask = new Task<Respuesta>() {
             @Override
             protected Respuesta call() throws Exception {
                 return usuarioService.obtenerTodosLosUsuarios(); // Obtener todos los usuarios
             }
         };
-        
+
         loadTask.setOnSucceeded(e -> {
             Platform.runLater(() -> {
                 Respuesta respuesta = loadTask.getValue();
-                
+
                 if (respuesta != null && respuesta.getEstado()) {
                     try {
                         // La respuesta contiene el JSON con la lista de usuarios
@@ -131,24 +137,24 @@ public class UsersMgmtController extends Controller implements Initializable {
                     String mensaje = respuesta != null ? respuesta.getMensaje() : "Error desconocido";
                     showMessage("Error cargando usuarios: " + mensaje);
                 }
-                
+
                 // Restaurar botón
                 btnAdd.setDisable(false);
                 btnAdd.setText("Añadir");
             });
         });
-        
+
         loadTask.setOnFailed(e -> {
             Platform.runLater(() -> {
                 Throwable exception = loadTask.getException();
                 showMessage("Error de conexión: " + exception.getMessage());
-                
+
                 // Restaurar botón
                 btnAdd.setDisable(false);
                 btnAdd.setText("Añadir");
             });
         });
-        
+
         // Ejecutar tarea en background
         Thread loadThread = new Thread(loadTask);
         loadThread.setDaemon(true);
@@ -165,15 +171,15 @@ public class UsersMgmtController extends Controller implements Initializable {
         // Abrir ventana modal para agregar nuevo usuario
         Stage stage = new Stage();
         FlowController.getInstance().goViewInWindowModal(AppKeys.NEW_USER, stage, false);
-        
+
         // Si la ventana se cierra, podríamos recargar los usuarios
         // Sin embargo, esto se maneja desde NewUserController a través de addUser
     }
 
     /**
-     * Añade un usuario al modelo local y actualiza la vista
-     * Este método es llamado desde NewUserController después de guardar un usuario
-     * 
+     * Añade un usuario al modelo local y actualiza la vista Este método es
+     * llamado desde NewUserController después de guardar un usuario
+     *
      * @param username Nombre de usuario
      * @param role Rol del usuario
      * @param status Estado del usuario (A=Activo, I=Inactivo)
@@ -196,7 +202,7 @@ public class UsersMgmtController extends Controller implements Initializable {
         System.out.println("Añadiendo nuevo usuario: " + username);
         userList.add(new UserRow(username, name, role, status));
         filters(); // Actualizar vista
-        
+
         // Opcional: Mostrar mensaje de confirmación
         // showMessage("Usuario " + username + " añadido correctamente");
     }
@@ -205,39 +211,43 @@ public class UsersMgmtController extends Controller implements Initializable {
         String search = txfSearch.getText() == null ? "" : txfSearch.getText().toLowerCase();
         String filterRol = cmbRole.getValue();
         String filterStatus = cmbStatus.getValue();
-        
-        ObservableList<UserRow> filter = userList.filtered(x -> 
-            x.getUsername().get().toLowerCase().contains(search)
+
+        ObservableList<UserRow> filter = userList.filtered(x
+                -> x.getUsername().get().toLowerCase().contains(search)
         ).filtered(f -> {
-            if (filterRol == null || filterRol.isEmpty()) return true;
+            if (filterRol == null || filterRol.isEmpty()) {
+                return true;
+            }
             // Convertir rol capitalizado a mayúsculas para comparar
             String rolCode = filterRol.toUpperCase();
             return f.getRole().get().equals(rolCode);
         }).filtered(s -> {
-            if (filterStatus == null || filterStatus.isEmpty()) return true;
+            if (filterStatus == null || filterStatus.isEmpty()) {
+                return true;
+            }
             // Convertir "Activo" a "A" e "Inactivo" a "I" para comparar
             String statusCode = filterStatus.equals("Activo") ? "A" : "I";
             return s.getStatus().get().equals(statusCode);
         });
-        
+
         TreeItem<UserRow> root = new RecursiveTreeItem<>(filter, RecursiveTreeObject::getChildren);
         tbvUsers.setRoot(root);
         tbvUsers.setShowRoot(false);
     }
-    
+
     @FXML
     private void onActionBtnClearFilters(ActionEvent event) {
         // Limpiar campo de búsqueda
         txfSearch.clear();
-        
+
         // Limpiar ComboBoxes
         cmbRole.clearSelection();
         cmbStatus.clearSelection();
-        
+
         // Aplicar filtros (mostrará todos los usuarios)
         filters();
     }
-    
+
     /**
      * Procesa la lista de usuarios desde JSON y los agrega a la tabla
      */
@@ -246,14 +256,14 @@ public class UsersMgmtController extends Controller implements Initializable {
             userList.clear();
             System.out.println("Procesando JSON de usuarios...");
             System.out.println("JSON recibido: " + usuariosJson);
-            
+
             // Verificar si el JSON es válido
             if (usuariosJson == null || usuariosJson.trim().isEmpty()) {
                 System.err.println("JSON vacío");
                 showMessage("No se recibieron datos de usuarios");
                 return;
             }
-            
+
             // El servidor retorna directamente un array JSON siguiendo el patrón UNA Planilla
             // Verificar si comienza con corchete (array directo)
             String jsonTrimmed = usuariosJson.trim();
@@ -274,7 +284,7 @@ public class UsersMgmtController extends Controller implements Initializable {
                             // Extraer el array de usuarios
                             String arrayUsuarios = usuariosJson.substring(inicioArray, finArray + 1);
                             System.out.println("Array de usuarios extraído: " + arrayUsuarios);
-                            
+
                             // Ahora procesamos cada objeto de usuario dentro del array
                             procesarArrayDeUsuarios(arrayUsuarios);
                         } else {
@@ -290,19 +300,19 @@ public class UsersMgmtController extends Controller implements Initializable {
                     showMessage("Formato de respuesta inesperado");
                 }
             }
-            
+
             // Actualizar la vista
             filters();
-            
+
             System.out.println("Usuarios cargados: " + userList.size());
-            
+
         } catch (Exception e) {
             System.err.println("Error procesando usuarios desde JSON: " + e.getMessage());
             e.printStackTrace();
             showMessage("Error procesando datos: " + e.getMessage());
         }
     }
-    
+
     /**
      * Encuentra la posición de cierre del corchete correspondiente
      */
@@ -321,7 +331,7 @@ public class UsersMgmtController extends Controller implements Initializable {
         }
         return -1;
     }
-    
+
     /**
      * Procesa un array de usuarios JSON
      */
@@ -329,27 +339,27 @@ public class UsersMgmtController extends Controller implements Initializable {
         try {
             // Eliminar los corchetes del array
             String contenido = arrayUsuarios.substring(1, arrayUsuarios.length() - 1);
-            
+
             // Dividir por objetos de usuario (este enfoque simple asume que no hay objetos anidados)
             // Para una solución más robusta, necesitaríamos una biblioteca JSON adecuada
             int nivelLlaves = 0;
             StringBuilder objetoUsuario = new StringBuilder();
-            
+
             for (int i = 0; i < contenido.length(); i++) {
                 char c = contenido.charAt(i);
-                
+
                 if (c == '{') {
                     nivelLlaves++;
                     objetoUsuario.append(c);
                 } else if (c == '}') {
                     nivelLlaves--;
                     objetoUsuario.append(c);
-                    
+
                     // Si llegamos al cierre del objeto de usuario
                     if (nivelLlaves == 0) {
                         procesarObjetoUsuario(objetoUsuario.toString());
                         objetoUsuario = new StringBuilder();
-                        
+
                         // Saltar la coma que separa objetos
                         if (i + 1 < contenido.length() && contenido.charAt(i + 1) == ',') {
                             i++;
@@ -364,7 +374,7 @@ public class UsersMgmtController extends Controller implements Initializable {
             e.printStackTrace();
         }
     }
-    
+
     /**
      * Procesa un objeto de usuario individual
      */
@@ -378,7 +388,7 @@ public class UsersMgmtController extends Controller implements Initializable {
             }
             String rol = extraerValor(objetoUsuario, "rol");
             String estado = extraerValor(objetoUsuario, "estado");
-            
+
             if (usuario != null && rol != null && estado != null) {
                 System.out.println("Usuario encontrado: " + usuario + ", Nombre: " + nombre + ", Rol: " + rol + ", Estado: " + estado);
                 userList.add(new UserRow(usuario, nombre, rol, estado));
@@ -390,7 +400,7 @@ public class UsersMgmtController extends Controller implements Initializable {
             e.printStackTrace();
         }
     }
-    
+
     /**
      * Extrae un valor de un campo en el JSON
      */
@@ -398,16 +408,16 @@ public class UsersMgmtController extends Controller implements Initializable {
         String patron = "\"" + campo + "\"\\s*:\\s*\"([^\"]+)\"";
         java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(patron);
         java.util.regex.Matcher matcher = pattern.matcher(json);
-        
+
         if (matcher.find()) {
             return matcher.group(1);
         }
-        
+
         // Intentar con formato numérico (sin comillas)
         patron = "\"" + campo + "\"\\s*:\\s*([^,\\}]+)";
         pattern = java.util.regex.Pattern.compile(patron);
         matcher = pattern.matcher(json);
-        
+
         if (matcher.find()) {
             String valor = matcher.group(1);
             // Eliminar espacios y verificar si es booleano
@@ -423,8 +433,43 @@ public class UsersMgmtController extends Controller implements Initializable {
                 // No es numérico
             }
         }
-        
+
         return null;
+    }
+
+    private void onEditUser(UsuarioDto usuarioDto) {
+        NewUserController controller = (NewUserController) FlowController.getInstance()
+                .getController(AppKeys.NEW_USER);
+        controller.setParentController(this);
+        controller.loadUser(usuarioDto);
+        FlowController.getInstance().goViewInWindowModal(AppKeys.NEW_USER, new Stage(), false);
+    }
+
+    private void setActionsColumn() {
+        tbcActions.setCellFactory(col -> new TreeTableCell<UsuarioDto, Void>() {
+            MFXButton btnEdit = new MFXButton(" ");
+            MFXButton btnDelete = new MFXButton();
+
+            {
+                btnEdit.setGraphic(new ImageView(new Image("../resources/icons/icons8-edit-50.png")));
+                btnDelete.setGraphic(new ImageView(new Image("../resources/icons/icons8-delete-50.png")));
+
+                btnEdit.setOnAction(e -> {
+                    UsuarioDto usuarioDto = getTreeTableRow().getItem();
+                    if (usuarioDto != null) {
+                        onEditUser(usuarioDto);
+                    }
+                });
+                btnDelete.setOnAction(e -> {
+                    //lógica para eliminar la columna de la tabla y DB.
+                });
+            }
+        });
+
+    }
+
+    private String getLanguageString(String key) {
+        return FlowController.getInstance().getLanguage().getString(key);
     }
 
     private void showMessage(String msg) {

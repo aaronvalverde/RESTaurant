@@ -67,6 +67,7 @@
                         <TreeTableColumn fx:id="tbcName" prefWidth="150.0" text="%tbc.name" />
                         <TreeTableColumn fx:id="tbcRole" prefWidth="75.0" text="%tbc.role" />
                         <TreeTableColumn fx:id="tbcStatus" prefWidth="75.0" text="%tbc.status" />
+                        <TreeTableColumn fx:id="tbcActions" prefWidth="75.0" text="%tbc.actions" />
                      </columns>
                      <columnResizePolicy>
                         <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
