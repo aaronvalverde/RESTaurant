@@ -42,13 +42,9 @@ public class MainController extends Controller implements Initializable {
     private MFXButton btnBilling;
     @FXML
     private MFXButton btnCashClosing;
-    @FXML
     private MFXButton btnUsers;
-    @FXML
     private MFXButton btnSectionsMgmt;
-    @FXML
     private MFXButton btnMenuGroups;
-    @FXML
     private MFXButton btnMenuItems;
     @FXML
     private MFXButton btnReports;
@@ -58,10 +54,11 @@ public class MainController extends Controller implements Initializable {
     private BorderPane mainLayout;
     @FXML
     private BorderPane contentArea;
-    @FXML
     private WebView wvLogo;
     @FXML
     private MFXButton btnCashOpening;
+    @FXML
+    private MFXButton btnManagement;
 
     /**
      * Initializes the controller class.
@@ -187,28 +184,25 @@ public class MainController extends Controller implements Initializable {
         FlowController.getInstance().goViewInWindowModal(AppKeys.CASH_CLOSING, new Stage(), false);
     }
 
-    @FXML
     private void onActionBtnUsers(ActionEvent event) {
         FlowController.getInstance().goView(AppKeys.USERS_MGMT);
     }
 
-    @FXML
     private void onActionBtnSectionsMgmt(ActionEvent event) {
         FlowController.getInstance().goView(AppKeys.SECTIONS_MGMT);
     }
 
-    @FXML
     private void onActionBtnMenuGroups(ActionEvent event) {
         FlowController.getInstance().goView(AppKeys.MENU_GROUPS_MGMT);
     }
 
-    @FXML
     private void onActionBtnMenuItems(ActionEvent event) {
         FlowController.getInstance().goView(AppKeys.MENU_ITEMS_MGMT);
     }
 
     @FXML
     private void onActionBtnReports(ActionEvent event) {
+        FlowController.getInstance().goView(AppKeys.REPORTS);
     }
 
     @FXML
@@ -218,5 +212,10 @@ public class MainController extends Controller implements Initializable {
     @FXML
     private void onActionBtnCashOpening(ActionEvent event) {
         FlowController.getInstance().goViewInWindowModal(AppKeys.CASH_OPENING, new Stage(), false);
+    }
+
+    @FXML
+    private void onActionBtnManagement(ActionEvent event) {
+        FlowController.getInstance().goView(AppKeys.MANAGEMENT);
     }
 }

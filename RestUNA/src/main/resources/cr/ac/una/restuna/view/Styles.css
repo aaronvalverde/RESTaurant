@@ -27,7 +27,7 @@
 #btnBilling, #btnCashOpening, #btnCashClosing,
 #btnUsers, #btnSectionsMgmt,
 #btnMenuGroups, #btnMenuItems,
-#btnReports, #btnSettings, #btnLogout {
+#btnReports, #btnLogout {
     -fx-background-color: transparent;
     -fx-text-fill: white;
     -fx-font-size: 14px;
@@ -39,7 +39,7 @@
 #btnBilling:hover, #btnCashOpening:hover, #btnCashClosing:hover,
 #btnUsers:hover, #btnSectionsMgmt:hover,
 #btnMenuGroups:hover, #btnMenuItems:hover,
-#btnReports:hover, #btnSettings:hover, #btnLogout:hover{
+#btnReports:hover, #btnLogout:hover{
     -fx-background-color: #734c2f;
 }
 
