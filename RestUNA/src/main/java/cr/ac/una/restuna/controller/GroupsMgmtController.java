@@ -5,7 +5,7 @@ import java.util.ResourceBundle;
 import com.jfoenix.controls.JFXTreeTableView;
 import com.jfoenix.controls.RecursiveTreeItem;
 import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
-import cr.ac.una.restuna.dto.GrupoProductoDto;
+import cr.ac.una.restuna.model.GrupoProductoDto;
 import cr.ac.una.restuna.util.AppKeys;
 import cr.ac.una.restuna.util.FlowController;
 import io.github.palexdev.materialfx.controls.MFXButton;

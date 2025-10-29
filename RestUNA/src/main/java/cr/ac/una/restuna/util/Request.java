@@ -99,8 +99,8 @@ public class Request {
         if (objeto == null) return "{}";
         
         // Si es un DTO, construimos un JSON básico con sus propiedades
-        if (objeto instanceof cr.ac.una.restuna.dto.UsuarioDto) {
-            cr.ac.una.restuna.dto.UsuarioDto usuarioDto = (cr.ac.una.restuna.dto.UsuarioDto) objeto;
+        if (objeto instanceof cr.ac.una.restuna.model.UsuarioDto) {
+            cr.ac.una.restuna.model.UsuarioDto usuarioDto = (cr.ac.una.restuna.model.UsuarioDto) objeto;
             StringBuilder jsonBuilder = new StringBuilder("{");
             
             // Añadir ID si existe

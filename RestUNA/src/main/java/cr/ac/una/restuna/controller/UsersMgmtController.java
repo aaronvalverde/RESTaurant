@@ -4,6 +4,7 @@
  */
 package cr.ac.una.restuna.controller;
 
+import cr.ac.una.restuna.model.UserRow;
 import com.jfoenix.controls.JFXTreeTableView;
 import com.jfoenix.controls.RecursiveTreeItem;
 import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;

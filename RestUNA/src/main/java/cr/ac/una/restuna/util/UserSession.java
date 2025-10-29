@@ -1,6 +1,6 @@
 package cr.ac.una.restuna.util;
 
-import cr.ac.una.restuna.dto.UsuarioDto;
+import cr.ac.una.restuna.model.UsuarioDto;
 
 /**
  * Clase para manejar la sesión del usuario actual

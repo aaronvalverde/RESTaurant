@@ -1,6 +1,6 @@
 package cr.ac.una.restuna.controller;
 
-import cr.ac.una.restuna.dto.SeccionDto;
+import cr.ac.una.restuna.model.SeccionDto;
 import cr.ac.una.restuna.util.AppKeys;
 import cr.ac.una.restuna.util.FlowController;
 import io.github.palexdev.materialfx.controls.MFXButton;

@@ -1,6 +1,6 @@
 package cr.ac.una.restuna.service;
 
-import cr.ac.una.restuna.dto.UsuarioDto;
+import cr.ac.una.restuna.model.UsuarioDto;
 import cr.ac.una.restuna.util.Request;
 import cr.ac.una.restuna.util.Respuesta;
 import java.util.HashMap;

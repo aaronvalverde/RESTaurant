@@ -4,7 +4,7 @@
  */
 package cr.ac.una.restuna.controller;
 
-import cr.ac.una.restuna.dto.UsuarioDto;
+import cr.ac.una.restuna.model.UsuarioDto;
 import cr.ac.una.restuna.service.UsuarioService;
 import cr.ac.una.restuna.util.AppKeys;
 import cr.ac.una.restuna.util.FlowController;

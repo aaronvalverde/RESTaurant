@@ -1,4 +1,4 @@
-package cr.ac.una.restuna.dto;
+package cr.ac.una.restuna.model;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;

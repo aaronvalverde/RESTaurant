@@ -1,4 +1,4 @@
-package cr.ac.una.restuna.dto;
+package cr.ac.una.restuna.model;
 
 import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
 import javafx.beans.property.*;
