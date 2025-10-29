@@ -1,4 +1,4 @@
-package cr.ac.una.wsrestuna.resources;
+package cr.ac.una.wsrestuna.controller;
 
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;

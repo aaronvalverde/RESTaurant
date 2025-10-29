@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
     @NamedQuery(name = "Usuario.findByUsuario", query = "SELECT u FROM Usuario u WHERE u.usuario = :usuario"),
     @NamedQuery(name = "Usuario.findByRol", query = "SELECT u FROM Usuario u WHERE u.rol = :rol ORDER BY u.usuario"),
     @NamedQuery(name = "Usuario.findActivos", query = "SELECT u FROM Usuario u WHERE u.estado = 'A' ORDER BY u.usuario"),
-    @NamedQuery(name = "Usuario.findByUsuClave", query = "SELECT u FROM Usuario u WHERE u.usuario = :usuario and u.contrasena = :clave", 
+    @NamedQuery(name = "Usuario.findByUsuClave", query = "SELECT u FROM Usuario u WHERE u.usuario = :usuario AND u.contrasena = :clave", 
                 hints = @QueryHint(name = "eclipselink.refresh", value = "true"))
 })
 public class Usuario implements Serializable {

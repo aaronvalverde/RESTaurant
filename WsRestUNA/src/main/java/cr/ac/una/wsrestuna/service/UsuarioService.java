@@ -4,6 +4,7 @@ import cr.ac.una.wsrestuna.model.Usuario;
 import cr.ac.una.wsrestuna.model.UsuarioDto;
 import cr.ac.una.wsrestuna.util.CodigoRespuesta;
 import cr.ac.una.wsrestuna.util.Respuesta;
+import jakarta.ejb.LocalBean;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
  * Maneja operaciones CRUD y lógica de negocio para usuarios
  */
 @Stateless
+@LocalBean
 public class UsuarioService {
 
     private static final Logger LOGGER = Logger.getLogger(UsuarioService.class.getName());
@@ -381,5 +383,207 @@ public class UsuarioService {
             throw new RuntimeException("Error al cifrar contraseña", e);
         }
         */
+    }
+    
+    // ========== MÉTODOS SIGUIENDO PATRÓN UNA PLANILLA ==========
+    
+    /**
+     * Valida usuario y contraseña (patrón UNA Planilla)
+     */
+    public Respuesta validarUsuario(String usuario, String contrasena) {
+        try {
+            if (usuario == null || usuario.trim().isEmpty()) {
+                return new Respuesta(false, CodigoRespuesta.ERROR_CLIENTE, 
+                        "El nombre de usuario es requerido", "validarUsuario: Usuario vacío");
+            }
+
+            if (contrasena == null || contrasena.trim().isEmpty()) {
+                return new Respuesta(false, CodigoRespuesta.ERROR_CLIENTE, 
+                        "La contraseña es requerida", "validarUsuario: Contraseña vacía");
+            }
+
+            TypedQuery<Usuario> query = em.createNamedQuery("Usuario.findByUsuClave", Usuario.class);
+            query.setParameter("usuario", usuario);
+            query.setParameter("clave", contrasena);
+            
+            Usuario usuarioEntity = query.getSingleResult();
+            
+            // Verificar que el usuario esté activo
+            if (!usuarioEntity.isActivo()) {
+                return new Respuesta(false, CodigoRespuesta.ERROR_CLIENTE, 
+                        "Usuario inactivo", "El usuario está inactivo");
+            }
+
+            // Actualizar último acceso
+            usuarioEntity.setFechaUltimoAcceso(LocalDateTime.now());
+            em.merge(usuarioEntity);
+
+            UsuarioDto usuarioDto = new UsuarioDto(usuarioEntity);
+            return new Respuesta(true, CodigoRespuesta.CORRECTO, 
+                    "", "", "Usuario", usuarioDto);
+
+        } catch (NoResultException e) {
+            return new Respuesta(false, CodigoRespuesta.ERROR_NOENCONTRADO, 
+                    "No existe un usuario con las credenciales ingresadas.", 
+                    "validarUsuario NoResultException");
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error al validar usuario", e);
+            return new Respuesta(false, CodigoRespuesta.ERROR_INTERNO, 
+                    "Ocurrió un error al consultar el usuario.", 
+                    "validarUsuario " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Obtiene un usuario por ID (patrón UNA Planilla)
+     */
+    public Respuesta getUsuario(Long id) {
+        try {
+            if (id == null) {
+                return new Respuesta(false, CodigoRespuesta.ERROR_CLIENTE, 
+                        "El ID del usuario es requerido", "getUsuario: ID nulo");
+            }
+
+            Usuario usuario = em.find(Usuario.class, id);
+            if (usuario == null) {
+                return new Respuesta(false, CodigoRespuesta.ERROR_NOENCONTRADO, 
+                        "No existe un usuario con el código ingresado.", 
+                        "getUsuario NoResultException");
+            }
+
+            UsuarioDto usuarioDto = new UsuarioDto(usuario);
+            return new Respuesta(true, CodigoRespuesta.CORRECTO, 
+                    "", "", "Usuario", usuarioDto);
+
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error al obtener usuario", e);
+            return new Respuesta(false, CodigoRespuesta.ERROR_INTERNO, 
+                    "Ocurrió un error al consultar el usuario.", 
+                    "getUsuario " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Obtiene usuarios con filtros (patrón UNA Planilla)
+     */
+    public Respuesta getUsuarios(String nombre, String usuario, String rol, String estado) {
+        try {
+            StringBuilder jpql = new StringBuilder("SELECT u FROM Usuario u WHERE 1=1");
+            
+            if (nombre != null && !nombre.equals("%")) {
+                jpql.append(" AND UPPER(u.nombre) LIKE :nombre");
+            }
+            if (usuario != null && !usuario.equals("%")) {
+                jpql.append(" AND UPPER(u.usuario) LIKE :usuario");
+            }
+            if (rol != null && !rol.equals("%")) {
+                jpql.append(" AND UPPER(u.rol) LIKE :rol");
+            }
+            if (estado != null && !estado.equals("%")) {
+                jpql.append(" AND u.estado LIKE :estado");
+            }
+            
+            jpql.append(" ORDER BY u.usuario");
+            
+            TypedQuery<Usuario> query = em.createQuery(jpql.toString(), Usuario.class);
+            
+            if (nombre != null && !nombre.equals("%")) {
+                query.setParameter("nombre", nombre);
+            }
+            if (usuario != null && !usuario.equals("%")) {
+                query.setParameter("usuario", usuario);
+            }
+            if (rol != null && !rol.equals("%")) {
+                query.setParameter("rol", rol);
+            }
+            if (estado != null && !estado.equals("%")) {
+                query.setParameter("estado", estado);
+            }
+            
+            List<Usuario> usuarios = query.getResultList();
+            List<UsuarioDto> usuariosDto = usuarios.stream()
+                    .map(UsuarioDto::new)
+                    .collect(Collectors.toList());
+
+            return new Respuesta(true, CodigoRespuesta.CORRECTO, 
+                    "", "", "Usuarios", usuariosDto);
+
+        } catch (NoResultException e) {
+            return new Respuesta(false, CodigoRespuesta.ERROR_NOENCONTRADO, 
+                    "No existen usuarios con los criterios ingresados.", 
+                    "getUsuarios NoResultException");
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error al consultar usuarios", e);
+            return new Respuesta(false, CodigoRespuesta.ERROR_INTERNO, 
+                    "Ocurrió un error al consultar los usuarios.", 
+                    "getUsuarios " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Guarda un usuario (crear o actualizar) (patrón UNA Planilla)
+     */
+    public Respuesta guardarUsuario(UsuarioDto usuarioDto) {
+        try {
+            Usuario usuario;
+            
+            if (usuarioDto.getIdUsuario() != null && usuarioDto.getIdUsuario() > 0) {
+                // Actualizar
+                usuario = em.find(Usuario.class, usuarioDto.getIdUsuario());
+                if (usuario == null) {
+                    return new Respuesta(false, CodigoRespuesta.ERROR_NOENCONTRADO, 
+                            "No se encontró el usuario a modificar.", 
+                            "guardarUsuario NoResultException");
+                }
+                usuario.actualizar(usuarioDto);
+                usuario = em.merge(usuario);
+            } else {
+                // Crear
+                usuario = new Usuario(usuarioDto);
+                em.persist(usuario);
+            }
+            
+            em.flush();
+            return new Respuesta(true, CodigoRespuesta.CORRECTO, 
+                    "", "", "Usuario", new UsuarioDto(usuario));
+
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error al guardar usuario", e);
+            return new Respuesta(false, CodigoRespuesta.ERROR_INTERNO, 
+                    "Ocurrió un error al guardar el usuario.", 
+                    "guardarUsuario " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Elimina un usuario (patrón UNA Planilla)
+     */
+    public Respuesta eliminarUsuario(Long id) {
+        try {
+            Usuario usuario;
+            
+            if (id != null && id > 0) {
+                usuario = em.find(Usuario.class, id);
+                if (usuario == null) {
+                    return new Respuesta(false, CodigoRespuesta.ERROR_NOENCONTRADO, 
+                            "No se encontró el usuario a eliminar.", 
+                            "eliminarUsuario NoResultException");
+                }
+                em.remove(usuario);
+            } else {
+                return new Respuesta(false, CodigoRespuesta.ERROR_CLIENTE, 
+                        "Debe cargar el usuario a eliminar.", 
+                        "eliminarUsuario NoResultException");
+            }
+            
+            em.flush();
+            return new Respuesta(true, CodigoRespuesta.CORRECTO, "", "");
+
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error al eliminar usuario", e);
+            return new Respuesta(false, CodigoRespuesta.ERROR_INTERNO, 
+                    "Ocurrió un error al eliminar el usuario.", 
+                    "eliminarUsuario " + e.getMessage());
+        }
     }
 }

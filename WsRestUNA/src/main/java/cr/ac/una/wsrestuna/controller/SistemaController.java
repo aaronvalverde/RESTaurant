@@ -1,4 +1,4 @@
-package cr.ac.una.wsrestuna.resources;
+package cr.ac.una.wsrestuna.controller;
 
 import cr.ac.una.wsrestuna.model.Usuario;
 import cr.ac.una.wsrestuna.service.UsuarioService;
