@@ -24,3 +24,18 @@
 hs_err_pid*
 replay_pid*
 /RestUNA/target/
+/WsRestUNA/target/
+
+# VS Code
+.vscode/
+
+# NetBeans
+**/nbactions.xml
+**/nb-configuration.xml
+
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# Maven status files
+*.lst
