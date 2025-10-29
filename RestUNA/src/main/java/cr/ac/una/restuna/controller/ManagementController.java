@@ -12,6 +12,7 @@ import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 
 /**
@@ -32,7 +33,7 @@ public class ManagementController extends Controller implements Initializable {
     @FXML
     private MFXButton btnExit;
     @FXML
-    private VBox contentArea;
+    private BorderPane contentArea;
 
     /**
      * Initializes the controller class.
@@ -40,30 +41,36 @@ public class ManagementController extends Controller implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
-    }    
-    
-        @Override
+    }
+
+    @Override
     public void initialize() {
+        FlowController.getInstance().setContentArea(contentArea);
     }
 
     @FXML
     private void onActionBtnUsers(ActionEvent event) {
+        FlowController.getInstance().goView(AppKeys.USERS_MGMT);
     }
 
     @FXML
     private void onActionBtnSections(ActionEvent event) {
+        FlowController.getInstance().goView(AppKeys.SECTIONS_MGMT);
     }
 
     @FXML
     private void onActionBtnGroups(ActionEvent event) {
+        FlowController.getInstance().goView(AppKeys.MENU_GROUPS_MGMT);
     }
 
     @FXML
     private void onActionBtnItems(ActionEvent event) {
+        FlowController.getInstance().goView(AppKeys.MENU_ITEMS_MGMT);
     }
 
     @FXML
     private void onActionBtnExit(ActionEvent event) {
-        FlowController.getInstance().goView(AppKeys.MAIN);
+        FlowController.getInstance().setContentArea(null);
+        FlowController.getInstance().goMain(AppKeys.MAIN);
     }
 }
