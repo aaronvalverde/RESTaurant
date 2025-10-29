@@ -210,14 +210,14 @@ public class UsuarioService {
                 return new Respuesta(false, "Respuesta vacía del servidor", "No se recibieron datos");
             }
             
-            // Verificar si la respuesta es un JSON válido (básicamente)
-            if (!(responseJson.startsWith("{") && responseJson.endsWith("}")) && 
-                !(responseJson.startsWith("[") && responseJson.endsWith("]")))
-            {
-                System.err.println("Formato de respuesta inesperado: " + responseJson);
-                return new Respuesta(false, "Formato de respuesta no válido", "No es JSON válido");
+            // El servidor retorna un array JSON de usuarios directamente (patrón UNA Planilla)
+            // Verificar que sea un array válido
+            if (!responseJson.trim().startsWith("[")) {
+                System.err.println("Formato de respuesta inesperado (esperaba array): " + responseJson);
+                return new Respuesta(false, "Formato de respuesta no válido", "Esperaba un array de usuarios");
             }
             
+            // El JSON ya es un array de usuarios, lo pasamos directamente
             return new Respuesta(true, "", "", "Usuarios", responseJson);
             
         } catch (Exception ex) {

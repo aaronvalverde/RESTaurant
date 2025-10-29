@@ -4,7 +4,6 @@
  */
 package cr.ac.una.restuna.controller;
 
-import cr.ac.una.restuna.model.UserRow;
 import com.jfoenix.controls.JFXTreeTableView;
 import com.jfoenix.controls.RecursiveTreeItem;
 import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
@@ -12,6 +11,7 @@ import cr.ac.una.restuna.service.UsuarioService;
 import cr.ac.una.restuna.util.AppKeys;
 import cr.ac.una.restuna.util.FlowController;
 import cr.ac.una.restuna.util.Respuesta;
+import cr.ac.una.restuna.util.UserRow;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXFilterComboBox;
 import io.github.palexdev.materialfx.controls.MFXScrollPane;
@@ -254,33 +254,41 @@ public class UsersMgmtController extends Controller implements Initializable {
                 return;
             }
             
-            // El formato del JSON es un objeto que contiene un array de usuarios dentro de resultados.Usuarios
-            // Primero extraemos el array de usuarios de la estructura
-            int inicioArray = usuariosJson.indexOf("\"Usuarios\":");
-            if (inicioArray != -1) {
-                // Encontrar el inicio del array
-                inicioArray = usuariosJson.indexOf("[", inicioArray);
+            // El servidor retorna directamente un array JSON siguiendo el patrón UNA Planilla
+            // Verificar si comienza con corchete (array directo)
+            String jsonTrimmed = usuariosJson.trim();
+            if (jsonTrimmed.startsWith("[")) {
+                // Es un array directo, procesarlo directamente
+                System.out.println("Procesando array directo de usuarios");
+                procesarArrayDeUsuarios(usuariosJson);
+            } else {
+                // Formato antiguo: objeto con clave "Usuarios"
+                int inicioArray = usuariosJson.indexOf("\"Usuarios\":");
                 if (inicioArray != -1) {
-                    // Encontrar el fin del array
-                    int finArray = encontrarCierreCorchete(usuariosJson, inicioArray);
-                    if (finArray != -1) {
-                        // Extraer el array de usuarios
-                        String arrayUsuarios = usuariosJson.substring(inicioArray, finArray + 1);
-                        System.out.println("Array de usuarios extraído: " + arrayUsuarios);
-                        
-                        // Ahora procesamos cada objeto de usuario dentro del array
-                        procesarArrayDeUsuarios(arrayUsuarios);
+                    // Encontrar el inicio del array
+                    inicioArray = usuariosJson.indexOf("[", inicioArray);
+                    if (inicioArray != -1) {
+                        // Encontrar el fin del array
+                        int finArray = encontrarCierreCorchete(usuariosJson, inicioArray);
+                        if (finArray != -1) {
+                            // Extraer el array de usuarios
+                            String arrayUsuarios = usuariosJson.substring(inicioArray, finArray + 1);
+                            System.out.println("Array de usuarios extraído: " + arrayUsuarios);
+                            
+                            // Ahora procesamos cada objeto de usuario dentro del array
+                            procesarArrayDeUsuarios(arrayUsuarios);
+                        } else {
+                            System.err.println("No se pudo encontrar el cierre del array de usuarios");
+                            showMessage("Error analizando la respuesta del servidor");
+                        }
                     } else {
-                        System.err.println("No se pudo encontrar el cierre del array de usuarios");
+                        System.err.println("No se pudo encontrar el inicio del array de usuarios");
                         showMessage("Error analizando la respuesta del servidor");
                     }
                 } else {
-                    System.err.println("No se pudo encontrar el inicio del array de usuarios");
-                    showMessage("Error analizando la respuesta del servidor");
+                    System.err.println("No se encontró la clave 'Usuarios' en el JSON");
+                    showMessage("Formato de respuesta inesperado");
                 }
-            } else {
-                System.err.println("No se encontró la clave 'Usuarios' en el JSON");
-                showMessage("Formato de respuesta inesperado");
             }
             
             // Actualizar la vista
