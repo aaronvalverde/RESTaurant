@@ -223,7 +223,7 @@ public class BillingController extends Controller implements Initializable {
             
             totalPaid += amount;
             txfAmount.clear();
-            upda
+            
         }catch(NumberFormatException e){
             
             
