@@ -171,12 +171,39 @@ public class UsersMgmtController extends Controller implements Initializable {
 
     @FXML
     private void onActionBtnAdd(ActionEvent event) {
-        // Abrir ventana modal para agregar nuevo usuario
-        Stage stage = new Stage();
-        FlowController.getInstance().goViewInWindowModal(AppKeys.NEW_USER, stage, false);
+        // Cargar el controlador en segundo plano para evitar bloqueos
+        Task<NewUserController> loadTask = new Task<NewUserController>() {
+            @Override
+            protected NewUserController call() throws Exception {
+                return (NewUserController) FlowController.getInstance()
+                        .getController(AppKeys.NEW_USER);
+            }
+        };
 
-        // Si la ventana se cierra, podríamos recargar los usuarios
-        // Sin embargo, esto se maneja desde NewUserController a través de addUser
+        loadTask.setOnSucceeded(e -> {
+            Platform.runLater(() -> {
+                NewUserController controller = loadTask.getValue();
+                if (controller != null) {
+                    controller.setParentController(this);
+                    controller.clearFields(); // Limpiar campos para modo creación
+                    
+                    // Abrir ventana modal para agregar nuevo usuario
+                    FlowController.getInstance().goViewInWindowModal(AppKeys.NEW_USER, this.getStage(), false);
+                } else {
+                    showMessage("Error: No se pudo cargar la vista de nuevo usuario");
+                }
+            });
+        });
+
+        loadTask.setOnFailed(e -> {
+            Platform.runLater(() -> {
+                showMessage("Error cargando vista: " + loadTask.getException().getMessage());
+            });
+        });
+
+        Thread loadThread = new Thread(loadTask);
+        loadThread.setDaemon(true);
+        loadThread.start();
     }
 
     /**
@@ -191,25 +218,32 @@ public class UsersMgmtController extends Controller implements Initializable {
      */
     public void addUser(Long idUsuario, String username, String name, String role, String status) {
         // Verificar si el usuario ya existe en la lista local
+        boolean encontrado = false;
         for (UserRow user : userList) {
             if (user.getUsername().get().equalsIgnoreCase(username)) {
                 System.out.println("El usuario " + username + " ya existe en la lista. Actualizando...");
-                // Si existe, podemos actualizar sus datos
+                // Si existe, actualizar sus datos
                 user.getName().set(name);
                 user.getRole().set(role);
                 user.getStatus().set(status);
-                filters(); // Actualizar vista
-                return;
+                encontrado = true;
+                break;
             }
         }
 
         // Si no existe, añadirlo
-        System.out.println("Añadiendo nuevo usuario: " + username);
-        userList.add(new UserRow(idUsuario, username, name, role, status));
-        filters(); // Actualizar vista
-
-        // Opcional: Mostrar mensaje de confirmación
-        // showMessage("Usuario " + username + " añadido correctamente");
+        if (!encontrado) {
+            System.out.println("Añadiendo nuevo usuario: " + username);
+            userList.add(new UserRow(idUsuario, username, name, role, status));
+        }
+        
+        // Forzar actualización de la tabla
+        TreeItem<UserRow> root = new RecursiveTreeItem<>(userList, RecursiveTreeObject::getChildren);
+        tbvUsers.setRoot(null); // Limpiar primero
+        tbvUsers.setRoot(root);  // Establecer nuevo root
+        tbvUsers.setShowRoot(false);
+        
+        System.out.println("Usuario " + username + " procesado. Total usuarios: " + userList.size());
     }
 
     private void filters() {

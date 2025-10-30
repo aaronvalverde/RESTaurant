@@ -165,21 +165,15 @@ public class NewUserController extends Controller implements Initializable {
                     showMessage("Usuario guardado correctamente");
 
                     // Notificar al controlador padre que se agregó un usuario
-                    UsersMgmtController parentController = (UsersMgmtController) FlowController.getInstance().getController(AppKeys.USERS_MGMT);
-
                     if (parentController != null) {
                         // Extraer el idUsuario de la respuesta
                         Long idUsuario = null;
                         try {
                             String usuarioJson = (String) respuesta.getResultado("Usuario");
                             if (usuarioJson != null) {
-                                // Extraer idUsuario usando regex simple
-                                java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("\"idUsuario\"\\s*:\\s*(\\d+)");
-                                java.util.regex.Matcher matcher = pattern.matcher(usuarioJson);
-                                if (matcher.find()) {
-                                    idUsuario = Long.parseLong(matcher.group(1));
-                                    System.out.println("ID de usuario extraído: " + idUsuario);
-                                }
+                                // Extraer idUsuario usando JsonParser
+                                idUsuario = cr.ac.una.restuna.util.JsonParser.extraerValorLong(usuarioJson, "idUsuario");
+                                System.out.println("ID de usuario extraído: " + idUsuario);
                             }
                         } catch (Exception ex) {
                             System.err.println("Error extrayendo ID de usuario: " + ex.getMessage());
@@ -192,9 +186,10 @@ public class NewUserController extends Controller implements Initializable {
                         }
                         
                         // Asegurarse de pasar el nombre correctamente
+                        System.out.println("Notificando a UsersMgmtController sobre nuevo usuario: " + username);
                         parentController.addUser(idUsuario, username, name, role, status);
-                        // También podríamos refrescar toda la lista llamando a cargarUsuarios()
-                        // parentController.cargarUsuarios();
+                    } else {
+                        System.err.println("ADVERTENCIA: parentController es null, no se puede actualizar la tabla");
                     }
 
                     // Cerrar ventana
@@ -249,7 +244,7 @@ public class NewUserController extends Controller implements Initializable {
     /**
      * Limpia todos los campos del formulario y resetea el estado
      */
-    private void clearFields() {
+    public void clearFields() {
         editMode = false;
         usuarioDto = null;
         
