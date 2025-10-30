@@ -485,12 +485,74 @@ public class UsersMgmtController extends Controller implements Initializable {
     }
     
     private void onDeleteUser(UserRow userRow) {
-        // TODO: Implementar lógica de eliminación
         // Mostrar diálogo de confirmación
-        // Llamar al servicio para eliminar
-        // Actualizar la lista local y refrescar la tabla
-        System.out.println("Eliminar usuario: " + userRow.getUsername().get());
-        showMessage("Función de eliminación aún no implementada");
+        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmAlert.setTitle("Confirmar eliminación");
+        confirmAlert.setHeaderText("¿Eliminar usuario?");
+        confirmAlert.setContentText("¿Está seguro que desea eliminar el usuario '" + userRow.getUsername().get() + "'?\n\n" +
+                "Esta acción no se puede deshacer.");
+        
+        // Esperar respuesta del usuario
+        confirmAlert.showAndWait().ifPresent(response -> {
+            if (response == javafx.scene.control.ButtonType.OK) {
+                // Usuario confirmó, proceder con la eliminación
+                eliminarUsuarioDelServidor(userRow);
+            }
+            // Si presionó Cancel, no hacer nada
+        });
+    }
+    
+    private void eliminarUsuarioDelServidor(UserRow userRow) {
+        // Deshabilitar botón mientras se elimina
+        btnAdd.setDisable(true);
+        btnAdd.setText("Eliminando...");
+        
+        Task<Respuesta> deleteTask = new Task<Respuesta>() {
+            @Override
+            protected Respuesta call() throws Exception {
+                return usuarioService.eliminarUsuario(userRow.getIdUsuario());
+            }
+        };
+        
+        deleteTask.setOnSucceeded(e -> {
+            Platform.runLater(() -> {
+                Respuesta respuesta = deleteTask.getValue();
+                
+                if (respuesta != null && respuesta.getEstado()) {
+                    // Eliminación exitosa
+                    showMessage("Usuario '" + userRow.getUsername().get() + "' eliminado correctamente");
+                    
+                    // Eliminar de la lista local
+                    userList.remove(userRow);
+                    
+                    // Actualizar la vista
+                    filters();
+                } else {
+                    // Error al eliminar
+                    String errorMsg = respuesta != null ? respuesta.getMensaje() : "Error desconocido";
+                    showMessage("Error al eliminar usuario: " + errorMsg);
+                }
+                
+                // Restaurar botón
+                btnAdd.setDisable(false);
+                btnAdd.setText("Añadir");
+            });
+        });
+        
+        deleteTask.setOnFailed(e -> {
+            Platform.runLater(() -> {
+                Throwable exception = deleteTask.getException();
+                showMessage("Error de conexión: " + (exception != null ? exception.getMessage() : "Error desconocido"));
+                
+                // Restaurar botón
+                btnAdd.setDisable(false);
+                btnAdd.setText("Añadir");
+            });
+        });
+        
+        Thread deleteThread = new Thread(deleteTask);
+        deleteThread.setDaemon(true);
+        deleteThread.start();
     }
 
     private void setActionsColumn() {
