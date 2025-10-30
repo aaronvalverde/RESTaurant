@@ -5,19 +5,23 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="500.0" spacing="10.0" stylesheets="@Styles.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cr.ac.una.restuna.controller.CashOpeningController">
+<VBox fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="500.0" spacing="10.0" styleClass="jfx-main-background" stylesheets="@Styles.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cr.ac.una.restuna.controller.CashOpeningController">
    <children>
       <HBox alignment="CENTER_LEFT" prefHeight="60.0" prefWidth="200.0">
          <children>
-            <Label text="%lb.cash.opening" />
+            <Label styleClass="jfx-titles" text="%lb.cash.opening" />
          </children>
       </HBox>
       <VBox prefHeight="64.0" prefWidth="480.0" spacing="10.0">
          <children>
-            <Label text="%lb.init.fund" />
+            <Label styleClass="jfx-labels" text="%lb.init.fund">
+               <graphic>
+                  <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" />
+               </graphic></Label>
             <MFXTextField fx:id="txfInitialFund" floatMode="DISABLED" maxWidth="1.7976931348623157E308" promptText="%txf.price.prompt">
                <cursor>
                   <Cursor fx:constant="TEXT" />

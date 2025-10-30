@@ -4,9 +4,11 @@ import cr.ac.una.restuna.util.FlowController;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXDatePicker;
+
 import java.net.URL;
 import java.util.HashSet;
 import java.util.ResourceBundle;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -48,6 +50,8 @@ public class ReportsController extends Controller implements Initializable {
     @FXML
     private MFXButton btnDownload;
 
+    private MFXButton activeButton;
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         initView();
@@ -59,12 +63,14 @@ public class ReportsController extends Controller implements Initializable {
 
     @FXML
     private void onActionBtnBillingReport(ActionEvent event) {
+        setActiveButton(btnBillingReport);
         lbReportType.setText(getLanguageString("lb.billing.report"));
         setBoxes(false);
     }
 
     @FXML
     private void onActionBtnCashClosingReport(ActionEvent event) {
+        setActiveButton(btnCashClosingReport);
         lbReportType.setText(getLanguageString("lb.cashClosing.report"));
         loadCashierOptions();
         setBoxes(true);
@@ -72,6 +78,7 @@ public class ReportsController extends Controller implements Initializable {
 
     @FXML
     private void onActionBtnSalesReport(ActionEvent event) {
+        setActiveButton(btnSalesReport);
         lbReportType.setText(getLanguageString("lb.sales.report"));
         setBoxes(false);
     }
@@ -105,7 +112,7 @@ public class ReportsController extends Controller implements Initializable {
     private void initView() {
         lbReportType.setText(getLanguageString("lb.billing.report"));
         setBoxes(false);
-    }
+}
 
     private void loadCashierOptions() {
         //cmbCashier
@@ -118,5 +125,15 @@ public class ReportsController extends Controller implements Initializable {
         alert.setHeaderText(null);
         alert.setContentText(msg);
         alert.showAndWait();
+    }
+
+    private void setActiveButton(MFXButton button) {
+        // Resetear el estilo del anterior activo
+        if (activeButton != null) {
+            activeButton.setStyle(""); // vuelve al estilo por defecto
+        }
+        // Aplicar estilo al nuevo activo
+        button.setStyle("-fx-background-color: linear-gradient(to right, #eab308, #d97706); -fx-border-color: #f59e0b");
+        activeButton = button;
     }
 }

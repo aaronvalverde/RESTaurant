@@ -115,7 +115,7 @@ public class SectionsController extends Controller implements Initializable {
 
     private void onEditMode(Boolean editMode) {
         editModeBox.setVisible(editMode);
-        editModeBox.setVisible(editMode);
+        editModeBox.setManaged(editMode);
         btnExitEditMode.setVisible(editMode);
         btnExitEditMode.setManaged(editMode);
         btnEditMode.setVisible(!editMode);
