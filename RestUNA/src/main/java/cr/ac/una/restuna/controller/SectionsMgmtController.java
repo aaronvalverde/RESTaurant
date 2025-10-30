@@ -3,10 +3,13 @@ package cr.ac.una.restuna.controller;
 import com.jfoenix.controls.JFXTreeTableView;
 import com.jfoenix.controls.RecursiveTreeItem;
 import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
+import cr.ac.una.restuna.model.ArchivoDto;
 import cr.ac.una.restuna.model.SeccionDto;
+import cr.ac.una.restuna.service.ArchivoService;
 import cr.ac.una.restuna.service.SeccionService;
 import cr.ac.una.restuna.util.AppKeys;
 import cr.ac.una.restuna.util.FlowController;
+import cr.ac.una.restuna.util.ImagenUtil;
 import cr.ac.una.restuna.util.Respuesta;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXFilterComboBox;
@@ -25,6 +28,8 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -49,6 +54,10 @@ public class SectionsMgmtController extends Controller implements Initializable 
     private TreeTableColumn<SeccionDto, String> tbcName;
     @FXML
     private TreeTableColumn<SeccionDto, String> tbcTableGraphic;
+    
+    // Cache de imágenes para evitar recargas
+    private final Map<Long, Image> imageCache = new HashMap<>();
+    private final ArchivoService archivoService = new ArchivoService();
     @FXML
     private TreeTableColumn<SeccionDto, String> tbcTax;
     @FXML
@@ -75,8 +84,38 @@ public class SectionsMgmtController extends Controller implements Initializable 
         tbcTax.setCellValueFactory(x -> new ReadOnlyStringWrapper(
                 x.getValue().getValue().cobraImpuesto() ? "Sí" : "No"));
         tbcType.setCellValueFactory(x -> x.getValue().getValue().tipoProperty());
-        tbcTableGraphic.setCellValueFactory(x -> new ReadOnlyStringWrapper(
-                x.getValue().getValue().tieneImagen() ? "Con imagen" : "Sin imagen"));
+        
+        // Configurar columna de imagen con celda personalizada
+        tbcTableGraphic.setCellValueFactory(x -> new ReadOnlyStringWrapper(""));
+        tbcTableGraphic.setCellFactory(column -> new TreeTableCell<SeccionDto, String>() {
+            private final ImageView imageView = new ImageView();
+            
+            {
+                imageView.setFitWidth(60);
+                imageView.setFitHeight(60);
+                imageView.setPreserveRatio(true);
+                imageView.setSmooth(true);
+            }
+            
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                setAlignment(javafx.geometry.Pos.CENTER);
+                
+                if (empty || getTreeTableRow() == null || getTreeTableRow().getTreeItem() == null) {
+                    setGraphic(null);
+                    return;
+                }
+                
+                SeccionDto seccion = getTreeTableRow().getTreeItem().getValue();
+                if (seccion != null && seccion.getIdArchivoImagen() != null && seccion.getIdArchivoImagen() > 0) {
+                    cargarImagenMiniatura(seccion.getIdArchivoImagen(), imageView);
+                    setGraphic(imageView);
+                } else {
+                    setGraphic(null);
+                }
+            }
+        });
 
         tbvSections.setOnMouseClicked(x -> {
             if (x.getClickCount() == 2 && tbvSections.getSelectionModel().getSelectedItem() != null) {
@@ -184,6 +223,8 @@ public class SectionsMgmtController extends Controller implements Initializable 
     private void procesarSeccionesDesdeJson(String seccionesJson) {
         try {
             listSections.clear();
+            // Limpiar cache de imágenes al recargar secciones
+            imageCache.clear();
             System.out.println("Procesando JSON de secciones...");
 
             String jsonTrimmed = seccionesJson.trim();
@@ -319,6 +360,75 @@ public class SectionsMgmtController extends Controller implements Initializable 
             return matcher.group(1);
         }
         return null;
+    }
+    
+    private void cargarImagenMiniatura(Long idArchivo, ImageView imageView) {
+        // Verificar si la imagen ya está en cache
+        if (imageCache.containsKey(idArchivo)) {
+            imageView.setImage(imageCache.get(idArchivo));
+            return;
+        }
+        
+        // Cargar imagen de forma asíncrona
+        Task<Image> loadImageTask = new Task<>() {
+            @Override
+            protected Image call() throws Exception {
+                Respuesta res = archivoService.getArchivo(idArchivo);
+                
+                if (!res.getEstado()) {
+                    return null;
+                }
+                
+                String archivoJson = (String) res.getResultado("Archivo");
+                ArchivoDto archivoDto = parsearArchivoDto(archivoJson);
+                
+                if (archivoDto != null && archivoDto.tieneContenido()) {
+                    return ImagenUtil.archivoDtoToImage(archivoDto);
+                }
+                
+                return null;
+            }
+        };
+        
+        loadImageTask.setOnSucceeded(e -> {
+            Image image = loadImageTask.getValue();
+            if (image != null) {
+                imageCache.put(idArchivo, image);
+                Platform.runLater(() -> imageView.setImage(image));
+            }
+        });
+        
+        loadImageTask.setOnFailed(e -> {
+            System.err.println("Error cargando imagen miniatura: " + loadImageTask.getException().getMessage());
+        });
+        
+        new Thread(loadImageTask).start();
+    }
+    
+    private ArchivoDto parsearArchivoDto(String json) {
+        try {
+            ArchivoDto dto = new ArchivoDto();
+            
+            String idStr = extraerValorNumerico(json, "idArchivo");
+            if (idStr != null) dto.setIdArchivo(Long.parseLong(idStr));
+            
+            String nombre = extraerValor(json, "nombreArchivo");
+            if (nombre != null) dto.setNombreArchivo(nombre);
+            
+            String mime = extraerValor(json, "tipoMime");
+            if (mime != null) dto.setTipoMime(mime);
+            
+            String base64 = extraerValor(json, "contenidoBase64");
+            if (base64 != null) dto.setContenidoBase64(base64);
+            
+            String tamanioStr = extraerValorNumerico(json, "tamanio");
+            if (tamanioStr != null) dto.setTamanio(Long.parseLong(tamanioStr));
+            
+            return dto;
+        } catch (Exception e) {
+            System.err.println("Error parseando ArchivoDto: " + e.getMessage());
+            return null;
+        }
     }
 
     private void showMessage(String message) {
