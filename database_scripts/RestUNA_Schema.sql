@@ -223,13 +223,14 @@ CREATE TABLE CIERRE_CAJA(
 -- PARAMETRO (Configuración del sistema)
 CREATE TABLE PARAMETRO(
   ID_PARAMETRO         NUMBER         NOT NULL,
+  ID_USUARIO           NUMBER         NOT NULL,
   CLAVE                VARCHAR2(50)   NOT NULL,
   VALOR                VARCHAR2(200)  NOT NULL,
   DESCRIPCION          VARCHAR2(300)  NOT NULL,
   TIPO_DATO            VARCHAR2(20)   NOT NULL,
   FECHA_MODIFICACION   DATE           DEFAULT SYSDATE NOT NULL,
   CONSTRAINT PK_PARAMETRO         PRIMARY KEY (ID_PARAMETRO),
-  CONSTRAINT UQ_PARAMETRO_CLAVE   UNIQUE (CLAVE),
+  CONSTRAINT UQ_PARAMETRO_USUARIO_CLAVE UNIQUE (ID_USUARIO, CLAVE),
   CONSTRAINT CHK_PARAMETRO_TIPO   CHECK (TIPO_DATO IN ('STRING','NUMBER','BOOLEAN','DATE'))
 );
 
@@ -347,6 +348,12 @@ ALTER TABLE CIERRE_CAJA
   ADD CONSTRAINT FK_CIERRE_USUARIO
     FOREIGN KEY (ID_USUARIO_CAJERO)
     REFERENCES USUARIO (ID_USUARIO);
+
+ALTER TABLE PARAMETRO
+  ADD CONSTRAINT FK_PARAMETRO_USUARIO
+    FOREIGN KEY (ID_USUARIO)
+    REFERENCES USUARIO (ID_USUARIO)
+    ON DELETE CASCADE;
 
 -----------------------------------------------------------
 -- 5) TRIGGERS (auto-ID y protección de actualización de PK)
@@ -783,9 +790,10 @@ COMMENT ON COLUMN CIERRE_CAJA.ESTADO               IS 'Estado del cierre: ABIERT
 COMMENT ON COLUMN CIERRE_CAJA.OBSERVACIONES        IS 'Observaciones del cierre de caja.';
 
 -- PARAMETRO
-COMMENT ON TABLE  PARAMETRO IS 'Parámetros de configuración del sistema: impuestos, descuentos, datos del restaurante.';
+COMMENT ON TABLE  PARAMETRO IS 'Parámetros de configuración del sistema por cada administrador: impuestos, descuentos, datos del restaurante.';
 COMMENT ON COLUMN PARAMETRO.ID_PARAMETRO         IS 'Identificador único del parámetro (asignado por secuencia).';
-COMMENT ON COLUMN PARAMETRO.CLAVE                IS 'Clave única del parámetro (IMPUESTO_VENTA, IMPUESTO_SERVICIO, etc.).';
+COMMENT ON COLUMN PARAMETRO.ID_USUARIO           IS 'Usuario administrador dueño de esta configuración (FK).';
+COMMENT ON COLUMN PARAMETRO.CLAVE                IS 'Clave del parámetro (IDIOMA, IMPUESTO_VENTA, etc.). Único por usuario.';
 COMMENT ON COLUMN PARAMETRO.VALOR                IS 'Valor del parámetro.';
 COMMENT ON COLUMN PARAMETRO.DESCRIPCION          IS 'Descripción del parámetro.';
 COMMENT ON COLUMN PARAMETRO.TIPO_DATO            IS 'Tipo de dato: STRING, NUMBER, BOOLEAN, DATE.';

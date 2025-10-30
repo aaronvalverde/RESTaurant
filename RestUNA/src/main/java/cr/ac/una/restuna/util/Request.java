@@ -199,8 +199,87 @@ public class Request {
             return json.toString();
         }
 
+        // Soportar List (para listas de DTOs como List<ParametroDto>)
+        if (objeto instanceof java.util.List) {
+            java.util.List<?> lista = (java.util.List<?>) objeto;
+            StringBuilder json = new StringBuilder();
+            json.append('[');
+            
+            for (int i = 0; i < lista.size(); i++) {
+                if (i > 0) json.append(',');
+                Object item = lista.get(i);
+                
+                // Recursión para convertir cada elemento
+                if (item instanceof cr.ac.una.restuna.model.ParametroDto) {
+                    json.append(convertirParametroDtoAJson((cr.ac.una.restuna.model.ParametroDto) item));
+                } else {
+                    // Para otros tipos, usar recursión general
+                    json.append(convertirObjetoAJson(item));
+                }
+            }
+            
+            json.append(']');
+            return json.toString();
+        }
+        
+        // Soportar ParametroDto individual
+        if (objeto instanceof cr.ac.una.restuna.model.ParametroDto) {
+            return convertirParametroDtoAJson((cr.ac.una.restuna.model.ParametroDto) objeto);
+        }
+
         // Para otros tipos de objetos, usar toString como fallback (no recomendado)
         return objeto.toString();
+    }
+    
+    /**
+     * Convierte un ParametroDto a JSON
+     */
+    private String convertirParametroDtoAJson(cr.ac.una.restuna.model.ParametroDto parametro) {
+        StringBuilder json = new StringBuilder();
+        json.append('{');
+        
+        // ID (si existe)
+        if (parametro.getIdParametro() != null && parametro.getIdParametro() > 0) {
+            json.append("\"idParametro\":").append(parametro.getIdParametro()).append(',');
+        }
+        
+        // ID Usuario (obligatorio)
+        if (parametro.getIdUsuario() != null) {
+            json.append("\"idUsuario\":").append(parametro.getIdUsuario()).append(',');
+        }
+        
+        // Clave (obligatoria)
+        if (parametro.getClave() != null) {
+            json.append("\"clave\":\"").append(escaparJson(parametro.getClave())).append("\",");
+        }
+        
+        // Valor (obligatorio)
+        if (parametro.getValor() != null) {
+            json.append("\"valor\":\"").append(escaparJson(parametro.getValor())).append("\",");
+        }
+        
+        // Descripción
+        if (parametro.getDescripcion() != null) {
+            json.append("\"descripcion\":\"").append(escaparJson(parametro.getDescripcion())).append("\",");
+        }
+        
+        // Tipo de dato
+        if (parametro.getTipoDato() != null) {
+            json.append("\"tipoDato\":\"").append(escaparJson(parametro.getTipoDato())).append("\",");
+        }
+        
+        // Modificado
+        if (parametro.getModificado() != null) {
+            json.append("\"modificado\":").append(parametro.getModificado()).append(',');
+        }
+        
+        // Eliminar la última coma si existe
+        if (json.charAt(json.length() - 1) == ',') {
+            json.setLength(json.length() - 1);
+        }
+        
+        json.append('}');
+        return json.toString();
     }
     
     /**

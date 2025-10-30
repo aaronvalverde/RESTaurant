@@ -2,18 +2,24 @@ package cr.ac.una.restuna.controller;
 
 import cr.ac.una.restuna.controller.Controller;
 import cr.ac.una.restuna.model.UsuarioDto;
+import cr.ac.una.restuna.model.ParametroDto;
 import cr.ac.una.restuna.service.UsuarioService;
+import cr.ac.una.restuna.service.ParametroService;
 import cr.ac.una.restuna.util.Respuesta;
 import cr.ac.una.restuna.util.AppKeys;
 import cr.ac.una.restuna.util.FlowController;
 import cr.ac.una.restuna.util.Format;
 import cr.ac.una.restuna.util.UserSession;
+import cr.ac.una.restuna.util.JsonParser;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXPasswordField;
 import io.github.palexdev.materialfx.controls.MFXTextField;
 import java.net.URL;
+import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -43,6 +49,7 @@ public class LoginController extends Controller implements Initializable {
     private WebView webRoot;
 
     private UsuarioService usuarioService;
+    private ParametroService parametroService;
 
     @Override
     public void initialize() {
@@ -50,8 +57,9 @@ public class LoginController extends Controller implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // Inicializar cliente REST primero
+        // Inicializar clientes REST primero
         usuarioService = new UsuarioService();
+        parametroService = new ParametroService();
         
         // Usar Platform.runLater para asegurar que todos los componentes estén inicializados
         Platform.runLater(() -> {
@@ -148,6 +156,9 @@ public class LoginController extends Controller implements Initializable {
                             // Login exitoso - crear DTO del usuario para la sesión
                             UsuarioDto usuarioDto = crearUsuarioDesdeJson(usuarioJson);
                             UserSession.getInstance().setCurrentUser(usuarioDto);
+                            
+                            // Cargar idioma preferido del usuario antes de ir al Main
+                            cargarIdiomaUsuario(usuarioDto.getIdUsuario());
                             
                             FlowController.getInstance().goMain(AppKeys.MAIN);
                         } else {
@@ -313,6 +324,81 @@ public class LoginController extends Controller implements Initializable {
         } catch (Exception e) {
             System.err.println("Error creando UsuarioDto desde JSON: " + e.getMessage());
             return null;
+        }
+    }
+    
+    /**
+     * Carga el idioma preferido del usuario desde sus parámetros guardados
+     */
+    private void cargarIdiomaUsuario(Long idUsuario) {
+        if (idUsuario == null) {
+            return;
+        }
+        
+        try {
+            // Obtener parámetros del usuario
+            Respuesta respuesta = parametroService.getParametrosPorUsuario(idUsuario);
+            
+            if (respuesta != null && respuesta.getEstado()) {
+                String jsonArray = (String) respuesta.getResultado("Parametros");
+                
+                if (jsonArray != null && !jsonArray.trim().isEmpty() && !jsonArray.equals("[]")) {
+                    // Buscar el parámetro IDIOMA en el JSON
+                    String idiomaUsuario = extraerIdiomaDelJson(jsonArray);
+                    
+                    if (idiomaUsuario != null && !idiomaUsuario.trim().isEmpty()) {
+                        // Cambiar el idioma del sistema
+                        cambiarIdiomaSistema(idiomaUsuario);
+                        System.out.println("Idioma cargado desde parámetros: " + idiomaUsuario);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error cargando idioma del usuario: " + e.getMessage());
+            // No bloqueamos el login si falla la carga del idioma
+        }
+    }
+    
+    /**
+     * Extrae el valor del parámetro IDIOMA del JSON de parámetros
+     */
+    private String extraerIdiomaDelJson(String jsonArray) {
+        try {
+            // Buscar el objeto que contiene "clave":"IDIOMA"
+            Pattern pattern = Pattern.compile("\\{[^}]*\"clave\"\\s*:\\s*\"IDIOMA\"[^}]*\"valor\"\\s*:\\s*\"([^\"]+)\"[^}]*\\}");
+            Matcher matcher = pattern.matcher(jsonArray);
+            
+            if (matcher.find()) {
+                return matcher.group(1);
+            }
+        } catch (Exception e) {
+            System.err.println("Error extrayendo idioma del JSON: " + e.getMessage());
+        }
+        return null;
+    }
+    
+    /**
+     * Cambia el idioma de todo el sistema
+     */
+    private void cambiarIdiomaSistema(String codigoIdioma) {
+        try {
+            Locale locale;
+            
+            if ("es".equalsIgnoreCase(codigoIdioma)) {
+                locale = Locale.of("es");
+            } else if ("en".equalsIgnoreCase(codigoIdioma)) {
+                locale = Locale.of("en");
+            } else {
+                // Por defecto usar español
+                locale = Locale.of("es");
+            }
+            
+            ResourceBundle bundle = ResourceBundle.getBundle("cr.ac.una.restuna.i18n.text", locale);
+            FlowController.getInstance().setLanguage(bundle);
+            
+            System.out.println("Idioma del sistema cambiado a: " + locale.getLanguage());
+        } catch (Exception e) {
+            System.err.println("Error cambiando idioma del sistema: " + e.getMessage());
         }
     }
 
