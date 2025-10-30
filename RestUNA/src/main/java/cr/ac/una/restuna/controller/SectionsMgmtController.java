@@ -21,6 +21,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TreeTableColumn;
 import javafx.stage.Stage;
 
@@ -46,6 +47,8 @@ public class SectionsMgmtController extends Controller implements Initializable 
 
     @FXML
     private MFXButton btnAdd;
+    @FXML
+    private MFXButton btnClearFilters;
     @FXML
     private MFXFilterComboBox<String> cmbType;
     @FXML
@@ -151,6 +154,19 @@ public class SectionsMgmtController extends Controller implements Initializable 
         controller.setParentController(this);
         controller.limpiarCampos();
         FlowController.getInstance().goViewInWindowModal(AppKeys.NEW_SECTION, new Stage(), false);
+    }
+    
+    @FXML
+    void onActionBtnClearFilters(ActionEvent event) {
+        // Limpiar campo de búsqueda
+        txfSearch.clear();
+        
+        // Limpiar combo de tipo
+        cmbType.clearSelection();
+        cmbType.setValue(null);
+        
+        // Aplicar filtros vacíos para mostrar todos los elementos
+        filters();
     }
 
     private void onEditSection(SeccionDto sect) {
@@ -470,7 +486,8 @@ public class SectionsMgmtController extends Controller implements Initializable 
                     if(seccionDto != null) onEditSection(seccionDto);
                 });
                 btnDelete.setOnAction(e -> {
-                    //lógica para eliminar la columna de la tabla y DB.
+                    SeccionDto seccionDto = getTreeTableRow().getItem();
+                    if(seccionDto != null) onDeleteSection(seccionDto);
                 });
             }
             
@@ -489,6 +506,73 @@ public class SectionsMgmtController extends Controller implements Initializable 
 
     }
 
+    private void onDeleteSection(SeccionDto seccion) {
+        // Mostrar confirmación
+        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmacion.setTitle("Confirmar eliminación");
+        confirmacion.setHeaderText("¿Está seguro que desea eliminar esta sección?");
+        confirmacion.setContentText("Sección: " + seccion.getNombre() + " (" + seccion.getTipo() + ")\n\nEsta acción no se puede deshacer.");
+        
+        confirmacion.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                eliminarSeccion(seccion);
+            }
+        });
+    }
+    
+    private void eliminarSeccion(SeccionDto seccion) {
+        // Validar que tenga ID
+        if (seccion.getIdSeccion() == null || seccion.getIdSeccion() <= 0) {
+            mostrarError("Error", "No se puede eliminar la sección", "La sección no tiene un ID válido.");
+            return;
+        }
+        
+        Task<Respuesta> deleteTask = new Task<>() {
+            @Override
+            protected Respuesta call() throws Exception {
+                return seccionService.eliminarSeccion(seccion.getIdSeccion());
+            }
+        };
+        
+        deleteTask.setOnSucceeded(event -> {
+            Respuesta respuesta = deleteTask.getValue();
+            
+            if (respuesta.getEstado()) {
+                // Eliminar de la lista local
+                listSections.remove(seccion);
+                
+                // Limpiar caché de imagen si tenía
+                if (seccion.getIdArchivoImagen() != null && seccion.getIdArchivoImagen() > 0) {
+                    imageCache.remove(seccion.getIdArchivoImagen());
+                }
+                
+                // Mostrar mensaje de éxito
+                Alert alerta = new Alert(Alert.AlertType.INFORMATION);
+                alerta.setTitle("Éxito");
+                alerta.setHeaderText("Sección eliminada");
+                alerta.setContentText("La sección '" + seccion.getNombre() + "' ha sido eliminada correctamente.");
+                alerta.showAndWait();
+                
+            } else {
+                mostrarError("Error al eliminar", "No se pudo eliminar la sección", respuesta.getMensaje());
+            }
+        });
+        
+        deleteTask.setOnFailed(event -> {
+            mostrarError("Error", "Error al eliminar sección", deleteTask.getException().getMessage());
+        });
+        
+        new Thread(deleteTask).start();
+    }
+    
+    private void mostrarError(String titulo, String encabezado, String contenido) {
+        Alert alerta = new Alert(Alert.AlertType.ERROR);
+        alerta.setTitle(titulo);
+        alerta.setHeaderText(encabezado);
+        alerta.setContentText(contenido);
+        alerta.showAndWait();
+    }
+    
     private String getLanguageString(String key) {
         return FlowController.getInstance().getLanguage().getString(key);
     }
