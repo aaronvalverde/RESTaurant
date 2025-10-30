@@ -11,6 +11,7 @@ import cr.ac.una.restuna.model.UsuarioDto;
 import cr.ac.una.restuna.service.UsuarioService;
 import cr.ac.una.restuna.util.AppKeys;
 import cr.ac.una.restuna.util.FlowController;
+import cr.ac.una.restuna.util.JsonParser;
 import cr.ac.una.restuna.util.Respuesta;
 import cr.ac.una.restuna.util.UserRow;
 import io.github.palexdev.materialfx.controls.MFXButton;
@@ -380,28 +381,22 @@ public class UsersMgmtController extends Controller implements Initializable {
     }
 
     /**
-     * Procesa un objeto de usuario individual
+     * Procesa un objeto de usuario individual para la tabla
      */
     private void procesarObjetoUsuario(String objetoUsuario) {
         try {
-            String idUsuarioStr = extraerValor(objetoUsuario, "idUsuario");
-            String usuario = extraerValor(objetoUsuario, "usuario");
-            // Intentar extraer el nombre del JSON, si no existe usamos el usuario como nombre
-            String nombre = extraerValor(objetoUsuario, "nombre");
+            Long idUsuario = JsonParser.extraerValorLong(objetoUsuario, "idUsuario");
+            String usuario = JsonParser.extraerValor(objetoUsuario, "usuario");
+            String nombre = JsonParser.extraerValor(objetoUsuario, "nombre");
             if (nombre == null || nombre.trim().isEmpty()) {
                 nombre = usuario; // Fallback al usuario si no hay nombre
             }
-            String rol = extraerValor(objetoUsuario, "rol");
-            String estado = extraerValor(objetoUsuario, "estado");
+            String rol = JsonParser.extraerValor(objetoUsuario, "rol");
+            String estado = JsonParser.extraerValor(objetoUsuario, "estado");
 
-            if (usuario != null && rol != null && estado != null && idUsuarioStr != null) {
-                try {
-                    Long idUsuario = Long.parseLong(idUsuarioStr);
-                    System.out.println("Usuario encontrado: " + usuario + ", Nombre: " + nombre + ", Rol: " + rol + ", Estado: " + estado);
-                    userList.add(new UserRow(idUsuario, usuario, nombre, rol, estado));
-                } catch (NumberFormatException e) {
-                    System.err.println("Error parseando ID de usuario: " + idUsuarioStr);
-                }
+            if (usuario != null && rol != null && estado != null && idUsuario != null) {
+                System.out.println("Usuario encontrado: " + usuario + ", Nombre: " + nombre + ", Rol: " + rol + ", Estado: " + estado);
+                userList.add(new UserRow(idUsuario, usuario, nombre, rol, estado));
             } else {
                 System.err.println("Datos incompletos en objeto de usuario: " + objetoUsuario);
             }
@@ -410,42 +405,34 @@ public class UsersMgmtController extends Controller implements Initializable {
             e.printStackTrace();
         }
     }
-
+    
     /**
-     * Extrae un valor de un campo en el JSON
+     * Parsea un objeto JSON a UsuarioDto completo
      */
-    private String extraerValor(String json, String campo) {
-        String patron = "\"" + campo + "\"\\s*:\\s*\"([^\"]+)\"";
-        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(patron);
-        java.util.regex.Matcher matcher = pattern.matcher(json);
-
-        if (matcher.find()) {
-            return matcher.group(1);
-        }
-
-        // Intentar con formato numérico (sin comillas)
-        patron = "\"" + campo + "\"\\s*:\\s*([^,\\}]+)";
-        pattern = java.util.regex.Pattern.compile(patron);
-        matcher = pattern.matcher(json);
-
-        if (matcher.find()) {
-            String valor = matcher.group(1);
-            // Eliminar espacios y verificar si es booleano
-            valor = valor.trim();
-            if (valor.equals("true") || valor.equals("false")) {
-                return valor;
+    private UsuarioDto parsearUsuarioDto(String json) {
+        try {
+            UsuarioDto dto = new UsuarioDto();
+            dto.setIdUsuario(JsonParser.extraerValorLong(json, "idUsuario"));
+            dto.setUsuario(JsonParser.extraerValor(json, "usuario"));
+            dto.setNombre(JsonParser.extraerValor(json, "nombre"));
+            dto.setRol(JsonParser.extraerValor(json, "rol"));
+            dto.setEstado(JsonParser.extraerValor(json, "estado"));
+            
+            // Campo booleano para estado activo
+            Boolean activo = JsonParser.extraerValorBooleano(json, "activo");
+            if (activo != null) {
+                dto.setActivo(activo);
             }
-            try {
-                // Verificar si es numérico
-                Double.parseDouble(valor);
-                return valor;
-            } catch (NumberFormatException e) {
-                // No es numérico
-            }
+            
+            return dto;
+        } catch (Exception e) {
+            System.err.println("Error parseando UsuarioDto: " + e.getMessage());
+            e.printStackTrace();
+            return null;
         }
-
-        return null;
     }
+
+
 
     private void onEditUser(UserRow userRow) {
         // Cargar el usuario completo desde el servidor usando el ID
@@ -460,7 +447,17 @@ public class UsersMgmtController extends Controller implements Initializable {
             Platform.runLater(() -> {
                 Respuesta respuesta = loadTask.getValue();
                 if (respuesta != null && respuesta.getEstado()) {
-                    UsuarioDto usuarioDto = (UsuarioDto) respuesta.getResultado("Usuario");
+                    // La respuesta viene como String JSON, necesitamos parsearlo
+                    Object resultado = respuesta.getResultado("Usuario");
+                    UsuarioDto usuarioDto = null;
+                    
+                    if (resultado instanceof String) {
+                        // Parsear el JSON manualmente
+                        usuarioDto = parsearUsuarioDto((String) resultado);
+                    } else if (resultado instanceof UsuarioDto) {
+                        usuarioDto = (UsuarioDto) resultado;
+                    }
+                    
                     if (usuarioDto != null) {
                         NewUserController controller = (NewUserController) FlowController.getInstance()
                                 .getController(AppKeys.NEW_USER);

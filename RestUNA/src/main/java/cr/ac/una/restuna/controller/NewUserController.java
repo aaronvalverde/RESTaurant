@@ -93,6 +93,7 @@ public class NewUserController extends Controller implements Initializable {
             return;
         }
 
+        // Validar contraseña solo en modo creación
         if (password.isEmpty()) {
             showMessage("La contraseña es obligatoria");
             pwfPassword.requestFocus();
@@ -249,7 +250,9 @@ public class NewUserController extends Controller implements Initializable {
 
         txfName.setText(usuarioDto.getNombre());
         txfUsername.setText(usuarioDto.getUsuario());
-        pwfPassword.setText(usuarioDto.getNuevaContrasena());
+        // No cargar contraseña por seguridad - dejar vacío
+        pwfPassword.clear();
+        pwfPassword.setPromptText("Dejar vacío para mantener la actual");
         cmbRole.getSelectionModel().selectItem(usuarioDto.getRol());
         cmbStatus.getSelectionModel().selectItem(usuarioDto.getEstado());
 
@@ -265,5 +268,113 @@ public class NewUserController extends Controller implements Initializable {
 
     @FXML
     private void onActionBtnSaveChanges(ActionEvent event) {
+        // Validaciones
+        String name = txfName.getText();
+        String username = txfUsername.getText();
+        String password = pwfPassword.getText();
+        String role = cmbRole.getValue();
+        String status = cmbStatus.getValue();
+
+        if (name == null || name.trim().isEmpty()) {
+            showMessage("Debe ingresar el nombre");
+            txfName.requestFocus();
+            return;
+        }
+
+        if (username == null || username.trim().isEmpty()) {
+            showMessage("Debe ingresar el nombre de usuario");
+            txfUsername.requestFocus();
+            return;
+        }
+
+        if (role == null) {
+            showMessage("Debe seleccionar un rol");
+            cmbRole.requestFocus();
+            return;
+        }
+
+        if (status == null) {
+            showMessage("Debe seleccionar un estado");
+            cmbStatus.requestFocus();
+            return;
+        }
+
+        // Deshabilitar controles para evitar doble envío
+        btnSaveChanges.setDisable(true);
+        btnCancel.setDisable(true);
+        btnSaveChanges.setText("Actualizando...");
+
+        // Actualizar usuario en el servidor
+        Task<Respuesta> task = new Task<Respuesta>() {
+            @Override
+            protected Respuesta call() throws Exception {
+                // Actualizar datos del DTO existente
+                usuarioDto.setNombre(name);
+                usuarioDto.setUsuario(username);
+                usuarioDto.setRol(role);
+                usuarioDto.setEstado(status);
+                
+                // Solo actualizar contraseña si se ingresó una nueva
+                if (password != null && !password.trim().isEmpty()) {
+                    usuarioDto.setNuevaContrasena(password);
+                }
+
+                System.out.println("Enviando petición para actualizar usuario: " + username + " (ID: " + usuarioDto.getIdUsuario() + ")");
+                return usuarioService.guardarUsuario(usuarioDto);
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            Platform.runLater(() -> {
+                Respuesta respuesta = task.getValue();
+
+                if (!respuesta.getEstado()) {
+                    String errorMsg = respuesta.getMensaje();
+                    if (errorMsg == null || errorMsg.isEmpty() || errorMsg.contains("<html") || errorMsg.contains("<!DOCTYPE")) {
+                        errorMsg = "No se pudo actualizar el usuario. Por favor, inténtelo nuevamente.";
+                    }
+
+                    showMessage("Error al actualizar usuario: " + errorMsg);
+                    System.err.println("Error técnico completo: " + respuesta.getMensajeInterno());
+
+                    // Rehabilitar controles
+                    btnSaveChanges.setDisable(false);
+                    btnCancel.setDisable(false);
+                    btnSaveChanges.setText("Save changes");
+                } else {
+                    showMessage("Usuario actualizado correctamente");
+
+                    // Recargar la lista completa del controlador padre
+                    if (parentController != null) {
+                        parentController.cargarUsuarios();
+                    }
+
+                    // Cerrar ventana
+                    getStage().close();
+                }
+            });
+        });
+
+        task.setOnFailed(e -> {
+            Platform.runLater(() -> {
+                Throwable exception = task.getException();
+                if (exception != null) {
+                    exception.printStackTrace();
+                    System.err.println("Error técnico completo: " + exception.getMessage());
+                }
+
+                showMessage("No se pudo conectar con el servidor. Por favor, verifique su conexión e inténtelo nuevamente.");
+
+                // Rehabilitar controles
+                btnSaveChanges.setDisable(false);
+                btnCancel.setDisable(false);
+                btnSaveChanges.setText("Save changes");
+            });
+        });
+
+        // Ejecutar la tarea en un hilo separado
+        Thread thread = new Thread(task);
+        thread.setDaemon(true);
+        thread.start();
     }
 }
