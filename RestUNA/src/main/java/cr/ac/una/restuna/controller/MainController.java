@@ -33,6 +33,8 @@ public class MainController extends Controller implements Initializable {
     @FXML
     private HBox topbar;
     @FXML
+    private MFXButton btnHome;
+    @FXML
     private MFXButton btnLogout;
     @FXML
     private MFXButton btnSections;
@@ -55,6 +57,9 @@ public class MainController extends Controller implements Initializable {
     private MFXButton btnCashOpening;
     @FXML
     private MFXButton btnManagement;
+    
+    // Guardar el contenido inicial del contentArea para restaurarlo
+    private javafx.scene.Node initialCenterContent;
 
     /**
      * Initializes the controller class.
@@ -91,6 +96,10 @@ public class MainController extends Controller implements Initializable {
 
         // Aplicar permisos basados en rol del usuario
         aplicarPermisosDeRol();
+        
+        // Guardar el contenido inicial DESPUÉS de aplicar permisos
+        // Así respeta si los botones están visibles o no según el rol
+        initialCenterContent = contentArea.getCenter();
     }
 
     /**
@@ -107,6 +116,7 @@ public class MainController extends Controller implements Initializable {
         }
 
         // Mostrar/ocultar botones según permisos
+        configurarVisibilidadBoton(btnHome, true); // Home siempre visible
         configurarVisibilidadBoton(btnSections, session.canAccessSalones());
         configurarVisibilidadBoton(btnOrders, session.canAccessOrdenes());
         configurarVisibilidadBoton(btnBilling, session.canAccessFacturacion());
@@ -138,6 +148,7 @@ public class MainController extends Controller implements Initializable {
      * Oculta todos los botones del menú
      */
     private void ocultarTodosLosBotones() {
+        configurarVisibilidadBoton(btnHome, true); // Home siempre visible
         configurarVisibilidadBoton(btnSections, false);
         configurarVisibilidadBoton(btnOrders, false);
         configurarVisibilidadBoton(btnBilling, false);
@@ -154,6 +165,12 @@ public class MainController extends Controller implements Initializable {
         UserSession.getInstance().clearSession();
 
         FlowController.getInstance().goMain(AppKeys.LOGIN);
+    }
+
+    @FXML
+    private void onActionBtnHome(ActionEvent event) {
+        // Restaurar el contenido inicial del contentArea (botones Management y Settings)
+        contentArea.setCenter(initialCenterContent);
     }
 
     @FXML

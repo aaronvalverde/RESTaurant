@@ -11,6 +11,14 @@
     <top>
         <HBox fx:id="topbar" alignment="CENTER" prefHeight="120.0" prefWidth="1280.0" spacing="6.0" style="-fx-background-color: #5e3d26;" BorderPane.alignment="CENTER">
             <children>
+                <MFXButton fx:id="btnHome" alignment="CENTER" contentDisplay="TOP" maxWidth="1.7976931348623157E308" onAction="#onActionBtnHome" text="%btn.home" HBox.hgrow="ALWAYS">
+                    <graphic>
+                        <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true" />
+                    </graphic>
+                    <cursor>
+                        <Cursor fx:constant="HAND" />
+                    </cursor>
+                </MFXButton>
                 <MFXButton fx:id="btnSections" alignment="CENTER" contentDisplay="TOP" maxWidth="1.7976931348623157E308" onAction="#onActionBtnSections" text="%btn.sections" HBox.hgrow="ALWAYS">
                     <graphic>
                         <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true" />

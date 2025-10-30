@@ -29,7 +29,7 @@
 
 /*sidebar buttons*/
 /*normal*/
-#btnSections, #btnOrders,
+#btnHome, #btnSections, #btnOrders,
 #btnBilling, #btnCashOpening, #btnCashClosing,
 #btnUsers, #btnSectionsMgmt,
 #btnMenuGroups, #btnMenuItems,
@@ -46,7 +46,7 @@
 }
 
 /*hover*/
-#btnSections:hover, #btnOrders:hover,
+#btnHome:hover, #btnSections:hover, #btnOrders:hover,
 #btnBilling:hover, #btnCashOpening:hover, #btnCashClosing:hover,
 #btnUsers:hover, #btnSectionsMgmt:hover,
 #btnMenuGroups:hover, #btnMenuItems:hover,
@@ -58,7 +58,7 @@
 }
 
 /*pressed*/
-#btnSections:pressed, #btnOrders:pressed,
+#btnHome:pressed, #btnSections:pressed, #btnOrders:pressed,
 #btnBilling:pressed, #btnCashOpening:pressed, #btnCashClosing:pressed,
 #btnUsers:pressed, #btnSectionsMgmt:pressed,
 #btnMenuGroups:pressed, #btnMenuItems:pressed,
@@ -69,6 +69,10 @@
 }
 
 /*icons*/
+#btnHome > ImageView {
+    -fx-image: url("../resources/icons/icons8-home-50.png");
+}
+
 #btnSections > ImageView {
     -fx-image: url("../resources/icons/icons8-edificio-de-restaurante-50.png");
 }
