@@ -14,6 +14,7 @@ import javafx.beans.property.StringProperty;
  */
 public class UserRow extends RecursiveTreeObject<UserRow> {
 
+    private final Long idUsuario;
     private final StringProperty username;
     private final StringProperty name;
     private final StringProperty role;
@@ -21,7 +22,8 @@ public class UserRow extends RecursiveTreeObject<UserRow> {
     private final StringProperty status;
     private final StringProperty statusDisplay; // Para mostrar "Activo"/"Inactivo"
 
-    public UserRow(String username, String name, String role, String status) {
+    public UserRow(Long idUsuario, String username, String name, String role, String status) {
+        this.idUsuario = idUsuario;
         this.username = new SimpleStringProperty(username);
         this.name = new SimpleStringProperty(name != null ? name : "");
         this.role = new SimpleStringProperty(role);
@@ -37,6 +39,10 @@ public class UserRow extends RecursiveTreeObject<UserRow> {
     private String capitalizeRole(String role) {
         if (role == null || role.isEmpty()) return "";
         return role.charAt(0) + role.substring(1).toLowerCase();
+    }
+
+    public Long getIdUsuario() {
+        return idUsuario;
     }
 
     public StringProperty getUsername() {

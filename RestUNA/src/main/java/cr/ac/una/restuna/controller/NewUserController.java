@@ -165,8 +165,31 @@ public class NewUserController extends Controller implements Initializable {
                     UsersMgmtController parentController = (UsersMgmtController) FlowController.getInstance().getController(AppKeys.USERS_MGMT);
 
                     if (parentController != null) {
+                        // Extraer el idUsuario de la respuesta
+                        Long idUsuario = null;
+                        try {
+                            String usuarioJson = (String) respuesta.getResultado("Usuario");
+                            if (usuarioJson != null) {
+                                // Extraer idUsuario usando regex simple
+                                java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("\"idUsuario\"\\s*:\\s*(\\d+)");
+                                java.util.regex.Matcher matcher = pattern.matcher(usuarioJson);
+                                if (matcher.find()) {
+                                    idUsuario = Long.parseLong(matcher.group(1));
+                                    System.out.println("ID de usuario extraído: " + idUsuario);
+                                }
+                            }
+                        } catch (Exception ex) {
+                            System.err.println("Error extrayendo ID de usuario: " + ex.getMessage());
+                        }
+                        
+                        // Si no pudimos extraer el ID, usar un valor temporal
+                        if (idUsuario == null) {
+                            idUsuario = -1L; // ID temporal que indica que no se pudo obtener
+                            System.err.println("ADVERTENCIA: No se pudo extraer el ID del usuario. Usando ID temporal.");
+                        }
+                        
                         // Asegurarse de pasar el nombre correctamente
-                        parentController.addUser(username, name, role, status);
+                        parentController.addUser(idUsuario, username, name, role, status);
                         // También podríamos refrescar toda la lista llamando a cargarUsuarios()
                         // parentController.cargarUsuarios();
                     }

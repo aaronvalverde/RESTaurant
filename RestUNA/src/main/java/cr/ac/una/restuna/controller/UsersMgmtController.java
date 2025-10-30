@@ -64,7 +64,7 @@ public class UsersMgmtController extends Controller implements Initializable {
     @FXML
     private MFXScrollPane tableRoot;
     @FXML
-    private TreeTableColumn<UsuarioDto, Void> tbcActions;
+    private TreeTableColumn<UserRow, Void> tbcActions;
 
     private final ObservableList<UserRow> userList = FXCollections.observableArrayList();
     private UsuarioService usuarioService;
@@ -138,6 +138,10 @@ public class UsersMgmtController extends Controller implements Initializable {
                     String mensaje = respuesta != null ? respuesta.getMensaje() : "Error desconocido";
                     showMessage("Error cargando usuarios: " + mensaje);
                 }
+                
+                // Restaurar botón después de cargar (exitoso o no)
+                btnAdd.setDisable(false);
+                btnAdd.setText("Añadir");
 
             });
         });
@@ -178,11 +182,13 @@ public class UsersMgmtController extends Controller implements Initializable {
      * Añade un usuario al modelo local y actualiza la vista Este método es
      * llamado desde NewUserController después de guardar un usuario
      *
+     * @param idUsuario ID del usuario
      * @param username Nombre de usuario
+     * @param name Nombre completo
      * @param role Rol del usuario
      * @param status Estado del usuario (A=Activo, I=Inactivo)
      */
-    public void addUser(String username, String name, String role, String status) {
+    public void addUser(Long idUsuario, String username, String name, String role, String status) {
         // Verificar si el usuario ya existe en la lista local
         for (UserRow user : userList) {
             if (user.getUsername().get().equalsIgnoreCase(username)) {
@@ -198,7 +204,7 @@ public class UsersMgmtController extends Controller implements Initializable {
 
         // Si no existe, añadirlo
         System.out.println("Añadiendo nuevo usuario: " + username);
-        userList.add(new UserRow(username, name, role, status));
+        userList.add(new UserRow(idUsuario, username, name, role, status));
         filters(); // Actualizar vista
 
         // Opcional: Mostrar mensaje de confirmación
@@ -378,6 +384,7 @@ public class UsersMgmtController extends Controller implements Initializable {
      */
     private void procesarObjetoUsuario(String objetoUsuario) {
         try {
+            String idUsuarioStr = extraerValor(objetoUsuario, "idUsuario");
             String usuario = extraerValor(objetoUsuario, "usuario");
             // Intentar extraer el nombre del JSON, si no existe usamos el usuario como nombre
             String nombre = extraerValor(objetoUsuario, "nombre");
@@ -387,9 +394,14 @@ public class UsersMgmtController extends Controller implements Initializable {
             String rol = extraerValor(objetoUsuario, "rol");
             String estado = extraerValor(objetoUsuario, "estado");
 
-            if (usuario != null && rol != null && estado != null) {
-                System.out.println("Usuario encontrado: " + usuario + ", Nombre: " + nombre + ", Rol: " + rol + ", Estado: " + estado);
-                userList.add(new UserRow(usuario, nombre, rol, estado));
+            if (usuario != null && rol != null && estado != null && idUsuarioStr != null) {
+                try {
+                    Long idUsuario = Long.parseLong(idUsuarioStr);
+                    System.out.println("Usuario encontrado: " + usuario + ", Nombre: " + nombre + ", Rol: " + rol + ", Estado: " + estado);
+                    userList.add(new UserRow(idUsuario, usuario, nombre, rol, estado));
+                } catch (NumberFormatException e) {
+                    System.err.println("Error parseando ID de usuario: " + idUsuarioStr);
+                }
             } else {
                 System.err.println("Datos incompletos en objeto de usuario: " + objetoUsuario);
             }
@@ -435,39 +447,135 @@ public class UsersMgmtController extends Controller implements Initializable {
         return null;
     }
 
-    private void onEditUser(UsuarioDto usuarioDto) {
-        NewUserController controller = (NewUserController) FlowController.getInstance()
-                .getController(AppKeys.NEW_USER);
-        controller.setParentController(this);
-        controller.loadUser(usuarioDto);
-        FlowController.getInstance().goViewInWindowModal(AppKeys.NEW_USER, new Stage(), false);
+    private void onEditUser(UserRow userRow) {
+        // Cargar el usuario completo desde el servidor usando el ID
+        Task<Respuesta> loadTask = new Task<Respuesta>() {
+            @Override
+            protected Respuesta call() throws Exception {
+                return usuarioService.getUsuario(userRow.getIdUsuario());
+            }
+        };
+
+        loadTask.setOnSucceeded(e -> {
+            Platform.runLater(() -> {
+                Respuesta respuesta = loadTask.getValue();
+                if (respuesta != null && respuesta.getEstado()) {
+                    UsuarioDto usuarioDto = (UsuarioDto) respuesta.getResultado("Usuario");
+                    if (usuarioDto != null) {
+                        NewUserController controller = (NewUserController) FlowController.getInstance()
+                                .getController(AppKeys.NEW_USER);
+                        controller.setParentController(this);
+                        controller.loadUser(usuarioDto);
+                        FlowController.getInstance().goViewInWindowModal(AppKeys.NEW_USER, this.getStage(), false);
+                    } else {
+                        showMessage("Error: No se pudo cargar el usuario");
+                    }
+                } else {
+                    showMessage("Error cargando usuario: " + (respuesta != null ? respuesta.getMensaje() : "Error desconocido"));
+                }
+            });
+        });
+
+        loadTask.setOnFailed(e -> {
+            Platform.runLater(() -> {
+                showMessage("Error de conexión: " + loadTask.getException().getMessage());
+            });
+        });
+
+        Thread loadThread = new Thread(loadTask);
+        loadThread.setDaemon(true);
+        loadThread.start();
+    }
+    
+    private void onDeleteUser(UserRow userRow) {
+        // TODO: Implementar lógica de eliminación
+        // Mostrar diálogo de confirmación
+        // Llamar al servicio para eliminar
+        // Actualizar la lista local y refrescar la tabla
+        System.out.println("Eliminar usuario: " + userRow.getUsername().get());
+        showMessage("Función de eliminación aún no implementada");
     }
 
     private void setActionsColumn() {
-        tbcActions.setCellFactory(col -> new TreeTableCell<UsuarioDto, Void>() {
-            MFXButton btnEdit = new MFXButton(" ");
-            MFXButton btnDelete = new MFXButton();
+        tbcActions.setCellFactory(col -> new TreeTableCell<UserRow, Void>() {
+            private final MFXButton btnEdit = new MFXButton();
+            private final MFXButton btnDelete = new MFXButton();
+            private final javafx.scene.layout.HBox buttonsBox = new javafx.scene.layout.HBox(5);
 
             {
-                btnEdit.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/cr/ac/una/restuna/resources/icons/icons8-edit-50.png"))));
-                btnDelete.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/cr/ac/una/restuna/resources/icons/icons8-delete-50.png"))));
+                // Configurar estilo de los botones para que solo muestren el gráfico
+                btnEdit.setText("");  // Sin texto
+                btnDelete.setText(""); // Sin texto
+                
+                // Configurar imágenes para los botones
+                try {
+                    String editIconPath = "/cr/ac/una/restuna/resources/icons/icons8-edit-50.png";
+                    String deleteIconPath = "/cr/ac/una/restuna/resources/icons/icons8-delete-50.png";
+                    
+                    java.io.InputStream editStream = getClass().getResourceAsStream(editIconPath);
+                    java.io.InputStream deleteStream = getClass().getResourceAsStream(deleteIconPath);
+                    
+                    if (editStream != null && deleteStream != null) {
+                        ImageView editIcon = new ImageView(new Image(editStream));
+                        editIcon.setFitWidth(20);
+                        editIcon.setFitHeight(20);
+                        btnEdit.setGraphic(editIcon);
+                        
+                        ImageView deleteIcon = new ImageView(new Image(deleteStream));
+                        deleteIcon.setFitWidth(20);
+                        deleteIcon.setFitHeight(20);
+                        btnDelete.setGraphic(deleteIcon);
+                    } else {
+                        // Si no se cargan las imágenes, crear labels con símbolos
+                        javafx.scene.control.Label editLabel = new javafx.scene.control.Label("✏️");
+                        editLabel.setStyle("-fx-font-size: 18px;");
+                        btnEdit.setGraphic(editLabel);
+                        
+                        javafx.scene.control.Label deleteLabel = new javafx.scene.control.Label("🗑️");
+                        deleteLabel.setStyle("-fx-font-size: 18px;");
+                        btnDelete.setGraphic(deleteLabel);
+                    }
+                } catch (Exception e) {
+                    System.err.println("Error cargando iconos: " + e.getMessage());
+                    // Crear labels con símbolos en caso de error
+                    javafx.scene.control.Label editLabel = new javafx.scene.control.Label("✏️");
+                    editLabel.setStyle("-fx-font-size: 18px;");
+                    btnEdit.setGraphic(editLabel);
+                    
+                    javafx.scene.control.Label deleteLabel = new javafx.scene.control.Label("🗑️");
+                    deleteLabel.setStyle("-fx-font-size: 18px;");
+                    btnDelete.setGraphic(deleteLabel);
+                }
 
+                // Configurar acciones
                 btnEdit.setOnAction(e -> {
-                    UsuarioDto usuarioDto = getTreeTableRow().getItem();
-                    if (usuarioDto != null) {
-                        onEditUser(usuarioDto);
+                    UserRow userRow = getTableRow().getItem();
+                    if (userRow != null) {
+                        onEditUser(userRow);
                     }
                 });
+                
                 btnDelete.setOnAction(e -> {
-                    //lógica para eliminar la columna de la tabla y DB.
+                    UserRow userRow = getTableRow().getItem();
+                    if (userRow != null) {
+                        onDeleteUser(userRow);
+                    }
                 });
+                
+                buttonsBox.getChildren().addAll(btnEdit, btnDelete);
+                buttonsBox.setAlignment(javafx.geometry.Pos.CENTER);
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(buttonsBox);
+                }
             }
         });
-
-    }
-
-    private String getLanguageString(String key) {
-        return FlowController.getInstance().getLanguage().getString(key);
     }
 
     private void showMessage(String msg) {
