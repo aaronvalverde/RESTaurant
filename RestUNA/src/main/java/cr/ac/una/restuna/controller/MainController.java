@@ -70,6 +70,9 @@ public class MainController extends Controller implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        // Registrar este controller en FlowController para poder restaurar el contenido inicial
+        FlowController.getInstance().setMainController(this);
+        
         // Configurar el contentArea directamente, no su padre
         FlowController.getInstance().setContentArea(contentArea);
 
@@ -169,8 +172,17 @@ public class MainController extends Controller implements Initializable {
 
     @FXML
     private void onActionBtnHome(ActionEvent event) {
-        // Restaurar el contenido inicial del contentArea (botones Management y Settings)
-        contentArea.setCenter(initialCenterContent);
+        restoreInitialContent();
+    }
+    
+    /**
+     * Restaura el contenido inicial del contentArea
+     * Este método puede ser llamado desde otras vistas para volver al home
+     */
+    public void restoreInitialContent() {
+        if (contentArea != null && initialCenterContent != null) {
+            contentArea.setCenter(initialCenterContent);
+        }
     }
 
     @FXML

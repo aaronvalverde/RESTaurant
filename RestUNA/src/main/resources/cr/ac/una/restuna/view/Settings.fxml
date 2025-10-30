@@ -216,6 +216,7 @@
                   </MFXScrollPane>
                   <HBox alignment="CENTER_RIGHT" prefHeight="80.0" prefWidth="200.0" spacing="10.0">
                      <children>
+                        <MFXButton fx:id="btnExit" maxHeight="1.7976931348623157E308" onAction="#onActionBtnExit" prefWidth="100.0" text="%btn.exit" HBox.hgrow="SOMETIMES" />
                         <MFXButton fx:id="btnSave" maxHeight="1.7976931348623157E308" onAction="#onActionBtnSave" prefWidth="200.0" text="%btn.save.changes" />
                         <MFXButton fx:id="btnCancel" maxHeight="1.7976931348623157E308" onAction="#onActionBtnCancel" prefWidth="100.0" text="%btn.cancel" />
                      </children>

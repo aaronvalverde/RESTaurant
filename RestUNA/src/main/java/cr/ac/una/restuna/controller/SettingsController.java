@@ -64,9 +64,12 @@ public class SettingsController extends Controller implements Initializable {
     private MFXButton btnSave;
     @FXML
     private MFXButton btnCancel;
+    @FXML
+    private MFXButton btnExit;
 
     private final ParametroService parametroService = new ParametroService();
     private final Map<String, ParametroDto> parametrosMap = new HashMap<>();
+    private final Map<String, String> valoresOriginales = new HashMap<>();
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -292,6 +295,9 @@ public class SettingsController extends Controller implements Initializable {
         if (direccion != null && direccion.getValor() != null) {
             txfAddress.setText(direccion.getValor());
         }
+        
+        // Guardar valores originales para detectar cambios
+        guardarValoresOriginales();
     }
 
     /**
@@ -443,6 +449,9 @@ public class SettingsController extends Controller implements Initializable {
                         // Recargar parámetros
                         String jsonArray = (String) respuesta.getResultado("Parametros");
                         procesarParametros(jsonArray);
+                        
+                        // Actualizar valores originales después de guardar
+                        guardarValoresOriginales();
                     } else {
                         Alert alert = new Alert(Alert.AlertType.ERROR);
                         alert.setTitle("Error");
@@ -652,6 +661,90 @@ public class SettingsController extends Controller implements Initializable {
             System.out.println("Idioma del sistema cambiado a: " + locale.getLanguage());
         } catch (Exception e) {
             System.err.println("Error cambiando idioma del sistema: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Guarda los valores actuales de los campos para detectar cambios posteriores
+     */
+    private void guardarValoresOriginales() {
+        valoresOriginales.clear();
+        valoresOriginales.put("IDIOMA", obtenerCodigoIdioma());
+        valoresOriginales.put("MONEDA", cmbCurrency.getSelectedItem() != null ? cmbCurrency.getSelectedItem() : "");
+        valoresOriginales.put("NOMBRE_RESTAURANTE", txfRestaurantName.getText() != null ? txfRestaurantName.getText().trim() : "");
+        valoresOriginales.put("IMPUESTO_VENTA", spinnerIVA != null && spinnerIVA.getValue() != null ? String.valueOf(spinnerIVA.getValue()) : "13.0");
+        valoresOriginales.put("IMPUESTO_SERVICIO", spinnerServiceTax != null && spinnerServiceTax.getValue() != null ? String.valueOf(spinnerServiceTax.getValue()) : "10.0");
+        valoresOriginales.put("DESCUENTO_MAXIMO_CAJERO", spinnerCashierDiscount != null && spinnerCashierDiscount.getValue() != null ? String.valueOf(spinnerCashierDiscount.getValue()) : "5.0");
+        valoresOriginales.put("TELEFONO", txfPhone.getText() != null ? txfPhone.getText().trim() : "");
+        valoresOriginales.put("TELEFONO_SECUNDARIO", txfSecondaryPhone.getText() != null ? txfSecondaryPhone.getText().trim() : "");
+        valoresOriginales.put("EMAIL", txfEmail.getText() != null ? txfEmail.getText().trim() : "");
+        valoresOriginales.put("DIRECCION", txfAddress.getText() != null ? txfAddress.getText().trim() : "");
+    }
+    
+    /**
+     * Detecta si hay cambios no guardados en los campos
+     */
+    private boolean hayCambiosNoGuardados() {
+        if (valoresOriginales.isEmpty()) {
+            return false; // No hay valores originales, no hay cambios
+        }
+        
+        // Comparar cada campo con su valor original
+        String idiomaActual = obtenerCodigoIdioma();
+        if (!idiomaActual.equals(valoresOriginales.get("IDIOMA"))) return true;
+        
+        String monedaActual = cmbCurrency.getSelectedItem() != null ? cmbCurrency.getSelectedItem() : "";
+        if (!monedaActual.equals(valoresOriginales.get("MONEDA"))) return true;
+        
+        String nombreActual = txfRestaurantName.getText() != null ? txfRestaurantName.getText().trim() : "";
+        if (!nombreActual.equals(valoresOriginales.get("NOMBRE_RESTAURANTE"))) return true;
+        
+        String ivaActual = spinnerIVA != null && spinnerIVA.getValue() != null ? String.valueOf(spinnerIVA.getValue()) : "13.0";
+        if (!ivaActual.equals(valoresOriginales.get("IMPUESTO_VENTA"))) return true;
+        
+        String servicioActual = spinnerServiceTax != null && spinnerServiceTax.getValue() != null ? String.valueOf(spinnerServiceTax.getValue()) : "10.0";
+        if (!servicioActual.equals(valoresOriginales.get("IMPUESTO_SERVICIO"))) return true;
+        
+        String descuentoActual = spinnerCashierDiscount != null && spinnerCashierDiscount.getValue() != null ? String.valueOf(spinnerCashierDiscount.getValue()) : "5.0";
+        if (!descuentoActual.equals(valoresOriginales.get("DESCUENTO_MAXIMO_CAJERO"))) return true;
+        
+        String telefonoActual = txfPhone.getText() != null ? txfPhone.getText().trim() : "";
+        if (!telefonoActual.equals(valoresOriginales.get("TELEFONO"))) return true;
+        
+        String telefono2Actual = txfSecondaryPhone.getText() != null ? txfSecondaryPhone.getText().trim() : "";
+        if (!telefono2Actual.equals(valoresOriginales.get("TELEFONO_SECUNDARIO"))) return true;
+        
+        String emailActual = txfEmail.getText() != null ? txfEmail.getText().trim() : "";
+        if (!emailActual.equals(valoresOriginales.get("EMAIL"))) return true;
+        
+        String direccionActual = txfAddress.getText() != null ? txfAddress.getText().trim() : "";
+        if (!direccionActual.equals(valoresOriginales.get("DIRECCION"))) return true;
+        
+        return false; // No hay cambios
+    }
+    
+    /**
+     * Maneja el evento del botón Exit
+     */
+    @FXML
+    private void onActionBtnExit(ActionEvent event) {
+        if (hayCambiosNoGuardados()) {
+            // Mostrar confirmación si hay cambios
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Cambios no guardados");
+            alert.setHeaderText(null);
+            alert.setContentText("Hay cambios sin guardar. ¿Está seguro que desea salir?\nLos cambios no serán guardados.");
+            
+            alert.showAndWait().ifPresent(response -> {
+                if (response == javafx.scene.control.ButtonType.OK) {
+                    // Usuario confirmó salir sin guardar - restaurar contenido inicial
+                    FlowController.getInstance().goHome();
+                }
+                // Si cancela, no hace nada y permanece en Settings
+            });
+        } else {
+            // No hay cambios, salir directamente - restaurar contenido inicial
+            FlowController.getInstance().goHome();
         }
     }
 }

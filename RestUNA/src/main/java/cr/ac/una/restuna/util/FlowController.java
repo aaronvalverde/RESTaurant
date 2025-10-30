@@ -31,6 +31,7 @@ public class FlowController {
     private final Map<String, FXMLLoader> loaders = new HashMap<>();
     private static final Logger logger = Logger.getLogger(FlowController.class.getSimpleName());
     private BorderPane contentArea;
+    private cr.ac.una.restuna.controller.MainController mainController;
 
     public FlowController(Stage mainStage, ResourceBundle language) {
         this.mainStage = mainStage;
@@ -52,6 +53,10 @@ public class FlowController {
 
     public void setContentArea(BorderPane contentArea) {
         this.contentArea = contentArea;
+    }
+
+    public void setMainController(cr.ac.una.restuna.controller.MainController mainController) {
+        this.mainController = mainController;
     }
 
     private FXMLLoader loadLoader(String name) throws IOException {
@@ -173,6 +178,21 @@ public class FlowController {
 
             } catch (Exception e) {
                 logger.log(Level.SEVERE, "Error loading main view: " + viewName, e);
+            }
+        });
+    }
+
+    /**
+     * Restores the initial home content to the contentArea.
+     * This is useful for returning to the home screen from child views.
+     * Uses the MainController's restoreInitialContent() method.
+     */
+    public void goHome() {
+        Platform.runLater(() -> {
+            if (mainController != null) {
+                mainController.restoreInitialContent();
+            } else {
+                logger.log(Level.WARNING, "MainController reference is null. Cannot restore home content.");
             }
         });
     }
