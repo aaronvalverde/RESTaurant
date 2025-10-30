@@ -73,32 +73,17 @@ public class CashOpeningController extends Controller implements Initializable {
     @FXML
     private void onActionBtnOk(ActionEvent event) {
         try {
-
             double initAmount = Double.parseDouble(txfInitialFund.getText().trim());
-
-            if (initAmount <= 0) {
-
-                showMessage("el monto debe mayor a 0");
-                return;
-            }
-
             activeOpening = new CierreCajaDto();
             activeOpening.setIdCierreCaja(System.currentTimeMillis());
-            activeOpening.setIdUsuarioCajero(1L);
             activeOpening.setFechaApertura(new Date());
-            activeOpening.setEfectivoInicial((long) (initAmount * 100));
-            activeOpening.setEfectivoSistema((long) (initAmount * 100));
-            activeOpening.setTarjetaSistema(0L);
+            activeOpening.setEfectivoInicial((long) initAmount);
             activeOpening.setEstado("A");
-
-            showMessage("Caja abierta con ₡" + initAmount);
+            showMessage("Caja abierta con éxito.");
             closeWindow();
-
         } catch (NumberFormatException e) {
-
-            showMessage("Ingrese un monto valido");
+            showMessage("Ingrese un monto válido.");
         }
-
     }
 
     @FXML

@@ -12,7 +12,9 @@ import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXScrollPane;
 import io.github.palexdev.materialfx.controls.MFXTextField;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -23,6 +25,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
+import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -69,14 +72,13 @@ public class CashClosingController extends Controller implements Initializable {
         tbvPaymentBreakdown.prefHeightProperty().bind(tableRoot.heightProperty());
         tbvPaymentBreakdown.prefWidthProperty().bind(tableRoot.widthProperty());
         loadKeypad();
+        initTableColumns();
 
     }
 
     @Override
     public void initialize() {
     }
-
- 
 
     @FXML
     void onActionBtnCancel(ActionEvent event) {
@@ -108,15 +110,8 @@ public class CashClosingController extends Controller implements Initializable {
         currentClosing = CashOpeningController.activeOpening;
         currentClosing.setFechaCierre(new Date());
         currentClosing.setEstado("CERRADA");
-        currentClosing.setEfectivoDeclarado(10000L); // simulado
-        currentClosing.setTarjetaDeclarado(5000L);   // simulado
-        currentClosing.setEfectivoSistema(10000L);
-        currentClosing.setTarjetaSistema(5000L);
-        currentClosing.setDiferenciaEfectivo(0L);
-        currentClosing.setDiferenciaTarjeta(0L);
-
         showMessage("Cierre de caja completado correctamente.");
-        CashOpeningController.activeOpening = null; // se cierra la sesión de caja
+        CashOpeningController.activeOpening = null;
         closeWindow();
     }
 
@@ -159,8 +154,22 @@ public class CashClosingController extends Controller implements Initializable {
     }
 
     private void initTableColumns() {
-        //tbcKey : agregar todos los métodos de pago y tip.
-        //tbcTotalAmount : agregar valores en ceros $0.00.
+        tbcKey.setCellValueFactory(new TreeItemPropertyValueFactory<>("estado"));
+        tbcTotalAmount.setCellValueFactory(new TreeItemPropertyValueFactory<>("observaciones"));
+        
+        List<String> payMethod = Arrays.asList("Cash","Card","Sinpe","Tip");
+        TreeItem<CierreCajaDto> root = new TreeItem<>(new CierreCajaDto());
+        
+        for(String method : payMethod){
+            CierreCajaDto payM = new CierreCajaDto();
+            payM.setEstado(method);
+            payM.setObservaciones("$0.00");
+            root.getChildren().add(new TreeItem<>(payM));
+            
+        }
+        
+        tbvPaymentBreakdown.setRoot(root);
+        tbvPaymentBreakdown.setShowRoot(false);
     }
 
     private void showMessage(String msg) {

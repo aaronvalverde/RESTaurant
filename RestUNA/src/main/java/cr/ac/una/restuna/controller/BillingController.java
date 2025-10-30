@@ -13,6 +13,7 @@ import cr.ac.una.restuna.model.FacturaDto;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXTextField;
 import java.io.IOException;
+import java.util.Date;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -24,6 +25,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.TreeItem;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.TreeTableColumn;
+import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -82,11 +84,12 @@ public class BillingController extends Controller implements Initializable {
 
     private double totalToPay = 0.0;
     private double totalPaid = 0.0;
-    private double totalTip = 0.0;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        configTable();
         loadNumberKeypad();
+        clear();
 
     }
 
@@ -94,68 +97,37 @@ public class BillingController extends Controller implements Initializable {
     public void initialize() {
     }
 
-    private void payTable() {
+    private void configTable() {
 
-        tbcKey.setCellValueFactory(cellData -> {
+        tbcKey.setCellValueFactory(new TreeItemPropertyValueFactory<>("idProducto"));
+        tbcTotalAmount.setCellValueFactory(new TreeItemPropertyValueFactory<>("subtotal"));
 
-            DetalleFacturaDto detailTable = cellData.getValue().getValue();
-            String payMethod = "";
-            if (detailTable.getIdProducto() != null) {
-                switch (detailTable.getIdProducto().intValue()) {
-                    case 1:
-                        payMethod = "Cash";
-                        break;
-                    case 2:
-                        payMethod = "Card";
-                        break;
-                    case 3:
-                        payMethod = "Tip";
-                        break;                      
-               }
-            }
-            return new SimpleStringProperty(payMethod);
-        });
-        
-        tbcTotalAmount.setCellValueFactory(cellData -> {
-            
-            DetalleFacturaDto detail = cellData.getValue().getValue();
-            return new SimpleStringProperty(String.format("$%,.2f", detail.getSubtotal() / 100.0));
-        });
-        
-        TreeItem<DetalleFacturaDto> root = new RecursiveTreeItem<>(detailBill, RecursiveTreeObject::getChildren);
+        TreeItem<DetalleFacturaDto> root = new TreeItem<>(new DetalleFacturaDto());
         tbvPaymentBreakdown.setRoot(root);
         tbvPaymentBreakdown.setShowRoot(false);
+
     }
 
     //métodos de pago
     @FXML
     void onActionBtnCash(ActionEvent event) {
 
-        DetalleFacturaDto detail = new DetalleFacturaDto();
-
-        detail.setIdProducto(System.currentTimeMillis());
-        detail.setCantidad(1L);
-        detail.setPrecioUnitario(2000L);
-        detail.setSubtotal(2000L);
-        detailBill.add(detail);
-        totalToPay += 2000;
-        txfTotalDue.setText(String.format("%.2f", totalToPay));
-        txfAmountDue.setText(String.format("%.2f", totalToPay - totalPaid));
+        addPay("Cash");
     }
 
     @FXML
     void onActionBtnCard(ActionEvent event) {
-
+        addPay("Card");
     }
 
     @FXML
     void onActionBtnSinpe(ActionEvent event) {
-
+        addPay("Sinpe");
     }
 
     @FXML
     void onActionBtnTip(ActionEvent event) {
-
+        addPay("Tip");
     }
 
     //facturar
@@ -163,17 +135,16 @@ public class BillingController extends Controller implements Initializable {
     void onActionBtnOk(ActionEvent event) {
 
         if (txfClient.getText().trim().isEmpty()) {
-            showMessage("Ingrese el nombre del cliente");
+            showMessage("Ingrese el nombre del cliente.");
             return;
         }
-
+        currentBill = new FacturaDto();
+        currentBill.setIdFactura(System.currentTimeMillis());
         currentBill.setTotal((long) totalToPay);
         currentBill.setEfectivoRecibido((long) totalPaid);
         currentBill.setVuelto((long) (totalPaid - totalToPay));
-        currentBill.setIdCliente(1L);
-        currentBill.setCorreoEnviado("N");
-
-        showMessage("Factura generada correctamente.\nTotal: ₡" + currentBill.getTotal());
+        currentBill.setFechaFactura(new Date());
+        showMessage("Factura generada correctamente.");
         closeWindow();
     }
 
@@ -186,62 +157,48 @@ public class BillingController extends Controller implements Initializable {
     private void onActionBtnRegisterAmount(ActionEvent event) {
 
         try {
-
             double amount = Double.parseDouble(txfAmount.getText().trim());
-            addPay(amount);
+            totalToPay += amount;
+            txfTotalDue.setText(String.format("%.2f", totalToPay));
+            updateTotal();
+        } catch (NumberFormatException e) {
+            showMessage("Ingrese un monto válido.");
+        }
+    }
+
+    private void addPay(String method) {
+
+        try {
+            double amount = Double.parseDouble(txfAmount.getText().trim());
+            DetalleFacturaDto detail = new DetalleFacturaDto();
+
+            detail.setIdDetalleFactura(System.currentTimeMillis());
+            detail.setIdProducto((long) (detailBill.size() + 1));
+            detail.setPrecioUnitario((long) amount);
+            detail.setCantidad(1L);
+            detail.setSubtotal((long) amount);
+            detailBill.add(detail);
+
+            TreeItem<DetalleFacturaDto> item = new TreeItem<>(detail);
+            tbvPaymentBreakdown.getRoot().getChildren().add(item);
+
+            totalPaid += amount;
+            txfAmountTendered.setText(String.format("%.2f", totalPaid));
+            updateTotal();
+
         } catch (NumberFormatException e) {
 
         }
     }
 
-    
-    private void PayRegister(Long idMethod){
-        
-        if(txfAmount.getText().trim().isEmpty()){
-            
-            showMessage("Ingrese el monto correspondiente");
-            return;
-        }
-        
-        try{
-            
-            double amount = Double.parseDouble(txfAmount.getText().trim());
-            if(amount <= 0){
-                
-                showMessage("El monto debe ser mayor a cero");
-                return;
-                
-            }
-            
-            DetalleFacturaDto detail = new DetalleFacturaDto();
-            detail.setIdDetalleFactura(System.currentTimeMillis());
-            detail.setIdProducto(idMethod);
-            detail.setCantidad(1L);
-            detail.setPrecioUnitario((long) (amount *100));
-            detail.setSubtotal((long) (amount * 100));
-            detailBill.add(detail);
-            
-            totalPaid += amount;
-            txfAmount.clear();
-            
-        }catch(NumberFormatException e){
-            
-            
-        }
-        
-        
-    }
-    private void addPay(double amount) {
-
-        totalPaid += amount;
-        txfAmountTendered.setText(String.format("%.2f", totalPaid));
-
+    private void updateTotal() {
         double change = totalPaid - totalToPay;
         if (change >= 0) {
             txfChange.setText(String.format("%.2f", change));
             txfAmountDue.setText("0.00");
         } else {
             txfAmountDue.setText(String.format("%.2f", -change));
+            txfChange.setText("0.00");
         }
     }
 
@@ -273,5 +230,17 @@ public class BillingController extends Controller implements Initializable {
         alert.setHeaderText(null);
         alert.setContentText(msg);
         alert.showAndWait();
+    }
+
+    private void clear() {
+        txfAmount.setText("");
+        txfTotalDue.setText("0.00");
+        txfAmountDue.setText("0.00");
+        txfAmountTendered.setText("0.00");
+        txfChange.setText("0.00");
+        txfTotalTip.setText("0.00");
+        totalPaid = 0.0;
+        totalToPay = 0.0;
+        detailBill.clear();
     }
 }
