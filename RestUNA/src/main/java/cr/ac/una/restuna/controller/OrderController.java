@@ -3,6 +3,7 @@ package cr.ac.una.restuna.controller;
 import cr.ac.una.restuna.util.AppKeys;
 import cr.ac.una.restuna.util.FlowController;
 import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXCheckbox;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXScrollPane;
 import io.github.palexdev.materialfx.controls.MFXTextField;
@@ -66,23 +67,28 @@ public class OrderController extends Controller implements Initializable {
     @FXML
     private Label lbTotal;
     @FXML
-    private VBox orderModeBox;
-    @FXML
     private HBox billingModeBox;
-    
+    @FXML
+    private MFXCheckbox cbQuickBilling;
+    @FXML
+    private VBox sectionModeBox;
+
     //al entrar desde facturación en vista principal.
     private Boolean billingMode = false;
     //al entrar desde vista de salón (drag&drop y click en mesa).
-    private Boolean orderMode = false;
+    private Boolean sectionMode = false;
+    //settea el quick billing
+    private Boolean quickBillingMode = false;
 
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        quickBillingMode = false;
         initBoxes();
-    }    
-    
+    }
+
     @Override
     public void initialize() {
     }
@@ -103,22 +109,35 @@ public class OrderController extends Controller implements Initializable {
     private void onActionBtnToBill(ActionEvent event) {
         FlowController.getInstance().goView(AppKeys.BILLING);
     }
-    
-    private void initBoxes(){
-        if(orderMode){
+
+    private void initBoxes() {
+        if (sectionMode) {
             billingModeBox.setVisible(false);
             billingModeBox.setManaged(false);
+            cbQuickBilling.setVisible(false);
+            cbQuickBilling.setManaged(false);
             return;
         }
-        orderModeBox.setVisible(false);
-        orderModeBox.setManaged(false);
+        sectionModeBox.setVisible(false);
+        sectionModeBox.setManaged(false);
     }
-    
-    public void onOrderMode(){
-        orderMode = true;
+
+    public void onOrderMode() {
+        sectionMode = true;
     }
-    
-    public void onBillingMode(){
+
+    public void onBillingMode() {
         billingMode = true;
     }
-  }
+
+    @FXML
+    private void onActionCbQuickBilling(ActionEvent event) {
+        quickBillingMode = !quickBillingMode;
+        setQuickBillingMode(quickBillingMode);
+    }
+
+    private void setQuickBillingMode(Boolean isVisible) {
+        billingModeBox.setVisible(!isVisible);
+        billingModeBox.setManaged(!isVisible);
+    }
+}

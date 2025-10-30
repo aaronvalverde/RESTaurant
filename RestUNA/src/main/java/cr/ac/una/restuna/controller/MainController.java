@@ -57,7 +57,7 @@ public class MainController extends Controller implements Initializable {
     private MFXButton btnCashOpening;
     @FXML
     private MFXButton btnManagement;
-    
+
     // Guardar el contenido inicial del contentArea para restaurarlo
     private javafx.scene.Node initialCenterContent;
 
@@ -72,7 +72,7 @@ public class MainController extends Controller implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         // Registrar este controller en FlowController para poder restaurar el contenido inicial
         FlowController.getInstance().setMainController(this);
-        
+
         // Configurar el contentArea directamente, no su padre
         FlowController.getInstance().setContentArea(contentArea);
 
@@ -99,7 +99,7 @@ public class MainController extends Controller implements Initializable {
 
         // Aplicar permisos basados en rol del usuario
         aplicarPermisosDeRol();
-        
+
         // Guardar el contenido inicial DESPUÉS de aplicar permisos
         // Así respeta si los botones están visibles o no según el rol
         initialCenterContent = contentArea.getCenter();
@@ -174,10 +174,10 @@ public class MainController extends Controller implements Initializable {
     private void onActionBtnHome(ActionEvent event) {
         restoreInitialContent();
     }
-    
+
     /**
-     * Restaura el contenido inicial del contentArea
-     * Este método puede ser llamado desde otras vistas para volver al home
+     * Restaura el contenido inicial del contentArea Este método puede ser
+     * llamado desde otras vistas para volver al home
      */
     public void restoreInitialContent() {
         if (contentArea != null && initialCenterContent != null) {
@@ -196,6 +196,9 @@ public class MainController extends Controller implements Initializable {
 
     @FXML
     private void onActionBtnBilling(ActionEvent event) {
+        OrderController orderController = (OrderController) FlowController.getInstance().getController(AppKeys.ORDER);
+        orderController.onBillingMode();
+        FlowController.getInstance().goView(AppKeys.ORDER);
     }
 
     @FXML

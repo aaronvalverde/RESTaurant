@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import io.github.palexdev.materialfx.controls.MFXCheckbox?>
 <?import io.github.palexdev.materialfx.controls.MFXComboBox?>
 <?import io.github.palexdev.materialfx.controls.MFXScrollPane?>
 <?import io.github.palexdev.materialfx.controls.MFXTextField?>
@@ -21,12 +22,26 @@
          <children>
             <VBox prefHeight="200.0" prefWidth="100.0" spacing="5.0" HBox.hgrow="ALWAYS">
                <children>
+                  <HBox alignment="CENTER_LEFT" prefHeight="70.0" prefWidth="835.0">
+                     <children>
+                        <Label text="%lb.order.taking" />
+                        <HBox prefHeight="100.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
+                        <MFXButton fx:id="btnClose" contentDisplay="GRAPHIC_ONLY" onAction="#onActionBtnClose" prefHeight="50.0">
+                           <graphic>
+                              <ImageView fitHeight="35.0" fitWidth="35.0" pickOnBounds="true" preserveRatio="true" />
+                           </graphic>
+                        </MFXButton>
+                     </children>
+                     <padding>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                     </padding>
+                  </HBox>
                   <HBox prefHeight="95.0" prefWidth="712.0">
                      <children>
-                        <VBox fx:id="orderModeBox" alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="100.0" spacing="10.0">
+                        <VBox fx:id="sectionModeBox" alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="100.0" spacing="10.0">
                            <children>
-                              <Label fx:id="lbTable" text="%lb.table" />
                               <Label fx:id="lbSection" text="Label" />
+                              <Label fx:id="lbTable" text="%lb.table" />
                            </children>
                            <HBox.margin>
                               <Insets />
@@ -44,14 +59,11 @@
                               <Insets left="10.0" />
                            </padding>
                         </HBox>
-                        <HBox prefHeight="100.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
-                        <HBox alignment="CENTER_RIGHT" prefHeight="95.0" prefWidth="90.0">
+                        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" HBox.hgrow="ALWAYS">
                            <children>
-                              <MFXButton fx:id="btnClose" contentDisplay="GRAPHIC_ONLY" onAction="#onActionBtnClose">
-                                 <graphic>
-                                    <ImageView fitHeight="35.0" fitWidth="35.0" pickOnBounds="true" preserveRatio="true" />
-                                 </graphic></MFXButton>
-                           </children>
+                              <MFXCheckbox fx:id="cbQuickBilling" onAction="#onActionCbQuickBilling" prefHeight="50.0" text="%cb.quick.billing" />
+                           </children></HBox>
+                        <HBox alignment="CENTER_RIGHT" prefHeight="95.0" prefWidth="90.0">
                            <padding>
                               <Insets right="10.0" />
                            </padding>
@@ -69,7 +81,7 @@
                   </HBox>
                   <HBox prefHeight="73.0" prefWidth="766.0">
                      <children>
-                        <MFXScrollPane fx:id="groupsRoot" hbarPolicy="NEVER" prefWidth="746.0" vbarPolicy="NEVER" HBox.hgrow="ALWAYS">
+                        <MFXScrollPane fx:id="groupsRoot" prefWidth="746.0" vbarPolicy="NEVER" HBox.hgrow="ALWAYS">
                            <content>
                               <HBox fx:id="groupsBox" prefHeight="100.0" prefWidth="200.0" />
                            </content>
@@ -105,7 +117,7 @@
             </VBox>
             <VBox prefHeight="200.0" prefWidth="100.0" spacing="5.0" HBox.hgrow="ALWAYS">
                <children>
-                  <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0">
+                  <HBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" prefHeight="60.0" prefWidth="472.0">
                      <children>
                         <MFXTextField fx:id="txfClientName" floatMode="DISABLED" maxWidth="1.7976931348623157E308" promptText="%lb.client" HBox.hgrow="ALWAYS" />
                      </children>
@@ -113,7 +125,7 @@
                         <Insets />
                      </VBox.margin>
                      <padding>
-                        <Insets right="10.0" />
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                      </padding>
                   </HBox>
                   <MFXScrollPane fx:id="orderRoot" hbarPolicy="NEVER" prefHeight="428.0" prefWidth="583.0" vbarPolicy="NEVER" VBox.vgrow="ALWAYS">
