@@ -95,6 +95,11 @@ public class NewSectionController extends Controller implements Initializable {
         imvTableGraphic.setImage(null);
         imvTableGraphic.setUserData(null);
         
+        // Rehabilitar botones
+        btnAdd.setDisable(false);
+        btnSaveChanges.setDisable(false);
+        btnCancel.setDisable(false);
+        
         // Forzar actualización de botones en el siguiente ciclo de UI
         Platform.runLater(this::initButtons);
     }
@@ -342,6 +347,11 @@ public class NewSectionController extends Controller implements Initializable {
         } else {
             imvTableGraphic.setImage(null);
         }
+
+        // Rehabilitar botones
+        btnAdd.setDisable(false);
+        btnSaveChanges.setDisable(false);
+        btnCancel.setDisable(false);
 
         // Forzar actualización de botones en el siguiente ciclo de UI
         Platform.runLater(this::initButtons);
