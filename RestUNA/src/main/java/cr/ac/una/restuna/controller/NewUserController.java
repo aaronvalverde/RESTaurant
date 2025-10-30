@@ -66,6 +66,8 @@ public class NewUserController extends Controller implements Initializable {
 
     @Override
     public void initialize() {
+        // Limpiar campos cada vez que se muestra la vista
+        clearFields();
     }
 
     private void onActionBtnClose(ActionEvent event) {
@@ -243,8 +245,36 @@ public class NewUserController extends Controller implements Initializable {
     public void setParentController(UsersMgmtController parent) {
         this.parentController = parent;
     }
+    
+    /**
+     * Limpia todos los campos del formulario y resetea el estado
+     */
+    private void clearFields() {
+        editMode = false;
+        usuarioDto = null;
+        
+        txfUsername.clear();
+        txfName.clear();
+        pwfPassword.clear();
+        pwfPassword.setPromptText("");
+        cmbRole.clearSelection();
+        cmbStatus.clearSelection();
+        
+        // Resetear botones
+        btnAdd.setDisable(false);
+        btnAdd.setText("Áñadir");
+        btnSaveChanges.setDisable(false);
+        btnSaveChanges.setText("Save changes");
+        btnCancel.setDisable(false);
+        
+        initButtons();
+    }
 
     public void loadUser(UsuarioDto usuarioDto) {
+        // Primero limpiar campos
+        clearFields();
+        
+        // Ahora configurar modo edición
         editMode = true;
         this.usuarioDto = usuarioDto;
 
