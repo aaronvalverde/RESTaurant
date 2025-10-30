@@ -131,7 +131,75 @@ public class Request {
             return jsonBuilder.toString();
         }
         
-        // Para otros tipos de objetos, usar toString como fallback
+        // Soportar ArchivoDto (serialización manual sencilla)
+        if (objeto instanceof cr.ac.una.restuna.model.ArchivoDto) {
+            cr.ac.una.restuna.model.ArchivoDto archivo = (cr.ac.una.restuna.model.ArchivoDto) objeto;
+            StringBuilder json = new StringBuilder();
+            json.append('{');
+            if (archivo.getIdArchivo() != null) {
+                json.append("\"idArchivo\":").append(archivo.getIdArchivo()).append(',');
+            }
+            json.append("\"nombreArchivo\":\"").append(escaparJson(archivo.getNombreArchivo())).append("\"");
+            if (archivo.getTipoMime() != null) {
+                json.append(',').append("\"tipoMime\":\"").append(escaparJson(archivo.getTipoMime())).append("\"");
+            }
+            if (archivo.getTamanio() != null) {
+                json.append(',').append("\"tamanio\":").append(archivo.getTamanio());
+            }
+            if (archivo.getContenidoBase64() != null && !archivo.getContenidoBase64().isEmpty()) {
+                json.append(',').append("\"contenidoBase64\":\"")
+                    .append(escaparJson(archivo.getContenidoBase64())).append("\"");
+            }
+            json.append('}');
+            return json.toString();
+        }
+        
+        // Soportar SeccionDto
+        if (objeto instanceof cr.ac.una.restuna.model.SeccionDto) {
+            cr.ac.una.restuna.model.SeccionDto seccion = (cr.ac.una.restuna.model.SeccionDto) objeto;
+            StringBuilder json = new StringBuilder();
+            json.append('{');
+            
+            // ID (si existe)
+            if (seccion.getIdSeccion() != null && seccion.getIdSeccion() > 0) {
+                json.append("\"idSeccion\":").append(seccion.getIdSeccion()).append(',');
+            }
+            
+            // Nombre (obligatorio)
+            json.append("\"nombre\":\"").append(escaparJson(seccion.getNombre())).append("\"");
+            
+            // Tipo
+            if (seccion.getTipo() != null) {
+                json.append(',').append("\"tipo\":\"").append(escaparJson(seccion.getTipo())).append("\"");
+            }
+            
+            // Estado
+            if (seccion.getEstado() != null) {
+                json.append(',').append("\"estado\":\"").append(escaparJson(seccion.getEstado())).append("\"");
+            }
+            
+            // Cobra Impuesto
+            if (seccion.getCobraImpuesto() != null) {
+                json.append(',').append("\"cobraImpuesto\":\"").append(escaparJson(seccion.getCobraImpuesto())).append("\"");
+            }
+            
+            // *** IMPORTANTE: ID del archivo de imagen ***
+            if (seccion.getIdArchivoImagen() != null && seccion.getIdArchivoImagen() > 0) {
+                json.append(',').append("\"idArchivoImagen\":").append(seccion.getIdArchivoImagen());
+            }
+            
+            // Archivo Imagen completo (objeto anidado) - Solo si necesitas enviarlo
+            if (seccion.getImagen() != null) {
+                json.append(',').append("\"imagen\":");
+                // Recursión para convertir el ArchivoDto anidado
+                json.append(convertirObjetoAJson(seccion.getImagen()));
+            }
+            
+            json.append('}');
+            return json.toString();
+        }
+
+        // Para otros tipos de objetos, usar toString como fallback (no recomendado)
         return objeto.toString();
     }
     

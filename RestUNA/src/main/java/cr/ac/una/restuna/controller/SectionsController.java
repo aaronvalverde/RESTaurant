@@ -1,28 +1,23 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/javafx/FXMLController.java to edit this template
- */
 package cr.ac.una.restuna.controller;
 
+import cr.ac.una.restuna.util.AppKeys;
 import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXScrollPane;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 /**
  * FXML Controller class
+ * 
+ * Vista para gestionar MESAS dentro de una sección seleccionada
  *
  * @author aaron
  */
@@ -39,7 +34,7 @@ public class SectionsController extends Controller implements Initializable {
     @FXML
     private MFXScrollPane sectionsRoot;
     @FXML
-    private VBox sectionsContainer; //agregar todas las secciones en este contenedor.
+    private VBox sectionsContainer; //agregar todas las secciones en este contenedor como botones para seleccionar
     @FXML
     private MFXButton btnExit;
     @FXML
@@ -52,6 +47,7 @@ public class SectionsController extends Controller implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        setNombreVista(AppKeys.SECTIONS);
         sectionsContainer.prefHeightProperty().bind(sectionsRoot.heightProperty());
         sectionsContainer.prefWidthProperty().bind(sectionsRoot.widthProperty());
         onEditMode(false);
@@ -59,6 +55,8 @@ public class SectionsController extends Controller implements Initializable {
 
     @Override
     public void initialize() {
+        // TODO: Cargar lista de secciones y permitir seleccionar una
+        // TODO: Al seleccionar una sección, cargar sus mesas en sectionPane
     }
 
     @FXML

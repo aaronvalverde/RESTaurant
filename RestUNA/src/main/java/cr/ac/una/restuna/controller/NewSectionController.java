@@ -74,7 +74,9 @@ public class NewSectionController extends Controller implements Initializable {
 
     @Override
     public void initialize() {
-        limpiarCampos();
+        // Establecer modo por defecto si no se ha configurado
+        // Los métodos limpiarCampos() y loadSection() establecerán el modo correcto
+        initButtons();
     }
     
     public void setParentController(SectionsMgmtController parent) {
@@ -93,7 +95,8 @@ public class NewSectionController extends Controller implements Initializable {
         imvTableGraphic.setImage(null);
         imvTableGraphic.setUserData(null);
         
-        initButtons();
+        // Forzar actualización de botones en el siguiente ciclo de UI
+        Platform.runLater(this::initButtons);
     }
 
     @FXML
@@ -340,7 +343,8 @@ public class NewSectionController extends Controller implements Initializable {
             imvTableGraphic.setImage(null);
         }
 
-        initButtons();
+        // Forzar actualización de botones en el siguiente ciclo de UI
+        Platform.runLater(this::initButtons);
     }
     
     private void cargarImagenDesdeServidor(Long idArchivo) {
@@ -425,11 +429,17 @@ public class NewSectionController extends Controller implements Initializable {
 
     private void initButtons() {
         if (editMode) {
+            // Modo edición: mostrar "Guardar cambios", ocultar "Agregar"
             btnAdd.setVisible(false);
             btnAdd.setManaged(false);
+            btnSaveChanges.setVisible(true);
+            btnSaveChanges.setManaged(true);
         } else {
+            // Modo creación: mostrar "Agregar", ocultar "Guardar cambios"
             btnSaveChanges.setVisible(false);
             btnSaveChanges.setManaged(false);
+            btnAdd.setVisible(true);
+            btnAdd.setManaged(true);
         }
     }
 

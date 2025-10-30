@@ -23,6 +23,7 @@ import javafx.stage.Stage;
 
 import java.net.URL;
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 import java.util.regex.Matcher;
@@ -34,6 +35,7 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 
 public class SectionsMgmtController extends Controller implements Initializable {
 
@@ -277,9 +279,17 @@ public class SectionsMgmtController extends Controller implements Initializable 
             String fechaStr = extraerValor(objetoJson, "fechaCreacion");
             if (fechaStr != null) {
                 try {
-                    seccion.setFechaCreacion(LocalDate.parse(fechaStr, DateTimeFormatter.ISO_DATE));
+                    // Parsear como ZonedDateTime y extraer solo la fecha
+                    ZonedDateTime zonedDateTime = ZonedDateTime.parse(fechaStr, DateTimeFormatter.ISO_ZONED_DATE_TIME);
+                    seccion.setFechaCreacion(zonedDateTime.toLocalDate());
                 } catch (Exception ex) {
                     System.err.println("Error parseando fecha: " + ex.getMessage());
+                    // Intentar como LocalDate si falla
+                    try {
+                        seccion.setFechaCreacion(LocalDate.parse(fechaStr.substring(0, 10)));
+                    } catch (Exception ex2) {
+                        // Ignorar fecha si no se puede parsear
+                    }
                 }
             }
 
@@ -337,12 +347,13 @@ public class SectionsMgmtController extends Controller implements Initializable 
 
     private void setActionsColumn() {
         tbcActions.setCellFactory(col -> new TreeTableCell<SeccionDto, Void>() {
-            MFXButton btnEdit = new MFXButton(" ");
-            MFXButton btnDelete = new MFXButton();
+            MFXButton btnEdit = new MFXButton("✏️ Editar");
+            MFXButton btnDelete = new MFXButton("🗑️ Eliminar");
 
             {
-                btnEdit.setGraphic(new ImageView(new Image("../resources/icons/icons8-edit-50.png")));
-                btnDelete.setGraphic(new ImageView(new Image("../resources/icons/icons8-delete-50.png")));
+                // Iconos comentados temporalmente - agregar archivos de imagen más tarde
+                // btnEdit.setGraphic(new ImageView(new Image("../resources/icons/icons8-edit-50.png")));
+                // btnDelete.setGraphic(new ImageView(new Image("../resources/icons/icons8-delete-50.png")));
                 
                 btnEdit.setOnAction(e -> {
                     SeccionDto seccionDto = getTreeTableRow().getItem();
@@ -351,6 +362,18 @@ public class SectionsMgmtController extends Controller implements Initializable 
                 btnDelete.setOnAction(e -> {
                     //lógica para eliminar la columna de la tabla y DB.
                 });
+            }
+            
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    HBox hbox = new HBox(5, btnEdit, btnDelete);
+                    hbox.setAlignment(javafx.geometry.Pos.CENTER);
+                    setGraphic(hbox);
+                }
             }
         });
 

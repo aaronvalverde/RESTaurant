@@ -58,9 +58,9 @@ public class Seccion implements Serializable {
     @JoinColumn(name = "ID_ARCHIVO_IMAGEN", referencedColumnName = "ID_ARCHIVO")
     private Archivo archivoImagen;
     
-    @Version
-    @Column(name = "VERSION")
-    private Long version;
+    // @Version - Comentado porque la columna VERSION no existe en la tabla SECCION
+    // @Column(name = "VERSION")
+    // private Long version;
     
     @Transient
     private Boolean modificado;
@@ -162,13 +162,14 @@ public class Seccion implements Serializable {
         this.archivoImagen = archivoImagen;
     }
 
-    public Long getVersion() {
-        return version;
-    }
-
-    public void setVersion(Long version) {
-        this.version = version;
-    }
+    // Getters/Setters de version comentados porque el campo no existe en BD
+    // public Long getVersion() {
+    //     return version;
+    // }
+    //
+    // public void setVersion(Long version) {
+    //     this.version = version;
+    // }
 
     public Boolean getModificado() {
         return modificado;
