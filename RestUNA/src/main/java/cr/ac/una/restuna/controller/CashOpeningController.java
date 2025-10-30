@@ -1,15 +1,18 @@
 package cr.ac.una.restuna.controller;
 
+import cr.ac.una.restuna.model.CierreCajaDto;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXTextField;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Date;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -35,6 +38,7 @@ public class CashOpeningController extends Controller implements Initializable {
     private VBox root;
 
     private Boolean onKeypadMode = false;
+    public static CierreCajaDto activeOpening;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -68,7 +72,33 @@ public class CashOpeningController extends Controller implements Initializable {
 
     @FXML
     private void onActionBtnOk(ActionEvent event) {
-        closeWindow();
+        try {
+
+            double initAmount = Double.parseDouble(txfInitialFund.getText().trim());
+
+            if (initAmount <= 0) {
+
+                showMessage("el monto debe mayor a 0");
+                return;
+            }
+
+            activeOpening = new CierreCajaDto();
+            activeOpening.setIdCierreCaja(System.currentTimeMillis());
+            activeOpening.setIdUsuarioCajero(1L);
+            activeOpening.setFechaApertura(new Date());
+            activeOpening.setEfectivoInicial((long) (initAmount * 100));
+            activeOpening.setEfectivoSistema((long) (initAmount * 100));
+            activeOpening.setTarjetaSistema(0L);
+            activeOpening.setEstado("A");
+
+            showMessage("Caja abierta con ₡" + initAmount);
+            closeWindow();
+
+        } catch (NumberFormatException e) {
+
+            showMessage("Ingrese un monto valido");
+        }
+
     }
 
     @FXML
@@ -107,5 +137,12 @@ public class CashOpeningController extends Controller implements Initializable {
     private void closeWindow() {
         Stage stage = (Stage) btnCancel.getScene().getWindow();
         stage.close();
+    }
+
+    private void showMessage(String msg) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setHeaderText(null);
+        alert.setContentText(msg);
+        alert.showAndWait();
     }
 }
