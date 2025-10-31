@@ -1,8 +1,7 @@
 package cr.ac.una.restuna.controller;
 
 import cr.ac.una.restuna.model.GrupoProductoDto;
-import cr.ac.una.restuna.util.AppKeys;
-import cr.ac.una.restuna.util.FlowController;
+import cr.ac.una.restuna.service.GrupoProductoService;
 import cr.ac.una.restuna.util.Respuesta;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXCheckbox;
@@ -41,6 +40,7 @@ public class NewGroupController extends Controller implements Initializable {
     private boolean editMode = false;
     private String groupId;
     private GroupsMgmtController parentController;
+    private final GrupoProductoService grupoProductoService = new GrupoProductoService();
 
     /**
      * Initializes the controller class.
@@ -154,8 +154,10 @@ public class NewGroupController extends Controller implements Initializable {
             String shortcut = cbShortcut.isSelected() ? "S" : "N";
             String status = cbStatus.isSelected() ? "A" : "I";
 
-            GroupsMgmtController mainController = (GroupsMgmtController) FlowController.getInstance().getController(AppKeys.MENU_GROUPS_MGMT);
-            mainController.addGroup(name, description, shortcut, status);
+            if (parentController == null) {
+                throw new IllegalStateException("No hay un controlador padre asignado para refrescar los datos.");
+            }
+            parentController.addGroup(name, description, shortcut, status);
 
             Respuesta respuesta = new Respuesta(true, "Éxito", "Grupo guardado correctamente");
             showMessage(respuesta);
@@ -170,19 +172,55 @@ public class NewGroupController extends Controller implements Initializable {
     }
 
     private void saveGroup() {
-
         try {
+            // Validar campos
+            Respuesta validacion = format();
+            if (!validacion.getEstado()) {
+                showMessage(validacion);
+                return;
+            }
+
             String name = txfName.getText().trim();
             String description = txaDescription.getText().trim();
             String shortcut = cbShortcut.isSelected() ? "S" : "N";
             String status = cbStatus.isSelected() ? "A" : "I";
 
-            //falta que se guarden en la db 
-            Respuesta respuesta = new Respuesta(true, "Éxito", "Grupo guardado correctamente");
-            showMessage(respuesta);
-            closeWindow();
+            // Crear DTO con los datos del formulario
+            GrupoProductoDto dto = new GrupoProductoDto();
+            
+            // Si estamos editando, incluir el ID
+            if (editMode && groupId != null) {
+                dto.setIdGrupoProducto(Long.parseLong(groupId));
+            }
+            
+            dto.setNombre(name);
+            dto.setDescripcion(description);
+            dto.setAccesoRapido(shortcut);
+            dto.setEstado(status);
+            dto.setOrdenVisualizacion(1); // Valor por defecto, el servidor lo ajustará si es necesario
+
+            System.out.println("Guardando grupo: " + name + (editMode ? " (editando ID: " + groupId + ")" : " (nuevo)"));
+
+            // Llamar al servicio para guardar/actualizar
+            Respuesta respuesta = grupoProductoService.guardarGrupoProducto(dto);
+
+            if (respuesta.getEstado()) {
+                System.out.println("Grupo guardado exitosamente en el servidor");
+                
+                // Recargar la tabla en el controlador padre
+                if (parentController != null) {
+                    parentController.loadGroupsFromServer();
+                }
+                
+                showMessage(new Respuesta(true, "Éxito", editMode ? "Grupo actualizado correctamente" : "Grupo creado correctamente"));
+                closeWindow();
+            } else {
+                System.err.println("Error al guardar grupo: " + respuesta.getMensaje());
+                showMessage(respuesta);
+            }
         } catch (Exception e) {
-            Respuesta error = new Respuesta(false, "No se guardo el grupo", "Excepcion" + e.getMessage());
+            e.printStackTrace();
+            Respuesta error = new Respuesta(false, "Error", "No se pudo guardar el grupo: " + e.getMessage());
             showMessage(error);
         }
     }
@@ -225,6 +263,11 @@ public class NewGroupController extends Controller implements Initializable {
         cbStatus.setSelected(true);
         txfName.setStyle("");
         txaDescription.setStyle("");
+        
+        // Resetear modo de edición
+        this.editMode = false;
+        this.groupId = null;
+        initButtons();
     }
 
     public void setParentController(GroupsMgmtController parent) {

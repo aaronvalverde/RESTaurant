@@ -196,14 +196,15 @@ public class GrupoProductoService {
             }
             
             // Verificar si tiene productos asociados
-            Long cantProductos = em.createQuery(
-                "SELECT COUNT(p) FROM Producto p WHERE p.grupoProducto.idGrupoProducto = :idGrupo", Long.class)
-                .setParameter("idGrupo", id)
+            Number cantProductos = (Number) em.createNativeQuery(
+                "SELECT COUNT(*) FROM PRODUCTO WHERE ID_GRUPO_PRODUCTO = ?")
+                .setParameter(1, id)
                 .getSingleResult();
             
-            if (cantProductos > 0) {
+            long totalProductos = cantProductos != null ? cantProductos.longValue() : 0L;
+            if (totalProductos > 0) {
                 return new Respuesta(false, CodigoRespuesta.ERROR_PERMISOS,
-                    "No se puede eliminar el grupo porque tiene " + cantProductos + " producto(s) asociado(s)", 
+                    "No se puede eliminar el grupo porque tiene " + totalProductos + " producto(s) asociado(s)", 
                     "eliminarGrupoProducto");
             }
             

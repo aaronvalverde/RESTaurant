@@ -9,6 +9,7 @@ import cr.ac.una.restuna.model.GrupoProductoDto;
 import cr.ac.una.restuna.service.GrupoProductoService;
 import cr.ac.una.restuna.util.AppKeys;
 import cr.ac.una.restuna.util.FlowController;
+import javafx.concurrent.Task;
 import cr.ac.una.restuna.util.Respuesta;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXFilterComboBox;
@@ -40,6 +41,8 @@ public class GroupsMgmtController extends Controller implements Initializable {
 
     @FXML
     private MFXButton btnAdd;
+    @FXML
+    private MFXButton btnClearFilters;
     @FXML
     private MFXFilterComboBox<String> cmbShortcut;
     @FXML
@@ -89,7 +92,7 @@ public class GroupsMgmtController extends Controller implements Initializable {
         cmbStatus.valueProperty().addListener((obs, oldVal, newVal) -> groupFilter());
         
         setActionsColumn();
-        loadGroups(); // Cargar grupos desde el servidor
+        loadGroupsAsync(); // Cargar grupos desde el servidor
     }
 
     @Override
@@ -100,11 +103,20 @@ public class GroupsMgmtController extends Controller implements Initializable {
     void onActionBtnAdd(ActionEvent event) {
         try {
             NewGroupController item = (NewGroupController) FlowController.getInstance().getController(AppKeys.NEW_MENU_GROUP);
+            item.setParentController(this);
             item.clear();
             FlowController.getInstance().goViewInWindowModal(AppKeys.NEW_MENU_GROUP, new Stage(), false);
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @FXML
+    void onActionBtnClearFilters(ActionEvent event) {
+        txfSearch.clear();
+        cmbShortcut.clearSelection();
+        cmbStatus.clearSelection();
+        groupFilter();
     }
 
     @FXML
@@ -117,23 +129,45 @@ public class GroupsMgmtController extends Controller implements Initializable {
     /**
      * Carga los grupos desde el servidor
      */
-    private void loadGroups() {
-        System.out.println("DEBUG: Iniciando loadGroups()");
-        Respuesta respuesta = grupoProductoService.getGrupoProductos();
+    public void loadGroupsFromServer() {
+        loadGroupsAsync();
+    }
+    
+    private void loadGroupsAsync() {
+        Task<Respuesta> loadTask = new Task<Respuesta>() {
+            @Override
+            protected Respuesta call() throws Exception {
+                return grupoProductoService.getGrupoProductos();
+            }
+        };
         
-        if (!respuesta.getEstado()) {
-            System.err.println("Error al cargar grupos: " + respuesta.getMensaje());
-            showMessage("Error al cargar grupos: " + respuesta.getMensaje());
-            return;
-        }
+        loadTask.setOnSucceeded(e -> {
+            Respuesta respuesta = loadTask.getValue();
+            
+            if (respuesta.getEstado()) {
+                String contenido = (String) respuesta.getResultado("GrupoProductos");
+                if (contenido != null && !contenido.trim().isEmpty()) {
+                    procesarGruposDesdeJson(contenido);
+                }
+            } else {
+                System.err.println("Error al cargar grupos: " + respuesta.getMensaje());
+                showMessage("Error al cargar grupos: " + respuesta.getMensaje());
+            }
+        });
         
-        String contenido = (String) respuesta.getResultado("GrupoProductos");
+        loadTask.setOnFailed(e -> {
+            System.err.println("Excepción cargando grupos: " + loadTask.getException().getMessage());
+            showMessage("Error al cargar grupos: " + loadTask.getException().getMessage());
+        });
+        
+        Thread loadThread = new Thread(loadTask);
+        loadThread.setDaemon(true);
+        loadThread.start();
+    }
+    
+    private void procesarGruposDesdeJson(String contenido) {
+        System.out.println("DEBUG: Iniciando procesarGruposDesdeJson()");
         System.out.println("DEBUG: Contenido recibido: " + (contenido != null ? contenido.substring(0, Math.min(100, contenido.length())) + "..." : "null"));
-        
-        if (contenido == null || contenido.trim().isEmpty()) {
-            System.out.println("DEBUG: No hay grupos en la base de datos");
-            return;
-        }
         
         group.clear();
         
@@ -151,7 +185,7 @@ public class GroupsMgmtController extends Controller implements Initializable {
         }
         
         groupFilter();
-        System.out.println("DEBUG: loadGroups() completado. Total grupos: " + group.size());
+        System.out.println("DEBUG: procesarGruposDesdeJson() completado. Total grupos: " + group.size());
     }
     
     /**
@@ -230,35 +264,53 @@ public class GroupsMgmtController extends Controller implements Initializable {
             }
         }
         
-        // Crear DTO para enviar al servidor
-        GrupoProductoDto nuevoGrupo = new GrupoProductoDto();
-        nuevoGrupo.setNombre(nameGroup);
-        nuevoGrupo.setDescripcion(description);
-        nuevoGrupo.setAccesoRapido(shorcut);
-        nuevoGrupo.setEstado(status);
-        
-        // Determinar el siguiente orden de visualización
-        Integer maxOrden = 0;
-        for (GrupoProductoDto grp : group) {
-            if (grp.getOrdenVisualizacion() != null && grp.getOrdenVisualizacion() > maxOrden) {
-                maxOrden = grp.getOrdenVisualizacion();
+        // Crear Task para guardar en background
+        Task<Respuesta> saveTask = new Task<Respuesta>() {
+            @Override
+            protected Respuesta call() throws Exception {
+                // Crear DTO para enviar al servidor
+                GrupoProductoDto nuevoGrupo = new GrupoProductoDto();
+                nuevoGrupo.setNombre(nameGroup);
+                nuevoGrupo.setDescripcion(description);
+                nuevoGrupo.setAccesoRapido(shorcut);
+                nuevoGrupo.setEstado(status);
+                
+                // Determinar el siguiente orden de visualización
+                Integer maxOrden = 0;
+                for (GrupoProductoDto grp : group) {
+                    if (grp.getOrdenVisualizacion() != null && grp.getOrdenVisualizacion() > maxOrden) {
+                        maxOrden = grp.getOrdenVisualizacion();
+                    }
+                }
+                nuevoGrupo.setOrdenVisualizacion(maxOrden + 1);
+                
+                // Guardar en el servidor
+                return grupoProductoService.guardarGrupoProducto(nuevoGrupo);
             }
-        }
-        nuevoGrupo.setOrdenVisualizacion(maxOrden + 1);
+        };
         
-        // Guardar en el servidor
-        Respuesta respuesta = grupoProductoService.guardarGrupoProducto(nuevoGrupo);
+        saveTask.setOnSucceeded(e -> {
+            Respuesta respuesta = saveTask.getValue();
+            
+            if (respuesta.getEstado()) {
+                System.out.println("Grupo guardado exitosamente en el servidor");
+                // Recargar grupos desde el servidor
+                loadGroupsAsync();
+            } else {
+                System.err.println("Error guardando grupo: " + respuesta.getMensaje());
+                showMessage("Error al guardar el grupo: " + respuesta.getMensaje());
+            }
+        });
         
-        if (!respuesta.getEstado()) {
-            System.err.println("Error guardando grupo: " + respuesta.getMensaje());
-            showMessage("Error al guardar el grupo: " + respuesta.getMensaje());
-            return;
-        }
+        saveTask.setOnFailed(e -> {
+            System.err.println("Excepción guardando grupo: " + saveTask.getException().getMessage());
+            showMessage("Error al guardar el grupo: " + saveTask.getException().getMessage());
+        });
         
-        System.out.println("Grupo guardado exitosamente en el servidor");
-        
-        // Recargar grupos desde el servidor
-        loadGroups();
+        // Ejecutar tarea en background
+        Thread saveThread = new Thread(saveTask);
+        saveThread.setDaemon(true);
+        saveThread.start();
     }
 
     private void groupFilter() {
@@ -267,14 +319,23 @@ public class GroupsMgmtController extends Controller implements Initializable {
         String shorcut = cmbShortcut.getValue();
         String status = cmbStatus.getValue();
 
+        System.out.println("DEBUG groupFilter: Total en lista original: " + group.size());
+        System.out.println("DEBUG groupFilter: Filtros - search: '" + search + "', shortcut: '" + shorcut + "', status: '" + status + "'");
+
         ObservableList<GrupoProductoDto> filter = group.filtered(x
                 -> x.getNombre().toLowerCase().contains(search) || x.getDescripcion().toLowerCase().contains(search))
                 .filtered(x -> shorcut == null || shorcut.isEmpty() || x.getAccesoRapido().equals(shorcut))
                 .filtered(x -> status == null || status.isEmpty() || x.getEstado().equals(status));
 
+        System.out.println("DEBUG groupFilter: Total después de filtrar: " + filter.size());
+
+        // Workaround para JFXTreeTableView - forzar refresh
         TreeItem<GrupoProductoDto> root = new RecursiveTreeItem<>(filter, RecursiveTreeObject::getChildren);
+        tbvMenuGroups.setRoot(null);
         tbvMenuGroups.setRoot(root);
         tbvMenuGroups.setShowRoot(false);
+        
+        System.out.println("DEBUG groupFilter: Tabla actualizada con " + filter.size() + " grupos");
     }
 
     private void showMessage(String msg) {
@@ -299,8 +360,8 @@ public class GroupsMgmtController extends Controller implements Initializable {
             MFXButton btnDelete = new MFXButton();
 
             {
-                btnEdit.setGraphic(new ImageView(new Image("../resources/icons/icons8-edit-50.png")));
-                btnDelete.setGraphic(new ImageView(new Image("../resources/icons/icons8-delete-50.png")));
+                btnEdit.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/cr/ac/una/restuna/resources/icons/icons8-edit-50.png"))));
+                btnDelete.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/cr/ac/una/restuna/resources/icons/icons8-delete-50.png"))));
 
                 btnEdit.setOnAction(e -> {
                     GrupoProductoDto gpDto = getTreeTableRow().getItem();
@@ -341,19 +402,35 @@ public class GroupsMgmtController extends Controller implements Initializable {
             return;
         }
         
-        Respuesta respuesta = grupoProductoService.eliminarGrupoProducto(grupo.getIdGrupoProducto());
+        Task<Respuesta> deleteTask = new Task<>() {
+            @Override
+            protected Respuesta call() {
+                return grupoProductoService.eliminarGrupoProducto(grupo.getIdGrupoProducto());
+            }
+        };
         
-        if (!respuesta.getEstado()) {
-            System.err.println("Error eliminando grupo: " + respuesta.getMensaje());
-            showMessage("Error al eliminar el grupo: " + respuesta.getMensaje());
-            return;
-        }
+        deleteTask.setOnSucceeded(event -> {
+            Respuesta respuesta = deleteTask.getValue();
+            if (!respuesta.getEstado()) {
+                System.err.println("Error eliminando grupo: " + respuesta.getMensaje());
+                showMessage("Error al eliminar el grupo: " + respuesta.getMensaje());
+                return;
+            }
+            
+            System.out.println("Grupo eliminado exitosamente");
+            showMessage("Grupo eliminado correctamente");
+            loadGroupsAsync();
+        });
         
-        System.out.println("Grupo eliminado exitosamente");
-        showMessage("Grupo eliminado correctamente");
+        deleteTask.setOnFailed(event -> {
+            Throwable ex = deleteTask.getException();
+            System.err.println("Excepción eliminando grupo: " + (ex != null ? ex.getMessage() : "desconocida"));
+            showMessage("Error eliminando grupo: " + (ex != null ? ex.getMessage() : "Error desconocido"));
+        });
         
-        // Recargar grupos
-        loadGroups();
+        Thread deleteThread = new Thread(deleteTask);
+        deleteThread.setDaemon(true);
+        deleteThread.start();
     }
 
     private String getLanguageString(String key) {
