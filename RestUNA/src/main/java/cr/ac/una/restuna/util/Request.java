@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 public class Request {
     
     private static final Logger LOGGER = Logger.getLogger(Request.class.getName());
-    private static final String BASE_URL = "http://localhost:8080/WsRestUNA/resources/"; // Asegúrate que este puerto coincide con tu servidor
+    private static final String BASE_URL = ApplicationProperties.getRestBaseUrl();
     private static final String CONTENT_TYPE = "application/json";
     
     private String endpoint;
@@ -238,6 +238,51 @@ public class Request {
             // Estado
             if (mesa.getEstado() != null) {
                 json.append("\"estado\":\"").append(escaparJson(mesa.getEstado())).append("\",");
+            }
+            
+            // Eliminar la última coma si existe
+            if (json.charAt(json.length() - 1) == ',') {
+                json.setLength(json.length() - 1);
+            }
+            
+            json.append('}');
+            return json.toString();
+        }
+
+        // Soportar GrupoProductoDto
+        if (objeto instanceof cr.ac.una.restuna.model.GrupoProductoDto) {
+            cr.ac.una.restuna.model.GrupoProductoDto grupo = (cr.ac.una.restuna.model.GrupoProductoDto) objeto;
+            StringBuilder json = new StringBuilder();
+            json.append('{');
+            
+            // ID (si existe)
+            if (grupo.getIdGrupoProducto() != null && grupo.getIdGrupoProducto() > 0) {
+                json.append("\"idGrupoProducto\":").append(grupo.getIdGrupoProducto()).append(',');
+            }
+            
+            // Nombre (obligatorio)
+            if (grupo.getNombre() != null) {
+                json.append("\"nombre\":\"").append(escaparJson(grupo.getNombre())).append("\",");
+            }
+            
+            // Descripción
+            if (grupo.getDescripcion() != null && !grupo.getDescripcion().isEmpty()) {
+                json.append("\"descripcion\":\"").append(escaparJson(grupo.getDescripcion())).append("\",");
+            }
+            
+            // Acceso Rápido
+            if (grupo.getAccesoRapido() != null) {
+                json.append("\"accesoRapido\":\"").append(escaparJson(grupo.getAccesoRapido())).append("\",");
+            }
+            
+            // Orden de Visualización
+            if (grupo.getOrdenVisualizacion() != null) {
+                json.append("\"ordenVisualizacion\":").append(grupo.getOrdenVisualizacion()).append(',');
+            }
+            
+            // Estado
+            if (grupo.getEstado() != null) {
+                json.append("\"estado\":\"").append(escaparJson(grupo.getEstado())).append("\",");
             }
             
             // Eliminar la última coma si existe
