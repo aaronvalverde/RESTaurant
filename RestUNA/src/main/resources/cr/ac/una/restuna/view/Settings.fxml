@@ -7,6 +7,7 @@
 <?import io.github.palexdev.materialfx.controls.MFXTextField?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
@@ -14,14 +15,14 @@
 
 <AnchorPane id="AnchorPane" prefHeight="800.0" prefWidth="1280.0" stylesheets="@Styles.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cr.ac.una.restuna.controller.SettingsController">
    <children>
-      <VBox layoutX="140.0" layoutY="35.0" prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <VBox layoutX="140.0" layoutY="35.0" prefHeight="200.0" prefWidth="100.0" styleClass="jfx-main-background" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
             <HBox prefHeight="100.0" prefWidth="200.0">
                <children>
                   <VBox alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="100.0" spacing="15.0" HBox.hgrow="ALWAYS">
                      <children>
-                        <Label text="%lb.settings" />
-                        <Label text="%lb.settings.sub" />
+                        <Label styleClass="jfx-titles" text="%lb.settings" />
+                        <Label styleClass="jfx-labels" text="%lb.settings.sub" />
                      </children>
                   </VBox>
                </children>
@@ -31,41 +32,68 @@
             </HBox>
             <VBox prefHeight="200.0" prefWidth="100.0" VBox.vgrow="ALWAYS">
                <children>
-                  <MFXScrollPane fx:id="settingsRoot" VBox.vgrow="ALWAYS">
+                  <MFXScrollPane fx:id="settingsRoot" style="-fx-background-color: transparent;" VBox.vgrow="ALWAYS">
                      <content>
                         <VBox fx:id="settingsContainer" prefHeight="547.0" prefWidth="1205.0" spacing="20.0">
                            <children>
-                              <VBox prefHeight="200.0" prefWidth="100.0">
+                              <VBox prefHeight="200.0" prefWidth="100.0" styleClass="jfx-info-container">
                                  <children>
                                     <HBox alignment="CENTER_LEFT" prefHeight="35.0" prefWidth="1205.0">
                                        <children>
-                                          <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true" />
-                                          <Label text="%lb.general" />
+                                          <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                                             <image>
+                                                <Image url="@../resources/icons/icons8-herramientas-del-administrador-50.png" />
+                                             </image>
+                                             <HBox.margin>
+                                                <Insets right="5.0" />
+                                             </HBox.margin></ImageView>
+                                          <Label styleClass="jfx-subtitles" text="%lb.general" />
                                        </children>
+                                       <VBox.margin>
+                                          <Insets bottom="10.0" />
+                                       </VBox.margin>
                                     </HBox>
                                     <VBox prefHeight="200.0" prefWidth="100.0">
                                        <children>
-                                          <VBox prefHeight="200.0" prefWidth="100.0" VBox.vgrow="ALWAYS">
+                                          <VBox prefHeight="200.0" prefWidth="100.0" spacing="5.0" VBox.vgrow="ALWAYS">
                                              <children>
                                                 <HBox alignment="CENTER_LEFT" prefHeight="35.0" prefWidth="1205.0">
                                                    <children>
-                                                      <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true" />
-                                                      <Label text="%lb.language" />
+                                                      <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                                         <image>
+                                                            <Image url="@../resources/icons/icons8-geografía-50.png" />
+                                                         </image>
+                                                         <HBox.margin>
+                                                            <Insets right="5.0" />
+                                                         </HBox.margin></ImageView>
+                                                      <Label styleClass="jfx-labels" text="%lb.language" />
                                                    </children>
                                                 </HBox>
                                                 <MFXComboBox fx:id="cmbLanguage" floatMode="DISABLED" maxWidth="1.7976931348623157E308" onAction="#onActionCmbLanguage" />
                                              </children>
+                                             <VBox.margin>
+                                                <Insets bottom="15.0" />
+                                             </VBox.margin>
                                           </VBox>
-                                          <VBox prefHeight="200.0" prefWidth="100.0" VBox.vgrow="ALWAYS">
+                                          <VBox prefHeight="200.0" prefWidth="100.0" spacing="5.0" VBox.vgrow="ALWAYS">
                                              <children>
                                                 <HBox alignment="CENTER_LEFT" prefHeight="35.0" prefWidth="1205.0">
                                                    <children>
-                                                      <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true" />
-                                                      <Label text="%lb.currency" />
+                                                      <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                                         <HBox.margin>
+                                                            <Insets right="5.0" />
+                                                         </HBox.margin>
+                                                         <image>
+                                                            <Image url="@../resources/icons/icons8-moneda-50.png" />
+                                                         </image></ImageView>
+                                                      <Label styleClass="jfx-labels" text="%lb.currency" />
                                                    </children>
                                                 </HBox>
                                                 <MFXComboBox fx:id="cmbCurrency" floatMode="DISABLED" maxWidth="1.7976931348623157E308" onAction="#onActionCmbCurrency" />
                                              </children>
+                                             <VBox.margin>
+                                                <Insets bottom="10.0" />
+                                             </VBox.margin>
                                           </VBox>
                                        </children>
                                     </VBox>
@@ -74,22 +102,30 @@
                                     <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                                  </padding>
                               </VBox>
-                              <VBox prefHeight="147.0" prefWidth="1205.0">
+                              <VBox prefHeight="147.0" prefWidth="1205.0" styleClass="jfx-info-container">
                                  <children>
                                     <HBox alignment="CENTER_LEFT" prefHeight="35.0" prefWidth="1205.0">
                                        <children>
-                                          <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true" />
-                                          <Label text="%lb.restaurant.info" />
+                                          <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                                             <image>
+                                                <Image url="@../resources/icons/icons8-edificio-de-restaurante-50-yellow.png" />
+                                             </image>
+                                             <HBox.margin>
+                                                <Insets right="5.0" />
+                                             </HBox.margin></ImageView>
+                                          <Label styleClass="jfx-subtitles" text="%lb.restaurant.info" />
                                        </children>
+                                       <VBox.margin>
+                                          <Insets bottom="10.0" />
+                                       </VBox.margin>
                                     </HBox>
-                                    <VBox prefHeight="200.0" prefWidth="100.0">
+                                    <VBox prefHeight="200.0" prefWidth="100.0" spacing="5.0">
                                        <children>
-                                          <VBox prefHeight="200.0" prefWidth="100.0" VBox.vgrow="ALWAYS">
+                                          <VBox prefHeight="200.0" prefWidth="100.0" spacing="5.0" VBox.vgrow="ALWAYS">
                                              <children>
                                                 <HBox alignment="CENTER_LEFT" prefHeight="35.0" prefWidth="1205.0">
                                                    <children>
-                                                      <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true" />
-                                                      <Label text="%lb.restaurant.name" />
+                                                      <Label styleClass="jfx-labels" text="%lb.restaurant.name" />
                                                    </children>
                                                 </HBox>
                                                 <MFXTextField fx:id="txfRestaurantName" floatMode="DISABLED" maxWidth="1.7976931348623157E308" promptText="%txf.name.prompt" />
@@ -102,45 +138,63 @@
                                     <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                                  </padding>
                               </VBox>
-                              <VBox prefHeight="200.0" prefWidth="100.0">
+                              <VBox prefHeight="200.0" prefWidth="100.0" styleClass="jfx-info-container">
                                  <children>
                                     <HBox alignment="CENTER_LEFT" prefHeight="35.0" prefWidth="1205.0">
                                        <children>
-                                          <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true" />
-                                          <Label text="%lb.tax.discount" />
+                                          <ImageView fitHeight="35.0" fitWidth="35.0" pickOnBounds="true" preserveRatio="true">
+                                             <HBox.margin>
+                                                <Insets right="5.0" />
+                                             </HBox.margin>
+                                             <image>
+                                                <Image url="@../resources/icons/icons8-billete-de-descuento-50.png" />
+                                             </image></ImageView>
+                                          <Label styleClass="jfx-subtitles" text="%lb.tax.discount" />
                                        </children>
+                                       <VBox.margin>
+                                          <Insets bottom="10.0" />
+                                       </VBox.margin>
                                     </HBox>
                                     <VBox prefHeight="200.0" prefWidth="100.0" spacing="10.0">
                                        <children>
-                                          <VBox prefHeight="200.0" prefWidth="100.0" VBox.vgrow="ALWAYS">
+                                          <VBox prefHeight="200.0" prefWidth="100.0" spacing="5.0" VBox.vgrow="ALWAYS">
                                              <children>
                                                 <HBox alignment="CENTER_LEFT" prefHeight="35.0" prefWidth="1205.0">
                                                    <children>
-                                                      <Label text="%lb.vat" />
+                                                      <Label styleClass="jfx-labels" text="%lb.vat" />
                                                    </children>
                                                 </HBox>
                                                 <MFXSpinner fx:id="spinnerIVA" />
                                              </children>
+                                             <VBox.margin>
+                                                <Insets bottom="10.0" />
+                                             </VBox.margin>
                                           </VBox>
-                                          <VBox prefHeight="200.0" prefWidth="100.0" VBox.vgrow="ALWAYS">
+                                          <VBox prefHeight="200.0" prefWidth="100.0" spacing="5.0" VBox.vgrow="ALWAYS">
                                              <children>
                                                 <HBox alignment="CENTER_LEFT" prefHeight="35.0" prefWidth="1205.0">
                                                    <children>
-                                                      <Label text="%lb.service.tax" />
+                                                      <Label styleClass="jfx-labels" text="%lb.service.tax" />
                                                    </children>
                                                 </HBox>
                                                 <MFXSpinner fx:id="spinnerServiceTax" />
                                              </children>
+                                             <VBox.margin>
+                                                <Insets bottom="10.0" />
+                                             </VBox.margin>
                                           </VBox>
-                                          <VBox prefHeight="200.0" prefWidth="100.0">
+                                          <VBox prefHeight="200.0" prefWidth="100.0" spacing="5.0">
                                              <children>
                                                 <HBox alignment="CENTER_LEFT" prefHeight="35.0" prefWidth="1205.0">
                                                    <children>
-                                                      <Label text="%lb.max.discount" />
+                                                      <Label styleClass="jfx-labels" text="%lb.max.discount" />
                                                    </children>
                                                 </HBox>
                                                 <MFXSpinner fx:id="spinnerCashierDiscount" />
                                              </children>
+                                             <VBox.margin>
+                                                <Insets bottom="10.0" />
+                                             </VBox.margin>
                                           </VBox>
                                        </children>
                                     </VBox>
@@ -149,59 +203,104 @@
                                     <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                                  </padding>
                               </VBox>
-                              <VBox prefHeight="200.0" prefWidth="100.0">
+                              <VBox prefHeight="200.0" prefWidth="100.0" styleClass="jfx-info-container">
                                  <children>
                                     <HBox alignment="CENTER_LEFT" prefHeight="35.0" prefWidth="1205.0">
                                        <children>
-                                          <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true" />
-                                          <Label text="%lb.contact.info" />
+                                          <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                                             <HBox.margin>
+                                                <Insets right="5.0" />
+                                             </HBox.margin>
+                                             <image>
+                                                <Image url="@../resources/icons/icons8-teléfono-50.png" />
+                                             </image></ImageView>
+                                          <Label styleClass="jfx-subtitles" text="%lb.contact.info" />
                                        </children>
+                                       <VBox.margin>
+                                          <Insets bottom="10.0" />
+                                       </VBox.margin>
                                     </HBox>
                                     <VBox prefHeight="200.0" prefWidth="100.0">
                                        <children>
-                                          <VBox prefHeight="200.0" prefWidth="100.0" VBox.vgrow="ALWAYS">
+                                          <VBox prefHeight="200.0" prefWidth="100.0" spacing="5.0" VBox.vgrow="ALWAYS">
                                              <children>
                                                 <HBox alignment="CENTER_LEFT" prefHeight="35.0" prefWidth="1205.0">
                                                    <children>
-                                                      <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true" />
-                                                      <Label text="%lb.phone" />
+                                                      <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                                         <HBox.margin>
+                                                            <Insets right="5.0" />
+                                                         </HBox.margin>
+                                                         <image>
+                                                            <Image url="@../resources/icons/icons8-teléfono-50.png" />
+                                                         </image></ImageView>
+                                                      <Label styleClass="jfx-labels" text="%lb.phone" />
                                                    </children>
                                                 </HBox>
                                                 <MFXTextField fx:id="txfPhone" floatMode="DISABLED" maxWidth="1.7976931348623157E308" promptText="%txf.phone.prompt" />
                                              </children>
+                                             <VBox.margin>
+                                                <Insets bottom="15.0" />
+                                             </VBox.margin>
                                           </VBox>
-                                          <VBox prefHeight="200.0" prefWidth="100.0" VBox.vgrow="ALWAYS">
+                                          <VBox prefHeight="200.0" prefWidth="100.0" spacing="5.0" VBox.vgrow="ALWAYS">
                                              <children>
                                                 <HBox alignment="CENTER_LEFT" prefHeight="35.0" prefWidth="1205.0">
                                                    <children>
-                                                      <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true" />
-                                                      <Label text="%lb.secondary.phone" />
+                                                      <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                                         <HBox.margin>
+                                                            <Insets right="5.0" />
+                                                         </HBox.margin>
+                                                         <image>
+                                                            <Image url="@../resources/icons/icons8-teléfono-50.png" />
+                                                         </image></ImageView>
+                                                      <Label styleClass="jfx-labels" text="%lb.secondary.phone" />
                                                    </children>
                                                 </HBox>
                                                 <MFXTextField fx:id="txfSecondaryPhone" floatMode="DISABLED" maxWidth="1.7976931348623157E308" promptText="%txf.phone.prompt" />
                                              </children>
+                                             <VBox.margin>
+                                                <Insets bottom="15.0" />
+                                             </VBox.margin>
                                           </VBox>
-                                          <VBox prefHeight="200.0" prefWidth="100.0">
+                                          <VBox prefHeight="200.0" prefWidth="100.0" spacing="5.0">
                                              <children>
                                                 <HBox alignment="CENTER_LEFT" prefHeight="35.0" prefWidth="1205.0">
                                                    <children>
-                                                      <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true" />
-                                                      <Label text="%lb.email" />
+                                                      <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                                         <HBox.margin>
+                                                            <Insets right="5.0" />
+                                                         </HBox.margin>
+                                                         <image>
+                                                            <Image url="@../resources/icons/icons8-nuevo-post-50.png" />
+                                                         </image></ImageView>
+                                                      <Label styleClass="jfx-labels" text="%lb.email" />
                                                    </children>
                                                 </HBox>
                                                 <MFXTextField fx:id="txfEmail" floatMode="DISABLED" maxWidth="1.7976931348623157E308" promptText="%txf.email.prompt" />
                                              </children>
+                                             <VBox.margin>
+                                                <Insets bottom="15.0" />
+                                             </VBox.margin>
                                           </VBox>
-                                          <VBox prefHeight="200.0" prefWidth="100.0">
+                                          <VBox prefHeight="200.0" prefWidth="100.0" spacing="5.0">
                                              <children>
                                                 <HBox alignment="CENTER_LEFT" prefHeight="35.0" prefWidth="1205.0">
                                                    <children>
-                                                      <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true" />
-                                                      <Label text="%lb.address" />
+                                                      <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                                         <HBox.margin>
+                                                            <Insets right="5.0" />
+                                                         </HBox.margin>
+                                                         <image>
+                                                            <Image url="@../resources/icons/icons8-dirección-50.png" />
+                                                         </image></ImageView>
+                                                      <Label styleClass="jfx-labels" text="%lb.address" />
                                                    </children>
                                                 </HBox>
                                                 <MFXTextField fx:id="txfAddress" floatMode="DISABLED" maxWidth="1.7976931348623157E308" promptText="%txf.address.prompt" />
                                              </children>
+                                             <VBox.margin>
+                                                <Insets bottom="15.0" />
+                                             </VBox.margin>
                                           </VBox>
                                        </children>
                                     </VBox>
@@ -216,12 +315,26 @@
                   </MFXScrollPane>
                   <HBox alignment="CENTER_RIGHT" prefHeight="80.0" prefWidth="200.0" spacing="10.0">
                      <children>
-                        <MFXButton fx:id="btnExit" maxHeight="1.7976931348623157E308" onAction="#onActionBtnExit" prefWidth="100.0" text="%btn.exit" HBox.hgrow="SOMETIMES" />
-                        <MFXButton fx:id="btnSave" maxHeight="1.7976931348623157E308" onAction="#onActionBtnSave" prefWidth="200.0" text="%btn.save.changes" />
-                        <MFXButton fx:id="btnCancel" maxHeight="1.7976931348623157E308" onAction="#onActionBtnCancel" prefWidth="100.0" text="%btn.cancel" />
+                        <HBox prefHeight="100.0" prefWidth="200.0" HBox.hgrow="ALWAYS">
+                           <children>
+                              <MFXButton fx:id="btnExit" contentDisplay="TOP" maxHeight="1.7976931348623157E308" onAction="#onActionBtnExit" prefWidth="100.0" text="%btn.exit" HBox.hgrow="SOMETIMES">
+                                 <graphic>
+                                    <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true" />
+                                 </graphic>
+                              </MFXButton>
+                           </children>
+                        </HBox>
+                        <MFXButton fx:id="btnSave" contentDisplay="TOP" maxHeight="1.7976931348623157E308" onAction="#onActionBtnSave" prefWidth="200.0" text="%btn.save.changes">
+                           <graphic>
+                              <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true" />
+                           </graphic></MFXButton>
+                        <MFXButton fx:id="btnCancel" contentDisplay="TOP" maxHeight="1.7976931348623157E308" onAction="#onActionBtnCancel" prefWidth="100.0" text="%btn.cancel">
+                           <graphic>
+                              <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true" />
+                           </graphic></MFXButton>
                      </children>
                      <padding>
-                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                        <Insets bottom="10.0" top="10.0" />
                      </padding>
                   </HBox>
                </children>

@@ -13,18 +13,18 @@
 
 <AnchorPane id="AnchorPane" prefHeight="800.0" prefWidth="1280.0" stylesheets="@Styles.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cr.ac.una.restuna.controller.BillingController">
    <children>
-      <VBox layoutX="113.0" layoutY="117.0" prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <VBox layoutX="113.0" layoutY="117.0" prefHeight="200.0" prefWidth="100.0" styleClass="jfx-main-background" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
             <HBox alignment="CENTER_LEFT" prefHeight="65.0" prefWidth="1280.0">
                <children>
-                  <Label text="%lb.billing" />
+                  <Label styleClass="jfx-titles" text="%lb.billing" />
                </children>
                <padding>
                   <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                </padding></HBox>
             <HBox prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
                <children>
-                  <VBox prefHeight="700.0" prefWidth="119.0" spacing="10.0">
+                  <VBox prefHeight="700.0" prefWidth="119.0" spacing="10.0" styleClass="jfx-info-container">
                      <children>
                         <MFXButton fx:id="btnCash" contentDisplay="TOP" maxWidth="1.7976931348623157E308" onAction="#onActionBtnCash" prefHeight="80.0" text="%btn.cash">
                            <graphic>
@@ -34,7 +34,7 @@
                            <graphic>
                               <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true" />
                            </graphic></MFXButton>
-                        <MFXButton fx:id="btnSinpe" contentDisplay="TOP" maxWidth="1.7976931348623157E308" onAction="#onActionBtnSinpe" prefHeight="80.0" text="%btn.sinpe">
+                        <MFXButton fx:id="btnPayPal" contentDisplay="TOP" maxWidth="1.7976931348623157E308" onAction="#onActionBtnPayPal" prefHeight="80.0" text="%btn.paypal">
                            <graphic>
                               <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true" />
                            </graphic></MFXButton>
@@ -46,6 +46,9 @@
                      <padding>
                         <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                      </padding>
+                     <HBox.margin>
+                        <Insets bottom="10.0" left="10.0" />
+                     </HBox.margin>
                   </VBox>
                   <VBox prefHeight="700.0" prefWidth="370.0" spacing="10.0">
                      <children>
@@ -53,16 +56,16 @@
                         <VBox fx:id="numberKeypadRoot" prefHeight="200.0" prefWidth="100.0" VBox.vgrow="ALWAYS" />
                         <MFXButton fx:id="btnRegisterAmount" contentDisplay="GRAPHIC_ONLY" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" onAction="#onActionBtnRegisterAmount" prefHeight="50.0" prefWidth="60.0" VBox.vgrow="ALWAYS">
                            <graphic>
-                              <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true" />
+                              <ImageView fitHeight="30.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true" />
                            </graphic></MFXButton>
                      </children>
                      <padding>
                         <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                      </padding>
                   </VBox>
-                  <VBox prefHeight="200.0" prefWidth="100.0" spacing="10.0" HBox.hgrow="ALWAYS">
+                  <VBox prefHeight="200.0" prefWidth="100.0" spacing="10.0" styleClass="jfx-info-container" HBox.hgrow="ALWAYS">
                      <padding>
-                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                      </padding>
                      <children>
                         <HBox prefHeight="100.0" prefWidth="200.0" spacing="10.0">
@@ -73,7 +76,7 @@
                                        <children>
                                           <HBox alignment="CENTER_LEFT" prefHeight="50.0" prefWidth="80.0">
                                              <children>
-                                                <Label text="%lb.amount" HBox.hgrow="ALWAYS" />
+                                                <Label styleClass="jfx-labels" text="%lb.amount" HBox.hgrow="ALWAYS" />
                                              </children>
                                           </HBox>
                                           <MFXTextField fx:id="txfTotalDue" floatMode="DISABLED" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
@@ -83,7 +86,7 @@
                                        <children>
                                           <HBox alignment="CENTER_LEFT" prefHeight="50.0" prefWidth="80.0">
                                              <children>
-                                                <Label text="%lb.tip" HBox.hgrow="ALWAYS" />
+                                                <Label styleClass="jfx-labels" text="%lb.tip" HBox.hgrow="ALWAYS" />
                                              </children>
                                           </HBox>
                                           <MFXTextField fx:id="txfTotalTip" floatMode="DISABLED" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
@@ -99,7 +102,7 @@
                                              <children>
                                                 <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="80.0">
                                                    <children>
-                                                      <Label text="%lb.client.bill" HBox.hgrow="ALWAYS" />
+                                                      <Label styleClass="jfx-labels" text="%lb.client.bill" HBox.hgrow="ALWAYS" />
                                                    </children>
                                                 </HBox>
                                                 <MFXTextField fx:id="txfClient" floatMode="DISABLED" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
@@ -109,7 +112,7 @@
                                              <children>
                                                 <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="80.0">
                                                    <children>
-                                                      <Label text="%lb.email" HBox.hgrow="ALWAYS" />
+                                                      <Label styleClass="jfx-labels" text="%lb.email" HBox.hgrow="ALWAYS" />
                                                    </children>
                                                 </HBox>
                                                 <MFXTextField fx:id="txfClientEmail" floatMode="DISABLED" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
@@ -132,13 +135,13 @@
                            <children>
                               <VBox alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="100.0" spacing="10.0" HBox.hgrow="ALWAYS">
                                  <children>
-                                    <Label text="%lb.amount.tendered" />
+                                    <Label styleClass="jfx-labels" text="%lb.amount.tendered" />
                                     <MFXTextField fx:id="txfAmountTendered" floatMode="DISABLED" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS" />
                                  </children>
                               </VBox>
                               <VBox alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="100.0" spacing="10.0" HBox.hgrow="ALWAYS">
                                  <children>
-                                    <Label text="%lb.change" />
+                                    <Label styleClass="jfx-labels" text="%lb.change" />
                                     <MFXTextField fx:id="txfChange" floatMode="DISABLED" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS" />
                                  </children>
                               </VBox>
@@ -156,10 +159,13 @@
                         </HBox>
                         <HBox alignment="CENTER_LEFT" prefHeight="58.0" prefWidth="771.0" spacing="20.0">
                            <children>
-                              <Label text="%lb.amount.due" HBox.hgrow="ALWAYS" />
+                              <Label styleClass="jfx-labels" text="%lb.amount.due" HBox.hgrow="ALWAYS" />
                               <MFXTextField fx:id="txfAmountDue" floatMode="DISABLED" prefWidth="180.0" />
                            </children></HBox>
                      </children>
+                     <HBox.margin>
+                        <Insets bottom="10.0" right="10.0" />
+                     </HBox.margin>
                   </VBox>
                </children>
             </HBox>

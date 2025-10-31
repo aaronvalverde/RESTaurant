@@ -21,7 +21,7 @@ public class ManagementController extends Controller implements Initializable {
     @FXML
     private MFXButton btnUsers;
     @FXML
-    private MFXButton btnSections;
+    private MFXButton btnSectionsMgmt;
     @FXML
     private MFXButton btnGroups;
     @FXML

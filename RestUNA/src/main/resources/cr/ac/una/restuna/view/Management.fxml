@@ -4,39 +4,61 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Separator?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cr.ac.una.restuna.controller.ManagementController">
+<BorderPane prefHeight="800.0" prefWidth="1280.0" styleClass="jfx-main-background" stylesheets="@Styles.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cr.ac.una.restuna.controller.ManagementController">
    <left>
-      <VBox fx:id="sidebar" prefHeight="800.0" prefWidth="130.0" spacing="5.0" BorderPane.alignment="CENTER">
+      <VBox fx:id="sidebar" prefHeight="780.0" prefWidth="170.0" spacing="5.0" styleClass="jfx-info-container" BorderPane.alignment="CENTER">
          <children>
-            <Label text="%lb.management" />
+            <Label styleClass="jfx-titles" text="%lb.management" />
             <Separator prefWidth="200.0" />
             <VBox prefHeight="410.0" prefWidth="180.0" spacing="10.0">
                <children>
-                  <MFXButton fx:id="btnUsers" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" onAction="#onActionBtnUsers" prefHeight="80.0" text="%btn.user.mgmt" VBox.vgrow="ALWAYS" />
-                  <MFXButton fx:id="btnSections" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" onAction="#onActionBtnSections" prefHeight="80.0" text="%btn.sections.mgmt" VBox.vgrow="ALWAYS" />
-                  <MFXButton fx:id="btnGroups" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" onAction="#onActionBtnGroups" prefHeight="80.0" text="%btn.menu.groups" VBox.vgrow="ALWAYS" />
-                  <MFXButton fx:id="btnItems" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" onAction="#onActionBtnItems" prefHeight="80.0" text="%btn.menu.items" VBox.vgrow="ALWAYS" />
+                  <MFXButton fx:id="btnUsers" contentDisplay="TOP" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" onAction="#onActionBtnUsers" prefHeight="80.0" text="%btn.user.mgmt" VBox.vgrow="ALWAYS">
+                     <graphic>
+                        <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true" />
+                     </graphic></MFXButton>
+                  <MFXButton fx:id="btnSectionsMgmt" contentDisplay="TOP" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" onAction="#onActionBtnSections" prefHeight="80.0" text="%btn.sections.mgmt" VBox.vgrow="ALWAYS">
+                     <graphic>
+                        <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true" />
+                     </graphic></MFXButton>
+                  <MFXButton fx:id="btnGroups" contentDisplay="TOP" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" onAction="#onActionBtnGroups" prefHeight="80.0" text="%btn.menu.groups" VBox.vgrow="ALWAYS">
+                     <graphic>
+                        <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true" />
+                     </graphic></MFXButton>
+                  <MFXButton fx:id="btnItems" contentDisplay="TOP" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" onAction="#onActionBtnItems" prefHeight="80.0" text="%btn.menu.items" VBox.vgrow="ALWAYS">
+                     <graphic>
+                        <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true" />
+                     </graphic></MFXButton>
                </children>
                <VBox.margin>
                   <Insets top="10.0" />
                </VBox.margin>
             </VBox>
             <VBox prefHeight="200.0" prefWidth="100.0" VBox.vgrow="ALWAYS" />
-            <MFXButton fx:id="btnExit" maxWidth="1.7976931348623157E308" onAction="#onActionBtnExit" prefHeight="60.0" text="%btn.exit" />
+            <MFXButton fx:id="btnExit" contentDisplay="TOP" maxWidth="1.7976931348623157E308" onAction="#onActionBtnExit" prefHeight="80.0" text="%btn.exit">
+               <graphic>
+                  <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true" />
+               </graphic></MFXButton>
          </children>
          <padding>
             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
          </padding>
+         <BorderPane.margin>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </BorderPane.margin>
       </VBox>
    </left>
    <center>
       <BorderPane fx:id="contentArea" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <center>
-            <HBox prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+            <HBox prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding></HBox>
          </center>
       </BorderPane>
    </center>

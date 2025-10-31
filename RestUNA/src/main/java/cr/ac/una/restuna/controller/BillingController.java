@@ -121,8 +121,8 @@ public class BillingController extends Controller implements Initializable {
     }
 
     @FXML
-    void onActionBtnSinpe(ActionEvent event) {
-        addPay("Sinpe");
+    void onActionBtnPayPal(ActionEvent event) {
+        addPay("PayPal");
     }
 
     @FXML

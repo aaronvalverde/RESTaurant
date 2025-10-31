@@ -68,10 +68,6 @@
 #btnBilling,
 #btnCashOpening,
 #btnCashClosing,
-#btnUsers,
-#btnSectionsMgmt,
-#btnMenuGroups,
-#btnMenuItems,
 #btnReports,
 #btnLogout,
 #btnManagement,
@@ -109,8 +105,6 @@
 #btnBilling:hover,
 #btnCashOpening:hover,
 #btnCashClosing:hover,
-#btnUsers:hover,
-#btnSectionsMgmt:hover,
 #btnMenuGroups:hover,
 #btnMenuItems:hover,
 #btnReports:hover,
@@ -148,11 +142,11 @@
 /*management  buttons*/
 
 #btnUsers > ImageView {
-    -fx-image: url("../resources/icons/icons8-administrador-del-hombre-50.png");
+    -fx-image: url("../resources/icons/icons8-administrador-del-hombre-50-yellow.png");
 }
 
 #btnSectionsMgmt > ImageView {
-    -fx-image: url("../resources/icons/icons8-edificio-de-restaurante-50.png");
+    -fx-image: url("../resources/icons/icons8-edificio-de-restaurante-50-yellow.png");
 }
 
 #btnMenuGroups > ImageView {
@@ -339,6 +333,12 @@
     -fx-text-fill: #eab308;
 }
 
+.jfx-subtitles {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #eab308;
+}
+
 .jfx-image > ImageView {
     -fx-image: url("../resources/icons/drag.png");
 }
@@ -378,7 +378,7 @@
     -fx-border-color: #f59e0b;
 }
 
-#btnErase> ImageView {
+#btnErase > ImageView {
     -fx-image: url("../resources/icons/icons8-izquierda-50.png");
 }
 
@@ -392,7 +392,7 @@
     -fx-border-radius: 10px;
 }
 
-#btnEnter {
+#btnEnter, #btnRegisterAmount {
     -fx-background-color: #1e293b;
     -fx-border-color: #475569;
     -fx-text-fill: white;
@@ -401,28 +401,32 @@
     -fx-border-radius: 10px;
 }
 
-#btnEnter:hover {
+#btnEnter:hover, #btnRegisterAmount:hover {
     -fx-background-color: #eab308;
     -fx-border-color: #f59e0b;
 }
 
-#btnEnter > ImageView {
+
+#btnEnter > ImageView, #btnRegisterAmount > ImageView {
     -fx-image: url("../resources/icons/icons8-flecha-derecha-larga-50.png");
 }
 
-#btnCash:hover,#btnCard:hover, #btnPayPal:hover, #btnTip:hover {
+#btnCash:hover, #btnCard:hover, #btnPayPal:hover, #btnTip:hover {
     -fx-background-color: #475569;
 }
 
 #btnCash > ImageView {
     -fx-image: url("../resources/icons/icons8-dinero-50.png");
 }
-#btnCard> ImageView {
+
+#btnCard > ImageView {
     -fx-image: url("../resources/icons/icons8-tarjetas-bancarias-50.png");
 }
+
 #btnPayPal > ImageView {
     -fx-image: url("../resources/icons/icons8-paypal-50.png");
 }
+
 #btnTip > ImageView {
     -fx-image: url("../resources/icons/icons8-regalo-50.png");
 }
@@ -453,7 +457,6 @@
     -fx-font-weight: bold;
     -fx-font-size: 14px;
 }
-
 
 
 /* Table Rows */
@@ -505,4 +508,53 @@
     -fx-background-color: #64748b;
 }
 
+#btnUsers,
+#btnSectionsMgmt,
+#btnGroups,
+#btnItems {
+    -fx-background-color: #334155;
+    -fx-border-color: #475569;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 10px;
+    -fx-border-radius: 10px;
+}
+
+#btnUsers:hover,
+#btnSectionsMgmt:hover,
+#btnGroups:hover,
+#btnItems:hover {
+    -fx-background-color: #475569;
+}
+
+#btnGroups > ImageView {
+    -fx-image: url("../resources/icons/icons8-comida-50-yellow.png");
+}
+
+#btnItems > ImageView {
+    -fx-image: url("../resources/icons/icons8-plato-yellow.png");
+}
+#btnExit > ImageView {
+    -fx-image: url("../resources/icons/icons8-salida-50-yellow.png");
+}
+
+#btnSave {
+    -fx-background-color: #334155;
+    -fx-border-color: #475569;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 10px;
+    -fx-border-radius: 10px;
+}
+#btnSave > ImageView {
+    -fx-image: url("../resources/icons/icons8-guardar-50.png");
+}
+
+#btnSave:hover {
+    -fx-background-color: #eab308;
+    -fx-border-color: #f59e0b;
+}
+#btnSave:hover > ImageView {
+    -fx-image: url("../resources/icons/icons8-guardar-50-blanco.png");
+}
 
