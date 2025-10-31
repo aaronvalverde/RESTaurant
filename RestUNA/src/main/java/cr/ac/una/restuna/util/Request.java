@@ -198,6 +198,56 @@ public class Request {
             json.append('}');
             return json.toString();
         }
+        
+        // Soportar MesaDto
+        if (objeto instanceof cr.ac.una.restuna.model.MesaDto) {
+            cr.ac.una.restuna.model.MesaDto mesa = (cr.ac.una.restuna.model.MesaDto) objeto;
+            StringBuilder json = new StringBuilder();
+            json.append('{');
+            
+            // ID (si existe)
+            if (mesa.getIdMesa() != null && mesa.getIdMesa() > 0) {
+                json.append("\"idMesa\":").append(mesa.getIdMesa()).append(',');
+            }
+            
+            // ID Sección (obligatorio)
+            if (mesa.getIdSeccion() != null) {
+                json.append("\"idSeccion\":").append(mesa.getIdSeccion()).append(',');
+            }
+            
+            // Número de Mesa (obligatorio)
+            if (mesa.getNumeroMesa() != null) {
+                json.append("\"numeroMesa\":\"").append(escaparJson(mesa.getNumeroMesa())).append("\",");
+            }
+            
+            // Capacidad
+            if (mesa.getCapacidad() != null) {
+                json.append("\"capacidad\":").append(mesa.getCapacidad()).append(',');
+            }
+            
+            // Posición X
+            if (mesa.getPosicionX() != null) {
+                json.append("\"posicionX\":").append(mesa.getPosicionX()).append(',');
+            }
+            
+            // Posición Y
+            if (mesa.getPosicionY() != null) {
+                json.append("\"posicionY\":").append(mesa.getPosicionY()).append(',');
+            }
+            
+            // Estado
+            if (mesa.getEstado() != null) {
+                json.append("\"estado\":\"").append(escaparJson(mesa.getEstado())).append("\",");
+            }
+            
+            // Eliminar la última coma si existe
+            if (json.charAt(json.length() - 1) == ',') {
+                json.setLength(json.length() - 1);
+            }
+            
+            json.append('}');
+            return json.toString();
+        }
 
         // Soportar List (para listas de DTOs como List<ParametroDto>)
         if (objeto instanceof java.util.List) {
@@ -212,6 +262,8 @@ public class Request {
                 // Recursión para convertir cada elemento
                 if (item instanceof cr.ac.una.restuna.model.ParametroDto) {
                     json.append(convertirParametroDtoAJson((cr.ac.una.restuna.model.ParametroDto) item));
+                } else if (item instanceof cr.ac.una.restuna.model.MesaDto) {
+                    json.append(convertirObjetoAJson(item));
                 } else {
                     // Para otros tipos, usar recursión general
                     json.append(convertirObjetoAJson(item));
