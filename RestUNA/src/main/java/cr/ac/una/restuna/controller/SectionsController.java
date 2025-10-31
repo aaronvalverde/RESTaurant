@@ -82,12 +82,50 @@ public class SectionsController extends Controller implements Initializable {
         sectionsContainer.prefWidthProperty().bind(sectionsRoot.widthProperty());
         btnAddTable.setDisable(true);
         onEditMode(false);
+        configurarDragAndDrop();
         loadSections();
     }
 
     @Override
     public void initialize() {
         // Método sobrescrito de Controller - no se usa en este caso
+    }
+    
+    /**
+     * Configura los handlers de drag & drop del panel de sección
+     * Se configura UNA SOLA VEZ para que funcione con todas las mesas
+     */
+    private void configurarDragAndDrop() {
+        sectionPane.setOnDragOver(e -> {
+            if (e.getGestureSource() instanceof MFXButton && modoEdicion) {
+                e.acceptTransferModes(TransferMode.MOVE);
+            }
+            e.consume();
+        });
+        
+        sectionPane.setOnDragDropped(e -> {
+            if (modoEdicion && e.getGestureSource() instanceof MFXButton) {
+                MFXButton btnMesa = (MFXButton) e.getGestureSource();
+                MesaDto mesa = mesaButtonMap.get(btnMesa);
+                
+                if (mesa != null) {
+                    double x = e.getX() - btnMesa.getWidth() / 2;
+                    double y = e.getY() - btnMesa.getHeight() / 2;
+                    btnMesa.relocate(x, y);
+                    
+                    // Actualizar posición en DTO
+                    mesa.setPosicionX(x);
+                    mesa.setPosicionY(y);
+                    hayCambios = true;
+                    
+                    // Guardar inmediatamente la nueva posición
+                    guardarPosicionMesa(mesa);
+                    
+                    e.setDropCompleted(true);
+                }
+            }
+            e.consume();
+        });
     }
 
     @FXML
@@ -456,32 +494,6 @@ public class SectionsController extends Controller implements Initializable {
                 ClipboardContent content = new ClipboardContent();
                 content.putString("mesa");
                 db.setContent(content);
-            }
-            e.consume();
-        });
-        
-        sectionPane.setOnDragOver(e -> {
-            if (e.getGestureSource() != sectionPane && modoEdicion) {
-                e.acceptTransferModes(TransferMode.MOVE);
-            }
-            e.consume();
-        });
-        
-        sectionPane.setOnDragDropped(e -> {
-            if (modoEdicion) {
-                double x = e.getX() - btnMesa.getWidth() / 2;
-                double y = e.getY() - btnMesa.getHeight() / 2;
-                btnMesa.relocate(x, y);
-                
-                // Actualizar posición en DTO
-                mesa.setPosicionX(x);
-                mesa.setPosicionY(y);
-                hayCambios = true;
-                
-                // Guardar inmediatamente la nueva posición
-                guardarPosicionMesa(mesa);
-                
-                e.setDropCompleted(true);
             }
             e.consume();
         });
