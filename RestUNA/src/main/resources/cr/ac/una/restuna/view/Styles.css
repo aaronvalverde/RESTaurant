@@ -5,7 +5,20 @@
     -fx-border-radius: 10px;
 }
 
+.mfx-password-field .eye-icon {
+    -mfx-color: white;
+}
+
+.mfx-combo-box .caret .mfx-font-icon {
+    -mfx-color: white;
+}
+
+.mfx-combo-box:focus-within .caret .mfx-font-icon {
+    -mfx-color: white;
+}
+
 .mfx-text-field {
+    -mfx-main: #64748b;
     -fx-font-size: 13px;
     -fx-min-height: 50px;
     -fx-pref-height: 50px;
@@ -17,6 +30,14 @@
     -fx-border-radius: 10px;
     -fx-text-fill: white;
     -fx-text-fill: white;
+}
+
+.mfx-text-field .text-field {
+    /* Selected text highlight */
+    -fx-highlight-fill: #3b82f6;
+    -fx-highlight-text-fill: white;
+    /* Prompt text color */
+    -fx-prompt-text-fill: #94a3b8;
 }
 
 .mfx-scroll-pane .scroll-bar:vertical .track,
@@ -70,7 +91,8 @@
 #btnAddTable,
 #btnDeleteTable,
 #btnExit,
-#btnExitEditMode, #btnPrint, #btnDownload, #btnSignIn {
+#btnExitEditMode, #btnPrint, #btnDownload, #btnSignIn,
+#btnKeypad {
     -fx-background-color: #334155;
     -fx-border-color: #475569;
     -fx-background-radius: 10px;
@@ -106,7 +128,7 @@
 #btnCashClosingReport:hover,
 #btnSalesReport:hover, #btnPrint:hover,
 #btnDownload:hover, #btnAddTable:hover, #btnExit:hover,
-#btnAddTable:hover, #btnDeleteTable:hover {
+#btnAddTable:hover, #btnDeleteTable:hover, #btnKeypad:hover {
     -fx-background-color: #475569;
 }
 
@@ -249,24 +271,40 @@
     -fx-image: url("../resources/icons/icons8-administrador-del-hombre-50.png");
 }
 
-/*temp*/
 
-#btnSave {
-    -fx-background-color: blue;
+/*cash opening*/
+#btnKeypad > ImageView {
+    -fx-image: url("../resources/icons/icons8-teclado-50.png");
+}
+
+#btnOk > ImageView {
+    -fx-image: url("../resources/icons/icons8-de-acuerdo-50.png");
+}
+
+#btnOk {
+    -fx-background-color: green;
     -fx-text-fill: white;
-    -fx-font-weight: bold;
+    -fx-background-radius: 10px;
+    -fx-border-radius: 10px;
+}
+
+#btnOk:hover {
+    -fx-background-color: #4CAF50;
+}
+
+#btnCancel > ImageView {
+    -fx-image: url("../resources/icons/icons8-cancelar-50.png");
 }
 
 #btnCancel {
     -fx-background-color: red;
     -fx-text-fill: white;
-    -fx-font-weight: bold;
+    -fx-background-radius: 10px;
+    -fx-border-radius: 10px;
 }
 
-#btnToBill {
-    -fx-background-color: green;
-    -fx-text-fill: white;
-    -fx-font-weight: bold;
+#btnCancel:hover {
+    -fx-background-color: #E57373;
 }
 
 #btnClose > ImageView {
@@ -314,6 +352,157 @@
 
 .jfx-labels {
     -fx-text-fill: white;
+}
+
+/*keypad*/
+#btnOne, #btnTwo, #btnThree, #btnFour,
+#btnFive, #btnSix, #btnSeven, #btnEight, #btnNine,
+#btnZero, #btnDot, #btnErase {
+    -fx-background-color: #334155;
+    -fx-border-color: #475569;
+    -fx-background-radius: 10px;
+    -fx-border-radius: 10px;
+    -fx-text-fill: white;
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+
+#btnOne:hover, #btnTwo:hover, #btnThree:hover, #btnFour:hover,
+#btnFive:hover, #btnSix:hover, #btnSeven:hover, #btnEight:hover, #btnNine:hover,
+#btnZero:hover {
+    -fx-background-color: #475569;
+}
+
+#btnErase:hover, #btnDot:hover {
+    -fx-background-color: #eab308;
+    -fx-border-color: #f59e0b;
+}
+
+#btnErase> ImageView {
+    -fx-image: url("../resources/icons/icons8-izquierda-50.png");
+}
+
+/*cash closing*/
+#btnCash, #btnCard, #btnPayPal, #btnTip {
+    -fx-background-color: #334155;
+    -fx-border-color: #475569;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 10px;
+    -fx-border-radius: 10px;
+}
+
+#btnEnter {
+    -fx-background-color: #1e293b;
+    -fx-border-color: #475569;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 10px;
+    -fx-border-radius: 10px;
+}
+
+#btnEnter:hover {
+    -fx-background-color: #eab308;
+    -fx-border-color: #f59e0b;
+}
+
+#btnEnter > ImageView {
+    -fx-image: url("../resources/icons/icons8-flecha-derecha-larga-50.png");
+}
+
+#btnCash:hover,#btnCard:hover, #btnPayPal:hover, #btnTip:hover {
+    -fx-background-color: #475569;
+}
+
+#btnCash > ImageView {
+    -fx-image: url("../resources/icons/icons8-dinero-50.png");
+}
+#btnCard> ImageView {
+    -fx-image: url("../resources/icons/icons8-tarjetas-bancarias-50.png");
+}
+#btnPayPal > ImageView {
+    -fx-image: url("../resources/icons/icons8-paypal-50.png");
+}
+#btnTip > ImageView {
+    -fx-image: url("../resources/icons/icons8-regalo-50.png");
+}
+
+/* JFXTreeTableView Base */
+.jfx-tree-table-view {
+    -fx-background-color: #1e293b;
+    -fx-border-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+    -fx-border-width: 0;
+}
+
+/* Column Header */
+.jfx-tree-table-view .column-header-background {
+    -fx-background-color: #0f172a;
+    -fx-border-width: 0;
+}
+
+.jfx-tree-table-view .column-header {
+    -fx-background-color: #0f172a;
+    -fx-border-color: #334155;
+    -fx-border-width: 0 0 2 0;
+}
+
+.jfx-tree-table-view .column-header .label {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+}
+
+
+
+/* Table Rows */
+.jfx-tree-table-view .tree-table-row-cell {
+    -fx-background-color: #1e293b;
+    -fx-border-color: #334155;
+    -fx-border-width: 0 0 1 0;
+    -fx-text-fill: #e2e8f0;
+}
+
+.jfx-tree-table-view .tree-table-row-cell:odd {
+    -fx-background-color: #253144;
+}
+
+/* Hover */
+.jfx-tree-table-view .tree-table-row-cell:hover {
+    -fx-background-color: #334155;
+}
+
+/* Selected */
+.jfx-tree-table-view .tree-table-row-cell:selected {
+    -fx-background-color: linear-gradient(to right, #eab308, #d97706);
+    -fx-text-fill: #0f172a;
+}
+
+/* Table Cells */
+.jfx-tree-table-view .tree-table-cell {
+    -fx-text-fill: #e2e8f0;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 10px;
+    -fx-border-width: 0;
+}
+
+.jfx-tree-table-view .tree-table-row-cell:selected .tree-table-cell {
+    -fx-text-fill: #0f172a;
+}
+
+/* Scrollbar */
+.jfx-tree-table-view .scroll-bar:vertical {
+    -fx-background-color: #1e293b;
+}
+
+.jfx-tree-table-view .scroll-bar .thumb {
+    -fx-background-color: #475569;
+    -fx-background-radius: 5px;
+}
+
+.jfx-tree-table-view .scroll-bar .thumb:hover {
+    -fx-background-color: #64748b;
 }
 
 

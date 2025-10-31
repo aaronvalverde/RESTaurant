@@ -2,6 +2,7 @@ package cr.ac.una.restuna.controller;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+
 import javafx.fxml.Initializable;
 import com.jfoenix.controls.JFXTreeTableView;
 import com.jfoenix.controls.RecursiveTreeItem;
@@ -11,10 +12,12 @@ import cr.ac.una.restuna.model.DetalleFacturaDto;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXScrollPane;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -26,6 +29,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -48,8 +52,6 @@ public class CashClosingController extends Controller implements Initializable {
     @FXML
     private MFXButton btnOk;
     @FXML
-    private MFXButton btnSinpe;
-    @FXML
     private MFXButton btnTip;
     @FXML
     private VBox keypadRoot;
@@ -64,8 +66,12 @@ public class CashClosingController extends Controller implements Initializable {
     @FXML
     private MFXTextField txfInput;
 
+    private MFXButton activeButton;
+
     private ObservableList<CierreCajaDto> closingBox = FXCollections.observableArrayList();
     private CierreCajaDto currentClosing = new CierreCajaDto();
+    @FXML
+    private MFXButton btnPayPal;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -87,12 +93,17 @@ public class CashClosingController extends Controller implements Initializable {
 
     @FXML
     void onActionBtnCard(ActionEvent event) {
-
+        setActiveButton(btnCard);
     }
 
     @FXML
     void onActionBtnCash(ActionEvent event) {
+        setActiveButton(btnCash);
+    }
 
+    @FXML
+    private void onActionBtnPaypal(ActionEvent event) {
+        setActiveButton(btnPayPal);
     }
 
     @FXML
@@ -116,13 +127,8 @@ public class CashClosingController extends Controller implements Initializable {
     }
 
     @FXML
-    void onActionBtnSinpe(ActionEvent event) {
-
-    }
-
-    @FXML
     void onActionBtnTip(ActionEvent event) {
-
+        setActiveButton(btnTip);
     }
 
     @FXML
@@ -156,18 +162,18 @@ public class CashClosingController extends Controller implements Initializable {
     private void initTableColumns() {
         tbcKey.setCellValueFactory(new TreeItemPropertyValueFactory<>("estado"));
         tbcTotalAmount.setCellValueFactory(new TreeItemPropertyValueFactory<>("observaciones"));
-        
-        List<String> payMethod = Arrays.asList("Cash","Card","Sinpe","Tip");
+
+        List<String> payMethod = Arrays.asList("Cash", "Card", "Paypal", "Tip");
         TreeItem<CierreCajaDto> root = new TreeItem<>(new CierreCajaDto());
-        
-        for(String method : payMethod){
+
+        for (String method : payMethod) {
             CierreCajaDto payM = new CierreCajaDto();
             payM.setEstado(method);
             payM.setObservaciones("$0.00");
             root.getChildren().add(new TreeItem<>(payM));
-            
+
         }
-        
+
         tbvPaymentBreakdown.setRoot(root);
         tbvPaymentBreakdown.setShowRoot(false);
     }
@@ -177,5 +183,13 @@ public class CashClosingController extends Controller implements Initializable {
         alert.setHeaderText(null);
         alert.setContentText(msg);
         alert.showAndWait();
+    }
+
+    private void setActiveButton(MFXButton button) {
+        if (activeButton != null) {
+            activeButton.setStyle("");
+        }
+        button.setStyle("-fx-background-color: #475569;\n-fx-border-color: #475569");
+        activeButton = button;
     }
 }

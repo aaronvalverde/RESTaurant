@@ -128,11 +128,9 @@ public class ReportsController extends Controller implements Initializable {
     }
 
     private void setActiveButton(MFXButton button) {
-        // Resetear el estilo del anterior activo
         if (activeButton != null) {
-            activeButton.setStyle(""); // vuelve al estilo por defecto
+            activeButton.setStyle("");
         }
-        // Aplicar estilo al nuevo activo
         button.setStyle("-fx-background-color: linear-gradient(to right, #eab308, #d97706); -fx-border-color: #f59e0b");
         activeButton = button;
     }

@@ -5,6 +5,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
@@ -20,7 +21,10 @@
          <children>
             <Label styleClass="jfx-labels" text="%lb.init.fund">
                <graphic>
-                  <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" />
+                  <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../resources/icons/icons8-bolsa-de-dinero-50.png" />
+                     </image></ImageView>
                </graphic></Label>
             <MFXTextField fx:id="txfInitialFund" floatMode="DISABLED" maxWidth="1.7976931348623157E308" promptText="%txf.price.prompt">
                <cursor>
@@ -31,18 +35,27 @@
       <VBox fx:id="keypadRoot" prefHeight="450.0" prefWidth="100.0" VBox.vgrow="ALWAYS" />
       <HBox minHeight="-Infinity" prefHeight="80.0" prefWidth="200.0" spacing="10.0">
          <children>
-            <MFXButton fx:id="btnKeypad" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#onActionBtnKeypad" text="%btn.keypad" HBox.hgrow="ALWAYS">
+            <MFXButton fx:id="btnKeypad" contentDisplay="TOP" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#onActionBtnKeypad" prefWidth="160.0" rippleColor="#bdbdbd00" text="%btn.keypad" HBox.hgrow="ALWAYS">
                <cursor>
                   <Cursor fx:constant="HAND" />
-               </cursor></MFXButton>
-            <MFXButton fx:id="btnOk" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#onActionBtnOk" text="%btn.ok" HBox.hgrow="ALWAYS">
+               </cursor>
+               <graphic>
+                  <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true" />
+               </graphic></MFXButton>
+            <MFXButton fx:id="btnOk" contentDisplay="TOP" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#onActionBtnOk" prefWidth="100.0" rippleColor="#bdbdbd00" text="%btn.ok">
                <cursor>
                   <Cursor fx:constant="HAND" />
-               </cursor></MFXButton>
-            <MFXButton fx:id="btnCancel" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#onActionBtnCancel" text="%btn.cancel" HBox.hgrow="ALWAYS">
+               </cursor>
+               <graphic>
+                  <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true" />
+               </graphic></MFXButton>
+            <MFXButton fx:id="btnCancel" contentDisplay="TOP" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#onActionBtnCancel" prefWidth="100.0" rippleColor="#bdbdbd00" text="%btn.cancel">
                <cursor>
                   <Cursor fx:constant="HAND" />
-               </cursor></MFXButton>
+               </cursor>
+               <graphic>
+                  <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true" />
+               </graphic></MFXButton>
          </children>
          <VBox.margin>
             <Insets />
