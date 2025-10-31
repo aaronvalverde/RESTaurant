@@ -1,15 +1,20 @@
 package cr.ac.una.restuna.controller;
 
+import cr.ac.una.restuna.model.GrupoProductoDto;
 import cr.ac.una.restuna.model.ProductoDto;
 import cr.ac.una.restuna.model.SeccionDto;
+import cr.ac.una.restuna.service.GrupoProductoService;
 import cr.ac.una.restuna.util.AppKeys;
 import cr.ac.una.restuna.util.FlowController;
 import cr.ac.una.restuna.util.Respuesta;
+import cr.ac.una.restuna.util.JsonParser;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXCheckbox;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXTextField;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -49,19 +54,115 @@ public class NewItemController extends Controller implements Initializable {
     private boolean editMode = false;
     private ProductoDto productEdit;
     private ItemsMgmtController parentController;
+    private final GrupoProductoService grupoProductoService = new GrupoProductoService();
+    private List<GrupoProductoDto> gruposDisponibles = new ArrayList<>();
 
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        cmbGroup.getItems().setAll("Bebidas Calientes", "Bebidas Frias", "Platos Fuertes", "Entradas", "Postres");
+        loadGrupos(); // Cargar grupos desde el servidor
         initButtons();
         validations();
     }
 
     @Override
     public void initialize() {
+    }
+    
+    /**
+     * Carga los grupos activos desde el servidor
+     */
+    private void loadGrupos() {
+        System.out.println("DEBUG: Cargando grupos para ComboBox");
+        Respuesta respuesta = grupoProductoService.getGrupoProductosActivos();
+        
+        if (!respuesta.getEstado()) {
+            System.err.println("Error cargando grupos: " + respuesta.getMensaje());
+            showMessage(new Respuesta(false, "Error", "No se pudieron cargar los grupos: " + respuesta.getMensaje()));
+            return;
+        }
+        
+        String contenido = (String) respuesta.getResultado("GrupoProductos");
+        
+        if (contenido == null || contenido.trim().isEmpty()) {
+            System.out.println("No hay grupos disponibles");
+            return;
+        }
+        
+        gruposDisponibles.clear();
+        cmbGroup.getItems().clear();
+        
+        // Extraer objetos JSON
+        List<String> objetosGrupos = extraerObjetosDelArray(contenido);
+        
+        for (String objetoJson : objetosGrupos) {
+            GrupoProductoDto grupo = parsearGrupoProducto(objetoJson);
+            if (grupo != null) {
+                gruposDisponibles.add(grupo);
+                cmbGroup.getItems().add(grupo.getNombre());
+            }
+        }
+        
+        System.out.println("DEBUG: Grupos cargados: " + gruposDisponibles.size());
+    }
+    
+    /**
+     * Extrae objetos JSON de primer nivel de un array JSON
+     */
+    private List<String> extraerObjetosDelArray(String jsonArray) {
+        List<String> objetos = new ArrayList<>();
+        
+        if (jsonArray == null || !jsonArray.trim().startsWith("[")) {
+            return objetos;
+        }
+        
+        int nivel = 0;
+        int inicioObjeto = -1;
+        
+        for (int i = 0; i < jsonArray.length(); i++) {
+            char c = jsonArray.charAt(i);
+            
+            if (c == '{') {
+                if (nivel == 0) {
+                    inicioObjeto = i;
+                }
+                nivel++;
+            } else if (c == '}') {
+                nivel--;
+                if (nivel == 0 && inicioObjeto != -1) {
+                    objetos.add(jsonArray.substring(inicioObjeto, i + 1));
+                    inicioObjeto = -1;
+                }
+            }
+        }
+        
+        return objetos;
+    }
+    
+    /**
+     * Parsea un objeto JSON string a GrupoProductoDto
+     */
+    private GrupoProductoDto parsearGrupoProducto(String objetoJson) {
+        try {
+            GrupoProductoDto grupo = new GrupoProductoDto();
+            grupo.setIdGrupoProducto(JsonParser.extraerValorLong(objetoJson, "idGrupoProducto"));
+            grupo.setNombre(JsonParser.extraerValor(objetoJson, "nombre"));
+            grupo.setDescripcion(JsonParser.extraerValor(objetoJson, "descripcion"));
+            grupo.setAccesoRapido(JsonParser.extraerValor(objetoJson, "accesoRapido"));
+            grupo.setEstado(JsonParser.extraerValor(objetoJson, "estado"));
+            
+            Long ordenVis = JsonParser.extraerValorLong(objetoJson, "ordenVisualizacion");
+            if (ordenVis != null) {
+                grupo.setOrdenVisualizacion(ordenVis.intValue());
+            }
+            
+            return grupo;
+        } catch (Exception e) {
+            System.err.println("Error parseando grupo: " + e.getMessage());
+            return null;
+        }
     }
 
     @FXML
