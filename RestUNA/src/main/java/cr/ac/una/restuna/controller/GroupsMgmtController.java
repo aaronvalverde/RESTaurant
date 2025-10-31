@@ -29,7 +29,6 @@ import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 import javafx.scene.layout.HBox;
 import java.util.List;
-import java.util.ArrayList;
 import cr.ac.una.restuna.util.JsonParser;
 
 /**
@@ -172,7 +171,7 @@ public class GroupsMgmtController extends Controller implements Initializable {
         group.clear();
         
         // Extraer objetos JSON de nivel superior del array
-        List<String> objetosGrupos = extraerObjetosDelArray(contenido);
+        List<String> objetosGrupos = JsonParser.extraerObjetosDelArray(contenido);
         System.out.println("DEBUG: Se encontraron " + objetosGrupos.size() + " grupos");
         
         for (String objetoJson : objetosGrupos) {
@@ -186,39 +185,6 @@ public class GroupsMgmtController extends Controller implements Initializable {
         
         groupFilter();
         System.out.println("DEBUG: procesarGruposDesdeJson() completado. Total grupos: " + group.size());
-    }
-    
-    /**
-     * Extrae objetos JSON de primer nivel de un array JSON
-     */
-    private List<String> extraerObjetosDelArray(String jsonArray) {
-        List<String> objetos = new ArrayList<>();
-        
-        if (jsonArray == null || !jsonArray.trim().startsWith("[")) {
-            return objetos;
-        }
-        
-        int nivel = 0;
-        int inicioObjeto = -1;
-        
-        for (int i = 0; i < jsonArray.length(); i++) {
-            char c = jsonArray.charAt(i);
-            
-            if (c == '{') {
-                if (nivel == 0) {
-                    inicioObjeto = i;
-                }
-                nivel++;
-            } else if (c == '}') {
-                nivel--;
-                if (nivel == 0 && inicioObjeto != -1) {
-                    objetos.add(jsonArray.substring(inicioObjeto, i + 1));
-                    inicioObjeto = -1;
-                }
-            }
-        }
-        
-        return objetos;
     }
     
     /**

@@ -1,5 +1,7 @@
 package cr.ac.una.restuna.util;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -121,5 +123,41 @@ public class JsonParser {
             }
         }
         return null;
+    }
+    
+    /**
+     * Extrae los objetos JSON de primer nivel contenidos en un arreglo JSON.
+     * Se utiliza cuando la respuesta es un array de objetos y se necesita procesarlos manualmente.
+     * @param jsonArray Cadena con el arreglo JSON
+     * @return Lista de objetos JSON como cadenas individuales
+     */
+    public static List<String> extraerObjetosDelArray(String jsonArray) {
+        List<String> objetos = new ArrayList<>();
+
+        if (jsonArray == null || !jsonArray.trim().startsWith("[")) {
+            return objetos;
+        }
+
+        int nivel = 0;
+        int inicioObjeto = -1;
+
+        for (int i = 0; i < jsonArray.length(); i++) {
+            char c = jsonArray.charAt(i);
+
+            if (c == '{') {
+                if (nivel == 0) {
+                    inicioObjeto = i;
+                }
+                nivel++;
+            } else if (c == '}') {
+                nivel--;
+                if (nivel == 0 && inicioObjeto != -1) {
+                    objetos.add(jsonArray.substring(inicioObjeto, i + 1));
+                    inicioObjeto = -1;
+                }
+            }
+        }
+
+        return objetos;
     }
 }

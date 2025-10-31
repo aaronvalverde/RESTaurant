@@ -310,7 +310,7 @@ public class SectionsController extends Controller implements Initializable {
         sectionsContainer.getChildren().clear();
         
         // Extraer objetos JSON de nivel superior (secciones) del array
-        List<String> objetosSecciones = extraerObjetosDelArray(contenido);
+        List<String> objetosSecciones = JsonParser.extraerObjetosDelArray(contenido);
         
         for (String objetoJson : objetosSecciones) {
             SeccionDto seccion = parsearSeccion(objetoJson);
@@ -348,39 +348,6 @@ public class SectionsController extends Controller implements Initializable {
         
         // Cargar mesas de la sección
         loadMesas(seccion);
-    }
-    
-    /**
-     * Extrae objetos JSON de primer nivel de un array JSON
-     */
-    private List<String> extraerObjetosDelArray(String jsonArray) {
-        List<String> objetos = new ArrayList<>();
-        
-        if (jsonArray == null || !jsonArray.trim().startsWith("[")) {
-            return objetos;
-        }
-        
-        int nivel = 0;
-        int inicioObjeto = -1;
-        
-        for (int i = 0; i < jsonArray.length(); i++) {
-            char c = jsonArray.charAt(i);
-            
-            if (c == '{') {
-                if (nivel == 0) {
-                    inicioObjeto = i;
-                }
-                nivel++;
-            } else if (c == '}') {
-                nivel--;
-                if (nivel == 0 && inicioObjeto != -1) {
-                    objetos.add(jsonArray.substring(inicioObjeto, i + 1));
-                    inicioObjeto = -1;
-                }
-            }
-        }
-        
-        return objetos;
     }
     
     private SeccionDto parsearSeccion(String objetoJson) {
@@ -424,7 +391,7 @@ public class SectionsController extends Controller implements Initializable {
         }
         
         // Extraer objetos JSON de nivel superior (mesas) del array
-        List<String> objetosMesas = extraerObjetosDelArray(contenido);
+        List<String> objetosMesas = JsonParser.extraerObjetosDelArray(contenido);
         
         for (String objetoJson : objetosMesas) {
             MesaDto mesa = parsearMesa(objetoJson);

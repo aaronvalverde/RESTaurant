@@ -95,7 +95,7 @@ public class NewItemController extends Controller implements Initializable {
         cmbGroup.getItems().clear();
         
         // Extraer objetos JSON
-        List<String> objetosGrupos = extraerObjetosDelArray(contenido);
+        List<String> objetosGrupos = JsonParser.extraerObjetosDelArray(contenido);
         
         for (String objetoJson : objetosGrupos) {
             GrupoProductoDto grupo = parsearGrupoProducto(objetoJson);
@@ -106,39 +106,6 @@ public class NewItemController extends Controller implements Initializable {
         }
         
         System.out.println("DEBUG: Grupos cargados: " + gruposDisponibles.size());
-    }
-    
-    /**
-     * Extrae objetos JSON de primer nivel de un array JSON
-     */
-    private List<String> extraerObjetosDelArray(String jsonArray) {
-        List<String> objetos = new ArrayList<>();
-        
-        if (jsonArray == null || !jsonArray.trim().startsWith("[")) {
-            return objetos;
-        }
-        
-        int nivel = 0;
-        int inicioObjeto = -1;
-        
-        for (int i = 0; i < jsonArray.length(); i++) {
-            char c = jsonArray.charAt(i);
-            
-            if (c == '{') {
-                if (nivel == 0) {
-                    inicioObjeto = i;
-                }
-                nivel++;
-            } else if (c == '}') {
-                nivel--;
-                if (nivel == 0 && inicioObjeto != -1) {
-                    objetos.add(jsonArray.substring(inicioObjeto, i + 1));
-                    inicioObjeto = -1;
-                }
-            }
-        }
-        
-        return objetos;
     }
     
     /**
