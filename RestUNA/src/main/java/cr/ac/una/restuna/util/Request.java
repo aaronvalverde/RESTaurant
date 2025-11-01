@@ -294,6 +294,61 @@ public class Request {
             return json.toString();
         }
 
+        // Soportar ProductoDto
+        if (objeto instanceof cr.ac.una.restuna.dto.ProductoDto) {
+            cr.ac.una.restuna.dto.ProductoDto producto = (cr.ac.una.restuna.dto.ProductoDto) objeto;
+            StringBuilder json = new StringBuilder();
+            json.append('{');
+            
+            // ID (si existe)
+            if (producto.getIdProducto() != null && producto.getIdProducto() > 0) {
+                json.append("\"idProducto\":").append(producto.getIdProducto()).append(',');
+            }
+            
+            // ID Grupo Producto (obligatorio)
+            if (producto.getIdGrupoProducto() != null) {
+                json.append("\"idGrupoProducto\":").append(producto.getIdGrupoProducto()).append(',');
+            }
+            
+            // Nombre (obligatorio)
+            if (producto.getNombre() != null) {
+                json.append("\"nombre\":\"").append(escaparJson(producto.getNombre())).append("\",");
+            }
+            
+            // Nombre Corto (obligatorio)
+            if (producto.getNombreCorto() != null) {
+                json.append("\"nombreCorto\":\"").append(escaparJson(producto.getNombreCorto())).append("\",");
+            }
+            
+            // Descripción
+            if (producto.getDescripcion() != null && !producto.getDescripcion().isEmpty()) {
+                json.append("\"descripcion\":\"").append(escaparJson(producto.getDescripcion())).append("\",");
+            }
+            
+            // Precio (obligatorio)
+            if (producto.getPrecio() != null) {
+                json.append("\"precio\":").append(producto.getPrecio()).append(',');
+            }
+            
+            // Acceso Rápido
+            if (producto.getAccesoRapido() != null) {
+                json.append("\"accesoRapido\":\"").append(escaparJson(producto.getAccesoRapido())).append("\",");
+            }
+            
+            // Estado
+            if (producto.getEstado() != null) {
+                json.append("\"estado\":\"").append(escaparJson(producto.getEstado())).append("\",");
+            }
+            
+            // Eliminar la última coma si existe
+            if (json.charAt(json.length() - 1) == ',') {
+                json.setLength(json.length() - 1);
+            }
+            
+            json.append('}');
+            return json.toString();
+        }
+
         // Soportar List (para listas de DTOs como List<ParametroDto>)
         if (objeto instanceof java.util.List) {
             java.util.List<?> lista = (java.util.List<?>) objeto;
