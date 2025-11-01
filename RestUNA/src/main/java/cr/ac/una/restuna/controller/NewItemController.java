@@ -172,6 +172,12 @@ public class NewItemController extends Controller implements Initializable {
             txaDescription.setText(product.getDescripcion());
             cbShortcut.setSelected("S".equals(product.getAccesoRapido()));
             cbStatus.setSelected("A".equals(product.getEstado()));
+            
+            // Seleccionar el grupo en el combo
+            if (product.getNombreGrupo() != null && !product.getNombreGrupo().isEmpty()) {
+                cmbGroup.selectItem(product.getNombreGrupo());
+            }
+            
             initButtons();
         } else {
             editMode = false;
@@ -184,9 +190,13 @@ public class NewItemController extends Controller implements Initializable {
         if (editMode) {
             btnAdd.setVisible(false);
             btnAdd.setManaged(false);
+            btnSaveChanges.setVisible(true);
+            btnSaveChanges.setManaged(true);
         } else {
             btnSaveChanges.setVisible(false);
             btnSaveChanges.setManaged(false);
+            btnAdd.setVisible(true);
+            btnAdd.setManaged(true);
         }
     }
 
@@ -371,9 +381,12 @@ public class NewItemController extends Controller implements Initializable {
         txfShortName.clear();
         txfPrice.clear();
         txaDescription.clear();
-        cmbGroup.getSelectionModel().clearSelection();
+        cmbGroup.clearSelection();
         cbShortcut.setSelected(false);
         cbStatus.setSelected(true);
+        editMode = false;
+        productEdit = null;
+        initButtons();
     }
 
 }

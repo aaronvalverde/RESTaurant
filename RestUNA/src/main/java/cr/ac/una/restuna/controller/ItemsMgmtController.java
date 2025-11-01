@@ -285,7 +285,7 @@ public class ItemsMgmtController extends Controller implements Initializable {
         Task<Respuesta> loadTask = new Task<Respuesta>() {
             @Override
             protected Respuesta call() throws Exception {
-                return productoService.getProductos();
+                return productoService.getProductosActivos();
             }
         };
         
