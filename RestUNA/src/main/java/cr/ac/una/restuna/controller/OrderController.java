@@ -2,11 +2,18 @@ package cr.ac.una.restuna.controller;
 
 import cr.ac.una.restuna.model.DetalleOrdenDto;
 import cr.ac.una.restuna.model.GrupoProductoDto;
+import cr.ac.una.restuna.model.MesaDto;
 import cr.ac.una.restuna.model.OrdenDto;
 import cr.ac.una.restuna.model.ParametroDto;
 import cr.ac.una.restuna.model.ProductoDto;
 import cr.ac.una.restuna.model.SeccionDto;
+import cr.ac.una.restuna.service.ClienteService;
+import cr.ac.una.restuna.service.GrupoProductoService;
+import cr.ac.una.restuna.service.MesaService;
+import cr.ac.una.restuna.service.OrdenService;
 import cr.ac.una.restuna.service.ParametroService;
+import cr.ac.una.restuna.service.ProductoService;
+import cr.ac.una.restuna.service.SeccionService;
 import cr.ac.una.restuna.util.AppKeys;
 import cr.ac.una.restuna.util.BillingCalculator;
 import cr.ac.una.restuna.util.FlowController;
@@ -72,11 +79,11 @@ public class OrderController extends Controller implements Initializable {
     @FXML
     private MFXButton btnToBill;
     @FXML
-    private MFXComboBox<?> cmbSection;
+    private MFXComboBox<SeccionDto> cmbSection;
     @FXML
-    private MFXComboBox<?> cmbTable;
+    private MFXComboBox<MesaDto> cmbTable;
     @FXML
-    private MFXComboBox<?> cmbGroups;
+    private MFXComboBox<GrupoProductoDto> cmbGroups;
     @FXML
     private HBox groupsBox;
     @FXML
@@ -102,8 +109,18 @@ public class OrderController extends Controller implements Initializable {
     private Double impIVA = 0.13;
     private Double impService = 0.10;
     private SeccionDto currentSection;
+    private MesaDto currentMesa;
     private final ParametroService parametroService = new ParametroService();
+    private final SeccionService seccionService = new SeccionService();
+    private final MesaService mesaService = new MesaService();
+    private final GrupoProductoService grupoProductoService = new GrupoProductoService();
+    private final ProductoService productoService = new ProductoService();
+    private final OrdenService ordenService = new OrdenService();
+    private final ClienteService clienteService = new ClienteService();
     private java.util.Map<String, ParametroDto> parametrosMap = new java.util.HashMap<>();
+    private javafx.collections.ObservableList<SeccionDto> secciones = javafx.collections.FXCollections.observableArrayList();
+    private javafx.collections.ObservableList<MesaDto> mesas = javafx.collections.FXCollections.observableArrayList();
+    private javafx.collections.ObservableList<GrupoProductoDto> grupos = javafx.collections.FXCollections.observableArrayList();
 
     /**
      * Initializes the controller class.
@@ -116,11 +133,15 @@ public class OrderController extends Controller implements Initializable {
         currentOrder = new OrdenDto();
         groupProduct = new ArrayList<>();
         
-        // Cargar parámetros del sistema
+        // Configurar combos
+        configurarCombos();
+        
+        // Cargar datos
+        cargarSecciones();
+        cargarGrupos();
         cargarParametros();
 
         updateTotals();
-        menuGroups();
     }
 
     @Override
@@ -141,6 +162,95 @@ public class OrderController extends Controller implements Initializable {
 
     @FXML
     private void onActionBtnSave(ActionEvent event) {
+        guardarOrden();
+    }
+    
+    /**
+     * Guarda la orden en el servidor
+     */
+    private void guardarOrden() {
+        // Validaciones
+        if (currentOrder.getDetalles() == null || currentOrder.getDetalles().isEmpty()) {
+            mostrarAlerta("No hay productos", "Debe agregar al menos un producto a la orden");
+            return;
+        }
+        
+        // Establecer datos de la orden
+        if (!billingMode && !sectionMode && !quickBillingMode) {
+            // Modo normal - requiere sección y mesa
+            if (cmbSection.getSelectedItem() == null) {
+                mostrarAlerta("Sección requerida", "Debe seleccionar una sección");
+                return;
+            }
+            if (cmbTable.getSelectedItem() == null) {
+                mostrarAlerta("Mesa requerida", "Debe seleccionar una mesa");
+                return;
+            }
+            currentOrder.setIdMesa(cmbTable.getSelectedItem().getIdMesa());
+            currentOrder.setIdSeccion(cmbSection.getSelectedItem().getIdSeccion());
+        } else if (sectionMode && currentMesa != null) {
+            // Modo desde vista de sección
+            currentOrder.setIdMesa(currentMesa.getIdMesa());
+            currentOrder.setIdSeccion(currentMesa.getIdSeccion());
+        }
+        
+        // Establecer usuario (salonero actual)
+        if (UserSession.getInstance().isAuthenticated()) {
+            currentOrder.setIdSalonero(UserSession.getInstance().getCurrentUser().getIdUsuario());
+        }
+        
+        // Fecha y hora actual
+        currentOrder.setFechaHora(java.time.LocalDateTime.now());
+        
+        // Estado inicial
+        currentOrder.setEstado("PENDIENTE");
+        
+        // Guardar en background
+        javafx.concurrent.Task<Respuesta> task = new javafx.concurrent.Task<Respuesta>() {
+            @Override
+            protected Respuesta call() throws Exception {
+                return ordenService.guardarOrden(currentOrder);
+            }
+            
+            @Override
+            protected void succeeded() {
+                Respuesta respuesta = getValue();
+                if (respuesta.getEstado()) {
+                    mostrarAlerta("Éxito", "Orden guardada correctamente");
+                    limpiarOrden();
+                } else {
+                    mostrarAlerta("Error", "Error al guardar la orden: " + respuesta.getMensaje());
+                }
+            }
+            
+            @Override
+            protected void failed() {
+                mostrarAlerta("Error", "Error al guardar la orden: " + getException().getMessage());
+            }
+        };
+        
+        new Thread(task).start();
+    }
+    
+    /**
+     * Limpia la orden actual
+     */
+    private void limpiarOrden() {
+        currentOrder = new OrdenDto();
+        orderContainer.getChildren().clear();
+        txfClientName.clear();
+        updateTotals();
+    }
+    
+    /**
+     * Muestra un diálogo de alerta
+     */
+    private void mostrarAlerta(String titulo, String mensaje) {
+        javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
+        alert.setTitle(titulo);
+        alert.setHeaderText(null);
+        alert.setContentText(mensaje);
+        alert.showAndWait();
     }
 
     @FXML
@@ -358,5 +468,338 @@ public class OrderController extends Controller implements Initializable {
     public void setCurrentSection(SeccionDto section) {
         this.currentSection = section;
         updateTotals();
+    }
+    
+    /**
+     * Establecer la mesa actual
+     */
+    public void setCurrentMesa(MesaDto mesa) {
+        this.currentMesa = mesa;
+        if (mesa != null && lbTable != null) {
+            lbTable.setText("Mesa: " + mesa.getNumeroMesa());
+        }
+    }
+    
+    /**
+     * Configurar los combo boxes
+     */
+    private void configurarCombos() {
+        // Configurar combo de secciones
+        cmbSection.setItems(secciones);
+        cmbSection.setConverter(new javafx.util.StringConverter<SeccionDto>() {
+            @Override
+            public String toString(SeccionDto seccion) {
+                return seccion != null ? seccion.getNombre() : "";
+            }
+            
+            @Override
+            public SeccionDto fromString(String string) {
+                return null;
+            }
+        });
+        
+        cmbSection.selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                currentSection = newVal;
+                cargarMesasPorSeccion(newVal.getIdSeccion());
+            }
+        });
+        
+        // Configurar combo de mesas
+        cmbTable.setItems(mesas);
+        cmbTable.setConverter(new javafx.util.StringConverter<MesaDto>() {
+            @Override
+            public String toString(MesaDto mesa) {
+                return mesa != null ? mesa.getNumeroMesa() : "";
+            }
+            
+            @Override
+            public MesaDto fromString(String string) {
+                return null;
+            }
+        });
+        
+        // Configurar combo de grupos
+        cmbGroups.setItems(grupos);
+        cmbGroups.setConverter(new javafx.util.StringConverter<GrupoProductoDto>() {
+            @Override
+            public String toString(GrupoProductoDto grupo) {
+                return grupo != null ? grupo.getNombre() : "";
+            }
+            
+            @Override
+            public GrupoProductoDto fromString(String string) {
+                return null;
+            }
+        });
+        
+        cmbGroups.selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                cargarProductosPorGrupo(newVal);
+            }
+        });
+    }
+    
+    /**
+     * Cargar todas las secciones
+     */
+    private void cargarSecciones() {
+        javafx.concurrent.Task<Void> task = new javafx.concurrent.Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                Respuesta respuesta = seccionService.getSecciones();
+                
+                javafx.application.Platform.runLater(() -> {
+                    if (respuesta.getEstado()) {
+                        String jsonArray = (String) respuesta.getResultado("Secciones");
+                        procesarSecciones(jsonArray);
+                    }
+                });
+                
+                return null;
+            }
+        };
+        
+        new Thread(task).start();
+    }
+    
+    /**
+     * Procesar JSON de secciones
+     */
+    private void procesarSecciones(String jsonArray) {
+        secciones.clear();
+        
+        if (jsonArray == null || jsonArray.trim().isEmpty() || jsonArray.equals("[]")) {
+            return;
+        }
+        
+        List<String> objetosSecciones = JsonParser.extraerObjetosDelArray(jsonArray);
+        
+        for (String objetoJson : objetosSecciones) {
+            SeccionDto seccion = parsearSeccion(objetoJson);
+            if (seccion != null) {
+                secciones.add(seccion);
+            }
+        }
+    }
+    
+    /**
+     * Parsear una sección desde JSON
+     */
+    private SeccionDto parsearSeccion(String objetoJson) {
+        try {
+            SeccionDto seccion = new SeccionDto();
+            seccion.setIdSeccion(JsonParser.extraerValorLong(objetoJson, "idSeccion"));
+            seccion.setNombre(JsonParser.extraerValor(objetoJson, "nombre"));
+            seccion.setTipo(JsonParser.extraerValor(objetoJson, "tipo"));
+            
+            String cobraImpuesto = JsonParser.extraerValor(objetoJson, "cobraImpuesto");
+            seccion.setCobraImpuesto(cobraImpuesto);
+            
+            return seccion;
+        } catch (Exception e) {
+            System.err.println("Error parseando sección: " + e.getMessage());
+            return null;
+        }
+    }
+    
+    /**
+     * Cargar mesas de una sección
+     */
+    private void cargarMesasPorSeccion(Long idSeccion) {
+        javafx.concurrent.Task<Void> task = new javafx.concurrent.Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                Respuesta respuesta = mesaService.getMesasPorSeccion(idSeccion);
+                
+                javafx.application.Platform.runLater(() -> {
+                    if (respuesta.getEstado()) {
+                        String jsonArray = (String) respuesta.getResultado("Mesas");
+                        procesarMesas(jsonArray);
+                    }
+                });
+                
+                return null;
+            }
+        };
+        
+        new Thread(task).start();
+    }
+    
+    /**
+     * Procesar JSON de mesas
+     */
+    private void procesarMesas(String jsonArray) {
+        mesas.clear();
+        
+        if (jsonArray == null || jsonArray.trim().isEmpty() || jsonArray.equals("[]")) {
+            return;
+        }
+        
+        List<String> objetosMesas = JsonParser.extraerObjetosDelArray(jsonArray);
+        
+        for (String objetoJson : objetosMesas) {
+            MesaDto mesa = parsearMesa(objetoJson);
+            if (mesa != null && "LIBRE".equals(mesa.getEstado())) {
+                mesas.add(mesa);
+            }
+        }
+    }
+    
+    /**
+     * Parsear una mesa desde JSON
+     */
+    private MesaDto parsearMesa(String objetoJson) {
+        try {
+            MesaDto mesa = new MesaDto();
+            mesa.setIdMesa(JsonParser.extraerValorLong(objetoJson, "idMesa"));
+            mesa.setIdSeccion(JsonParser.extraerValorLong(objetoJson, "idSeccion"));
+            mesa.setNumeroMesa(JsonParser.extraerValor(objetoJson, "numeroMesa"));
+            mesa.setEstado(JsonParser.extraerValor(objetoJson, "estado"));
+            
+            return mesa;
+        } catch (Exception e) {
+            System.err.println("Error parseando mesa: " + e.getMessage());
+            return null;
+        }
+    }
+    
+    /**
+     * Cargar grupos de productos
+     */
+    private void cargarGrupos() {
+        javafx.concurrent.Task<Void> task = new javafx.concurrent.Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                Respuesta respuesta = grupoProductoService.getGrupoProductosAccesoRapido();
+                
+                javafx.application.Platform.runLater(() -> {
+                    if (respuesta.getEstado()) {
+                        String jsonArray = (String) respuesta.getResultado("GrupoProductos");
+                        procesarGrupos(jsonArray);
+                    }
+                });
+                
+                return null;
+            }
+        };
+        
+        new Thread(task).start();
+    }
+    
+    /**
+     * Procesar JSON de grupos
+     */
+    private void procesarGrupos(String jsonArray) {
+        grupos.clear();
+        groupProduct.clear();
+        
+        if (jsonArray == null || jsonArray.trim().isEmpty() || jsonArray.equals("[]")) {
+            return;
+        }
+        
+        List<String> objetosGrupos = JsonParser.extraerObjetosDelArray(jsonArray);
+        
+        for (String objetoJson : objetosGrupos) {
+            GrupoProductoDto grupo = parsearGrupo(objetoJson);
+            if (grupo != null) {
+                grupos.add(grupo);
+                groupProduct.add(grupo);
+            }
+        }
+        
+        // Mostrar grupos en la barra horizontal
+        menuGroups();
+    }
+    
+    /**
+     * Parsear un grupo desde JSON
+     */
+    private GrupoProductoDto parsearGrupo(String objetoJson) {
+        try {
+            GrupoProductoDto grupo = new GrupoProductoDto();
+            grupo.setIdGrupoProducto(JsonParser.extraerValorLong(objetoJson, "idGrupoProducto"));
+            grupo.setNombre(JsonParser.extraerValor(objetoJson, "nombre"));
+            grupo.setDescripcion(JsonParser.extraerValor(objetoJson, "descripcion"));
+            grupo.setAccesoRapido(JsonParser.extraerValor(objetoJson, "accesoRapido"));
+            
+            // Cargar productos del grupo
+            cargarProductosPorGrupo(grupo);
+            
+            return grupo;
+        } catch (Exception e) {
+            System.err.println("Error parseando grupo: " + e.getMessage());
+            return null;
+        }
+    }
+    
+    /**
+     * Cargar productos de un grupo
+     */
+    private void cargarProductosPorGrupo(GrupoProductoDto grupo) {
+        javafx.concurrent.Task<Void> task = new javafx.concurrent.Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                Respuesta respuesta = productoService.getProductosPorGrupoActivos(grupo.getIdGrupoProducto());
+                
+                javafx.application.Platform.runLater(() -> {
+                    if (respuesta.getEstado()) {
+                        String jsonArray = (String) respuesta.getResultado("Productos");
+                        List<ProductoDto> productos = procesarProductos(jsonArray);
+                        grupo.setProductos(productos);
+                        showProduct(grupo);
+                    }
+                });
+                
+                return null;
+            }
+        };
+        
+        new Thread(task).start();
+    }
+    
+    /**
+     * Procesar JSON de productos
+     */
+    private List<ProductoDto> procesarProductos(String jsonArray) {
+        List<ProductoDto> productos = new ArrayList<>();
+        
+        if (jsonArray == null || jsonArray.trim().isEmpty() || jsonArray.equals("[]")) {
+            return productos;
+        }
+        
+        List<String> objetosProductos = JsonParser.extraerObjetosDelArray(jsonArray);
+        
+        for (String objetoJson : objetosProductos) {
+            ProductoDto producto = parsearProducto(objetoJson);
+            if (producto != null) {
+                productos.add(producto);
+            }
+        }
+        
+        return productos;
+    }
+    
+    /**
+     * Parsear un producto desde JSON
+     */
+    private ProductoDto parsearProducto(String objetoJson) {
+        try {
+            ProductoDto producto = new ProductoDto();
+            producto.setIdProducto(JsonParser.extraerValorLong(objetoJson, "idProducto"));
+            producto.setIdGrupoProducto(JsonParser.extraerValorLong(objetoJson, "idGrupoProducto"));
+            producto.setNombre(JsonParser.extraerValor(objetoJson, "nombre"));
+            producto.setNombreCorto(JsonParser.extraerValor(objetoJson, "nombreCorto"));
+            
+            String precioStr = JsonParser.extraerValorNumerico(objetoJson, "precio");
+            if (precioStr != null) {
+                producto.setPrecio(Double.parseDouble(precioStr));
+            }
+            
+            return producto;
+        } catch (Exception e) {
+            System.err.println("Error parseando producto: " + e.getMessage());
+            return null;
+        }
     }
 }

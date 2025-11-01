@@ -1,16 +1,28 @@
 module cr.ac.una.restuna {
+    // JavaFX modules
+    requires javafx.base;
     requires javafx.controls;
-    requires java.logging;
     requires javafx.fxml;
-    requires java.base;
+    requires javafx.graphics;
+    requires javafx.web;
+    
+    // UI Libraries
     requires MaterialFX;
     requires com.jfoenix;
-    requires javafx.web;
+    
+    // Java modules
+    requires java.logging;
+    requires java.base;
+    requires java.sql;
+    
+    // Reporting
+    requires net.sf.jasperreports.core;
 
+    // Opens for JavaFX reflection
     opens cr.ac.una.restuna to javafx.fxml;
     opens cr.ac.una.restuna.controller to javafx.fxml;
     opens cr.ac.una.restuna.model to javafx.base;
 
-    exports cr.ac.una.restuna;    
-    requires net.sf.jasperreports.core;
+    // Exports
+    exports cr.ac.una.restuna;
 }

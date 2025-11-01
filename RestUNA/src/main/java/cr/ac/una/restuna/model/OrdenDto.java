@@ -1,11 +1,7 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package cr.ac.una.restuna.model;
 
 import java.io.Serializable;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,36 +15,22 @@ public class OrdenDto implements Serializable {
     private Long idMesa;
     private Long idSeccion;
     private Long idCliente;
-    private Long idUsuarioSaloreno;
+    private Long idUsuarioSalonero;
     private String numeroOrden;
     private String estado;
     private String observaciones;
-    private LocalDate fechaCreacion;
+    private LocalDateTime fechaHora;
     private Double subtotal;
     private List<DetalleOrdenDto> detalles;
 
-    public OrdenDto(Long idOrden, Long idMesa, Long idSeccion, Long idCliente, Long idUsuarioSaloreno, String numeroOrden, String estado, String observaciones, LocalDate fechaCreacion, Double subtotal) {
-        this.idOrden = idOrden;
-        this.idMesa = idMesa;
-        this.idSeccion = idSeccion;
-        this.idCliente = idCliente;
-        this.idUsuarioSaloreno = idUsuarioSaloreno;
-        this.numeroOrden = numeroOrden;
-        this.estado = estado;
-        this.observaciones = observaciones;
-        this.fechaCreacion = fechaCreacion;
-        this.subtotal = subtotal;
-    }
-
     public OrdenDto() {
-        
-        this.fechaCreacion = LocalDate.now();
-        this.estado = "A";
+        this.fechaHora = LocalDateTime.now();
+        this.estado = "PENDIENTE";
         this.subtotal = 0.0;
         this.detalles = new ArrayList<>();
-        
     }
 
+    // Getters
     public Long getIdOrden() {
         return idOrden;
     }
@@ -65,8 +47,8 @@ public class OrdenDto implements Serializable {
         return idCliente;
     }
 
-    public Long getIdUsuarioSaloreno() {
-        return idUsuarioSaloreno;
+    public Long getIdSalonero() {
+        return idUsuarioSalonero;
     }
 
     public String getNumeroOrden() {
@@ -81,8 +63,8 @@ public class OrdenDto implements Serializable {
         return observaciones;
     }
 
-    public LocalDate getFechaCreacion() {
-        return fechaCreacion;
+    public LocalDateTime getFechaHora() {
+        return fechaHora;
     }
 
     public Double getSubtotal() {
@@ -93,6 +75,7 @@ public class OrdenDto implements Serializable {
         return detalles;
     }
 
+    // Setters
     public void setIdOrden(Long idOrden) {
         this.idOrden = idOrden;
     }
@@ -109,8 +92,8 @@ public class OrdenDto implements Serializable {
         this.idCliente = idCliente;
     }
 
-    public void setIdUsuarioSaloreno(Long idUsuarioSaloreno) {
-        this.idUsuarioSaloreno = idUsuarioSaloreno;
+    public void setIdSalonero(Long idSalonero) {
+        this.idUsuarioSalonero = idSalonero;
     }
 
     public void setNumeroOrden(String numeroOrden) {
@@ -125,8 +108,8 @@ public class OrdenDto implements Serializable {
         this.observaciones = observaciones;
     }
 
-    public void setFechaCreacion(LocalDate fechaCreacion) {
-        this.fechaCreacion = fechaCreacion;
+    public void setFechaHora(LocalDateTime fechaHora) {
+        this.fechaHora = fechaHora;
     }
 
     public void setSubtotal(Double subtotal) {
@@ -137,10 +120,7 @@ public class OrdenDto implements Serializable {
         this.detalles = detalles;
     }
     
-    public void calcularSubtotal(){
-        
+    public void calcularSubtotal() {
         subtotal = detalles.stream().mapToDouble(DetalleOrdenDto::getSubtotal).sum();
-        
     }
-    
 }

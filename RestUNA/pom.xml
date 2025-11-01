@@ -69,7 +69,7 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
-                    <mainClass>cr.ac.una.restuna.App</mainClass>
+                    <mainClass>cr.ac.una.restuna/cr.ac.una.restuna.App</mainClass>
                 </configuration>
                 <executions>
                     <execution>
