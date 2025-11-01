@@ -9,6 +9,7 @@ import cr.ac.una.restuna.util.AppKeys;
 import cr.ac.una.restuna.util.FlowController;
 import cr.ac.una.restuna.util.JsonParser;
 import cr.ac.una.restuna.util.Respuesta;
+import javafx.concurrent.Task;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXFilterComboBox;
 import io.github.palexdev.materialfx.controls.MFXScrollPane;
@@ -30,6 +31,7 @@ import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
 /**
@@ -55,6 +57,8 @@ public class ItemsMgmtController extends Controller implements Initializable {
     private TreeTableColumn<ProductoDto, Long> tbcID;
     @FXML
     private TreeTableColumn<ProductoDto, String> tbcName;
+    @FXML
+    private TreeTableColumn<ProductoDto, String> tbcGroup;
     @FXML
     private TreeTableColumn<ProductoDto, Double> tbcPrice;
     @FXML
@@ -82,6 +86,7 @@ public class ItemsMgmtController extends Controller implements Initializable {
 
         tbcID.setCellValueFactory(new TreeItemPropertyValueFactory<>("idProducto"));
         tbcName.setCellValueFactory(new TreeItemPropertyValueFactory<>("nombre"));
+        tbcGroup.setCellValueFactory(new TreeItemPropertyValueFactory<>("nombreGrupo"));
         tbcPrice.setCellValueFactory(new TreeItemPropertyValueFactory<>("precio"));
         tbcShortcut.setCellValueFactory(new TreeItemPropertyValueFactory<>("nombreCorto"));
         tbcStatus.setCellValueFactory(new TreeItemPropertyValueFactory<>("estado"));
@@ -92,6 +97,7 @@ public class ItemsMgmtController extends Controller implements Initializable {
 
         confEvent();
         setActionsColumn();
+        loadProductsAsync(); // Cargar productos desde el servidor
     }
 
     private void confEvent() {
@@ -120,6 +126,7 @@ public class ItemsMgmtController extends Controller implements Initializable {
     void onActionBtnAdd(ActionEvent event) {
         try {
             NewItemController item = (NewItemController) FlowController.getInstance().getController(AppKeys.NEW_MENU_ITEM);
+            item.setParentController(this);
             item.clear();
             FlowController.getInstance().goViewInWindowModal(AppKeys.NEW_MENU_ITEM, new Stage(), false);
         } catch (Exception e) {
@@ -160,25 +167,56 @@ public class ItemsMgmtController extends Controller implements Initializable {
 
     private void setActionsColumn() {
         tbcActions.setCellFactory(col -> new TreeTableCell<ProductoDto, Void>() {
-            MFXButton btnEdit = new MFXButton(" ");
-            MFXButton btnDelete = new MFXButton();
+            private final MFXButton btnEdit = new MFXButton(" ");
+            private final MFXButton btnDelete = new MFXButton();
+            private final HBox actionButtons = new HBox(5);
 
             {
-                btnEdit.setGraphic(new ImageView(new Image("../resources/icons/icons8-edit-50.png")));
-                btnDelete.setGraphic(new ImageView(new Image("../resources/icons/icons8-delete-50.png")));
+                try {
+                    ImageView editIcon = new ImageView(new Image(
+                        getClass().getResourceAsStream("/cr/ac/una/restuna/resources/icons/icons8-edit-50.png")
+                    ));
+                    editIcon.setFitWidth(20);
+                    editIcon.setFitHeight(20);
+                    btnEdit.setGraphic(editIcon);
+                    
+                    ImageView deleteIcon = new ImageView(new Image(
+                        getClass().getResourceAsStream("/cr/ac/una/restuna/resources/icons/icons8-delete-50.png")
+                    ));
+                    deleteIcon.setFitWidth(20);
+                    deleteIcon.setFitHeight(20);
+                    btnDelete.setGraphic(deleteIcon);
+                } catch (Exception e) {
+                    System.err.println("Error cargando iconos: " + e.getMessage());
+                }
 
                 btnEdit.setOnAction(e -> {
-                    ProductoDto productoDto = getTreeTableRow().getItem();
+                    ProductoDto productoDto = getTreeTableView().getTreeItem(getIndex()).getValue();
                     if (productoDto != null) {
                         onEditItem(productoDto);
                     }
                 });
+                
                 btnDelete.setOnAction(e -> {
-                    //lógica para eliminar la columna de la tabla y DB.
+                    ProductoDto productoDto = getTreeTableView().getTreeItem(getIndex()).getValue();
+                    if (productoDto != null) {
+                        //lógica para eliminar la columna de la tabla y DB.
+                    }
                 });
+                
+                actionButtons.getChildren().addAll(btnEdit, btnDelete);
+            }
+            
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(actionButtons);
+                }
             }
         });
-
     }
 
     private String getLanguageString(String key) {
@@ -197,30 +235,54 @@ public class ItemsMgmtController extends Controller implements Initializable {
      * Carga productos desde el servidor
      */
     public void loadProductsFromServer() {
-        System.out.println("DEBUG: Cargando productos desde servidor");
-        Respuesta respuesta = productoService.getProductos();
+        loadProductsAsync();
+    }
+    
+    private void loadProductsAsync() {
+        Task<Respuesta> loadTask = new Task<Respuesta>() {
+            @Override
+            protected Respuesta call() throws Exception {
+                return productoService.getProductos();
+            }
+        };
         
-        if (!respuesta.getEstado()) {
-            System.err.println("Error cargando productos: " + respuesta.getMensaje());
-            showMessage("Error cargando productos: " + respuesta.getMensaje());
-            return;
-        }
+        loadTask.setOnSucceeded(e -> {
+            Respuesta respuesta = loadTask.getValue();
+            
+            if (respuesta.getEstado()) {
+                String contenido = (String) respuesta.getResultado("Productos");
+                if (contenido != null && !contenido.trim().isEmpty()) {
+                    procesarProductosDesdeJson(contenido);
+                }
+            } else {
+                System.err.println("Error al cargar productos: " + respuesta.getMensaje());
+                showMessage("Error al cargar productos: " + respuesta.getMensaje());
+            }
+        });
         
-        String contenido = (String) respuesta.getResultado("Productos");
+        loadTask.setOnFailed(e -> {
+            System.err.println("Excepción cargando productos: " + loadTask.getException().getMessage());
+            showMessage("Error al cargar productos: " + loadTask.getException().getMessage());
+        });
         
-        if (contenido == null || contenido.trim().isEmpty()) {
-            System.out.println("No hay productos disponibles");
-            product.clear();
-            return;
-        }
+        Thread loadThread = new Thread(loadTask);
+        loadThread.setDaemon(true);
+        loadThread.start();
+    }
+    
+    private void procesarProductosDesdeJson(String contenido) {
+        System.out.println("DEBUG: Iniciando procesarProductosDesdeJson()");
+        System.out.println("DEBUG: Contenido recibido: " + (contenido != null ? contenido.substring(0, Math.min(100, contenido.length())) + "..." : "null"));
         
         product.clear();
         
-        // Extraer objetos JSON
+        // Extraer objetos JSON del array
         List<String> objetosProductos = JsonParser.extraerObjetosDelArray(contenido);
+        System.out.println("DEBUG: Se encontraron " + objetosProductos.size() + " productos");
         
         for (String objetoJson : objetosProductos) {
             ProductoDto producto = new ProductoDto(objetoJson);
+            System.out.println("DEBUG: Producto parseado: " + producto.getNombre());
             product.add(producto);
         }
         
@@ -229,6 +291,6 @@ public class ItemsMgmtController extends Controller implements Initializable {
         tbvMenuItems.setRoot(null);
         tbvMenuItems.setRoot(root);
         
-        System.out.println("DEBUG: Productos cargados: " + product.size());
+        System.out.println("DEBUG: procesarProductosDesdeJson() completado. Total productos: " + product.size());
     }
 }
