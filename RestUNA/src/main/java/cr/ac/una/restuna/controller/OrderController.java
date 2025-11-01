@@ -1,5 +1,9 @@
 package cr.ac.una.restuna.controller;
 
+import cr.ac.una.restuna.model.DetalleOrdenDto;
+import cr.ac.una.restuna.model.GrupoProductoDto;
+import cr.ac.una.restuna.model.OrdenDto;
+import cr.ac.una.restuna.model.ProductoDto;
 import cr.ac.una.restuna.util.AppKeys;
 import cr.ac.una.restuna.util.FlowController;
 import io.github.palexdev.materialfx.controls.MFXButton;
@@ -8,10 +12,14 @@ import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXScrollPane;
 import io.github.palexdev.materialfx.controls.MFXTextField;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -80,6 +88,11 @@ public class OrderController extends Controller implements Initializable {
     //settea el quick billing
     private Boolean quickBillingMode = false;
 
+    private OrdenDto currentOrder;
+    private List<GrupoProductoDto> groupProduct;
+    private Double impIVA = 0.13;
+    private Double impService = 0.10;
+
     /**
      * Initializes the controller class.
      */
@@ -87,6 +100,12 @@ public class OrderController extends Controller implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         quickBillingMode = false;
         initBoxes();
+
+        currentOrder = new OrdenDto();
+        groupProduct = new ArrayList<>();
+    
+        updateTotals();
+        menuGroups();
     }
 
     @Override
@@ -95,10 +114,14 @@ public class OrderController extends Controller implements Initializable {
 
     @FXML
     private void onActionBtnClose(ActionEvent event) {
+        //FlowController.getInstance().goView(AppKeys.MAIN);
     }
 
     @FXML
     private void onActionBtnCancel(ActionEvent event) {
+        currentOrder = new OrdenDto();
+        orderContainer.getChildren().clear();
+
     }
 
     @FXML
@@ -139,5 +162,83 @@ public class OrderController extends Controller implements Initializable {
     private void setQuickBillingMode(Boolean isVisible) {
         billingModeBox.setVisible(!isVisible);
         billingModeBox.setManaged(!isVisible);
+    }
+
+    private void menuGroups() {
+        groupsBox.getChildren().clear();
+
+        for (GrupoProductoDto group : groupProduct) {
+
+            MFXButton btnGroup = new MFXButton(group.getNombre());
+            btnGroup.getStyleClass().add("group-button");
+            btnGroup.setOnAction(x -> showProduct(group));
+            groupsBox.getChildren().add(btnGroup);
+
+        }
+
+    }
+
+    private void showProduct(GrupoProductoDto group) {
+
+        itemsGrid.getChildren().clear();
+
+        int col = 0;
+        int row = 0;
+
+        for (ProductoDto product : group.getProduct()) {
+            MFXButton btnProduct = new MFXButton(product.getNombreCorto() + "\n$" + product.getPrecio());
+            btnProduct.getStyleClass().add("group-button");
+            btnProduct.setOnAction(x -> addProduct(product));
+            itemsGrid.add(btnProduct, col, row);
+            col++;
+            if (col == 3) {
+                col = 0;
+                row++;
+            }
+        }
+
+    }
+
+    private void addProduct(ProductoDto product) {
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/cr/ac/una/restuna/view/OrderItem.fxml"));
+            Node itemNode = loader.load();
+
+            OrderItemController itemController = loader.getController();
+            itemController.selectProduct(product);
+            itemController.setParentController(this);
+
+            orderContainer.getChildren().add(itemNode);
+
+            DetalleOrdenDto detalle = new DetalleOrdenDto();
+            detalle.setIdProducto(product.getIdProducto());
+            detalle.setCantidad(1);
+            detalle.setPrecioUnitario(product.getPrecio());
+            detalle.setSubtotal(product.getPrecio());
+            currentOrder.getDetalles().add(detalle);
+
+            updateTotals();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public void deleteDetail(DetalleOrdenDto detail) {
+        currentOrder.getDetalles().remove(detail);
+        updateTotals();
+    }
+
+    public void updateTotals() {
+        currentOrder.calcularSubtotal();
+        Double subtotal = currentOrder.getSubtotal();
+        Double iva = subtotal * impIVA;
+        Double service = subtotal * impService;
+        Double total = subtotal + iva + service;
+
+        lbSubtotal.setText(String.format("₡ %.2f", subtotal));
+        lbVAT.setText(String.format("₡ %.2f", iva));
+        lbServiceTax.setText(String.format("₡ %.2f", service));
+        lbTotal.setText(String.format("₡ %.2f", total));
     }
 }

@@ -11,4 +11,5 @@ module cr.ac.una.restuna {
     opens cr.ac.una.restuna.controller to javafx.fxml;
 
     exports cr.ac.una.restuna;    
+    requires net.sf.jasperreports.core;
 }

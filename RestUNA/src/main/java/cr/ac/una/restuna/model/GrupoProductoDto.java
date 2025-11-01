@@ -7,6 +7,8 @@ package cr.ac.una.restuna.model;
 import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.ObjectProperty;
@@ -31,6 +33,8 @@ public class GrupoProductoDto extends RecursiveTreeObject<GrupoProductoDto> impl
     private IntegerProperty cantidadVendida;
     private ObjectProperty<LocalDate> fechaCreacion;
 
+    private List<ProductoDto> product = new ArrayList<>();
+    
     public GrupoProductoDto() {
 
         this.idGrupoProducto = new SimpleLongProperty();
@@ -107,6 +111,11 @@ public class GrupoProductoDto extends RecursiveTreeObject<GrupoProductoDto> impl
         return fechaCreacion.get();
     }
 
+    public List<ProductoDto> getProduct(){
+        return product;
+        
+    }
+    
     public void setIdGrupoProducto(Long idGrupoProducto) {
         this.idGrupoProducto.set(idGrupoProducto);
     }
@@ -138,5 +147,9 @@ public class GrupoProductoDto extends RecursiveTreeObject<GrupoProductoDto> impl
     public void setFechaCreacion(LocalDate fechaCreacion) {
         this.fechaCreacion.set(fechaCreacion);
     }
+    
+   public void setProductos(List<ProductoDto> product) {
+    this.product = product;
+}
 
 }
