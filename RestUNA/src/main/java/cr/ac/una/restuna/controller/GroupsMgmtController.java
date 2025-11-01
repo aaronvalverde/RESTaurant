@@ -75,8 +75,8 @@ public class GroupsMgmtController extends Controller implements Initializable {
         tbvMenuGroups.prefHeightProperty().bind(tableRoot.heightProperty());
         tbvMenuGroups.prefWidthProperty().bind(tableRoot.widthProperty());
 
-        cmbStatus.getItems().addAll("A", "I");
-        cmbShortcut.getItems().addAll("S", "N");
+        cmbStatus.getItems().addAll("Activo", "Inactivo");
+        cmbShortcut.getItems().addAll("Sí", "No");
 
         tbcID.setCellValueFactory(x -> x.getValue().getValue().idGrupoProductoProperty().asObject());
         tbcName.setCellValueFactory(x -> x.getValue().getValue().nombreProperty());

@@ -85,7 +85,7 @@ public class ItemsMgmtController extends Controller implements Initializable {
         tbvMenuItems.prefHeightProperty().bind(tableRoot.heightProperty());
         tbvMenuItems.prefWidthProperty().bind(tableRoot.widthProperty());
 
-        cmbStatus.getItems().setAll("A", "I");
+        cmbStatus.getItems().setAll("Activo", "Inactivo");
         loadGruposAsync(); // Cargar grupos desde el servidor
         configurarFiltros();
 
@@ -476,8 +476,10 @@ public class ItemsMgmtController extends Controller implements Initializable {
             
             // Filtro por estado
             if (matches && selectedStatus != null && !selectedStatus.isEmpty()) {
+                // Convertir texto amigable a código
+                String statusCode = selectedStatus.equals("Activo") ? "A" : "I";
                 matches = producto.getEstado() != null && 
-                         producto.getEstado().equals(selectedStatus);
+                         producto.getEstado().equals(statusCode);
             }
             
             if (matches) {
