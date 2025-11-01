@@ -4,6 +4,8 @@ import com.jfoenix.controls.JFXTreeTableView;
 import com.jfoenix.controls.RecursiveTreeItem;
 import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
 import cr.ac.una.restuna.dto.ProductoDto;
+import cr.ac.una.restuna.model.GrupoProductoDto;
+import cr.ac.una.restuna.service.GrupoProductoService;
 import cr.ac.una.restuna.service.ProductoService;
 import cr.ac.una.restuna.util.AppKeys;
 import cr.ac.una.restuna.util.FlowController;
@@ -71,7 +73,9 @@ public class ItemsMgmtController extends Controller implements Initializable {
     private MFXTextField txfSearch;
 
     private final ObservableList<ProductoDto> product = FXCollections.observableArrayList();
+    private final ObservableList<ProductoDto> filteredProducts = FXCollections.observableArrayList();
     private final ProductoService productoService = new ProductoService();
+    private final GrupoProductoService grupoProductoService = new GrupoProductoService();
 
     /**
      * Initializes the controller class.
@@ -81,8 +85,9 @@ public class ItemsMgmtController extends Controller implements Initializable {
         tbvMenuItems.prefHeightProperty().bind(tableRoot.heightProperty());
         tbvMenuItems.prefWidthProperty().bind(tableRoot.widthProperty());
 
-        cmbGroups.getItems().setAll("Bebidas Calientes", "Bebidas Frias", "Platos Fuertes", "Entradas", "Postres");
         cmbStatus.getItems().setAll("A", "I");
+        loadGruposAsync(); // Cargar grupos desde el servidor
+        configurarFiltros();
 
         tbcID.setCellValueFactory(new TreeItemPropertyValueFactory<>("idProducto"));
         tbcName.setCellValueFactory(new TreeItemPropertyValueFactory<>("nombre"));
@@ -334,6 +339,155 @@ public class ItemsMgmtController extends Controller implements Initializable {
         tbvMenuItems.setRoot(null);
         tbvMenuItems.setRoot(root);
         
-        System.out.println("DEBUG: procesarProductosDesdeJson() completado. Total productos: " + product.size());
+        System.out.println("DEBUG: Total productos: " + product.size());
+    }
+    
+    /**
+     * Carga grupos desde el servidor para el combo box de filtro
+     */
+    private void loadGruposAsync() {
+        Task<Respuesta> loadTask = new Task<Respuesta>() {
+            @Override
+            protected Respuesta call() throws Exception {
+                return grupoProductoService.getGrupoProductosActivos();
+            }
+        };
+        
+        loadTask.setOnSucceeded(e -> {
+            Respuesta respuesta = loadTask.getValue();
+            
+            if (respuesta.getEstado()) {
+                String contenido = (String) respuesta.getResultado("GrupoProductos");
+                System.out.println("DEBUG: Contenido grupos recibido: " + contenido);
+                
+                if (contenido != null && !contenido.trim().isEmpty()) {
+                    List<String> objetosGrupos = JsonParser.extraerObjetosDelArray(contenido);
+                    System.out.println("DEBUG: Se encontraron " + objetosGrupos.size() + " grupos");
+                    
+                    cmbGroups.getItems().clear(); // Limpiar antes de agregar
+                    
+                    for (String objetoJson : objetosGrupos) {
+                        GrupoProductoDto grupo = parsearGrupo(objetoJson);
+                        if (grupo != null && grupo.getNombre() != null) {
+                            System.out.println("DEBUG: Agregando grupo: " + grupo.getNombre());
+                            cmbGroups.getItems().add(grupo.getNombre());
+                        }
+                    }
+                    
+                    System.out.println("DEBUG: Total grupos en combo: " + cmbGroups.getItems().size());
+                }
+            } else {
+                System.err.println("Error al cargar grupos: " + respuesta.getMensaje());
+            }
+        });
+        
+        loadTask.setOnFailed(e -> {
+            System.err.println("Excepción cargando grupos: " + loadTask.getException().getMessage());
+            loadTask.getException().printStackTrace();
+        });
+        
+        Thread loadThread = new Thread(loadTask);
+        loadThread.setDaemon(true);
+        loadThread.start();
+    }
+    
+    private GrupoProductoDto parsearGrupo(String objetoJson) {
+        try {
+            GrupoProductoDto grupo = new GrupoProductoDto();
+            
+            objetoJson = objetoJson.replaceAll("[{}]", "");
+            String[] pairs = objetoJson.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+            
+            for (String pair : pairs) {
+                String[] keyValue = pair.split(":", 2);
+                if (keyValue.length == 2) {
+                    String key = keyValue[0].trim().replaceAll("\"", "");
+                    String value = keyValue[1].trim().replaceAll("\"", "");
+                    
+                    switch (key) {
+                        case "idGrupoProducto":
+                            if (!value.equals("null")) {
+                                grupo.setIdGrupoProducto(Long.parseLong(value));
+                            }
+                            break;
+                        case "nombre":
+                            if (!value.equals("null")) {
+                                grupo.setNombre(value);
+                            }
+                            break;
+                    }
+                }
+            }
+            
+            return grupo;
+        } catch (Exception e) {
+            System.err.println("Error parseando grupo: " + e.getMessage());
+            return null;
+        }
+    }
+    
+    /**
+     * Configura los listeners para los filtros
+     */
+    private void configurarFiltros() {
+        // Filtro de búsqueda por texto
+        txfSearch.textProperty().addListener((observable, oldValue, newValue) -> {
+            aplicarFiltros();
+        });
+        
+        // Filtro por grupo
+        cmbGroups.selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            aplicarFiltros();
+        });
+        
+        // Filtro por estado
+        cmbStatus.selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            aplicarFiltros();
+        });
+    }
+    
+    /**
+     * Aplica los filtros seleccionados a la lista de productos
+     */
+    private void aplicarFiltros() {
+        filteredProducts.clear();
+        
+        String searchText = txfSearch.getText() != null ? txfSearch.getText().toLowerCase().trim() : "";
+        String selectedGroup = cmbGroups.getSelectedItem();
+        String selectedStatus = cmbStatus.getSelectedItem();
+        
+        for (ProductoDto producto : product) {
+            boolean matches = true;
+            
+            // Filtro de búsqueda de texto (nombre o nombre corto)
+            if (!searchText.isEmpty()) {
+                boolean matchesName = producto.getNombre() != null && 
+                                     producto.getNombre().toLowerCase().contains(searchText);
+                boolean matchesShortName = producto.getNombreCorto() != null && 
+                                           producto.getNombreCorto().toLowerCase().contains(searchText);
+                matches = matchesName || matchesShortName;
+            }
+            
+            // Filtro por grupo
+            if (matches && selectedGroup != null && !selectedGroup.isEmpty()) {
+                matches = producto.getNombreGrupo() != null && 
+                         producto.getNombreGrupo().equals(selectedGroup);
+            }
+            
+            // Filtro por estado
+            if (matches && selectedStatus != null && !selectedStatus.isEmpty()) {
+                matches = producto.getEstado() != null && 
+                         producto.getEstado().equals(selectedStatus);
+            }
+            
+            if (matches) {
+                filteredProducts.add(producto);
+            }
+        }
+        
+        // Actualizar la tabla con los productos filtrados
+        TreeItem<ProductoDto> root = new RecursiveTreeItem<>(filteredProducts, RecursiveTreeObject::getChildren);
+        tbvMenuItems.setRoot(null);
+        tbvMenuItems.setRoot(root);
     }
 }
