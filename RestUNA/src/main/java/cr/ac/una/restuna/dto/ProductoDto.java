@@ -1,5 +1,6 @@
 package cr.ac.una.restuna.dto;
 
+import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
 import javafx.beans.property.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -7,7 +8,7 @@ import java.math.BigDecimal;
 /**
  * DTO de Producto para el cliente JavaFX
  */
-public class ProductoDto implements Serializable {
+public class ProductoDto extends RecursiveTreeObject<ProductoDto> implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

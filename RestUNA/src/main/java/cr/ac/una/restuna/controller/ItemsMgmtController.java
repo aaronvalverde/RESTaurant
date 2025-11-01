@@ -3,14 +3,19 @@ package cr.ac.una.restuna.controller;
 import com.jfoenix.controls.JFXTreeTableView;
 import com.jfoenix.controls.RecursiveTreeItem;
 import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
-import cr.ac.una.restuna.model.ProductoDto;
+import cr.ac.una.restuna.dto.ProductoDto;
+import cr.ac.una.restuna.service.ProductoService;
 import cr.ac.una.restuna.util.AppKeys;
 import cr.ac.una.restuna.util.FlowController;
+import cr.ac.una.restuna.util.JsonParser;
+import cr.ac.una.restuna.util.Respuesta;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXFilterComboBox;
 import io.github.palexdev.materialfx.controls.MFXScrollPane;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import java.math.BigDecimal;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -62,6 +67,7 @@ public class ItemsMgmtController extends Controller implements Initializable {
     private MFXTextField txfSearch;
 
     private final ObservableList<ProductoDto> product = FXCollections.observableArrayList();
+    private final ProductoService productoService = new ProductoService();
 
     /**
      * Initializes the controller class.
@@ -74,11 +80,11 @@ public class ItemsMgmtController extends Controller implements Initializable {
         cmbGroups.getItems().setAll("Bebidas Calientes", "Bebidas Frias", "Platos Fuertes", "Entradas", "Postres");
         cmbStatus.getItems().setAll("A", "I");
 
-        tbcID.setCellValueFactory(x -> x.getValue().getValue().idProductoProperty().asObject());
-        tbcName.setCellValueFactory(x -> x.getValue().getValue().nombreProperty());
-        tbcPrice.setCellValueFactory(x -> x.getValue().getValue().precioProperty().asObject());
-        tbcShortcut.setCellValueFactory(x -> x.getValue().getValue().nombreCortoProperty());
-        tbcStatus.setCellValueFactory(x -> x.getValue().getValue().estadoProperty());
+        tbcID.setCellValueFactory(new TreeItemPropertyValueFactory<>("idProducto"));
+        tbcName.setCellValueFactory(new TreeItemPropertyValueFactory<>("nombre"));
+        tbcPrice.setCellValueFactory(new TreeItemPropertyValueFactory<>("precio"));
+        tbcShortcut.setCellValueFactory(new TreeItemPropertyValueFactory<>("nombreCorto"));
+        tbcStatus.setCellValueFactory(new TreeItemPropertyValueFactory<>("estado"));
 
         TreeItem<ProductoDto> root = new RecursiveTreeItem<>(product, RecursiveTreeObject::getChildren);
         tbvMenuItems.setRoot(root);
@@ -143,7 +149,7 @@ public class ItemsMgmtController extends Controller implements Initializable {
         newProduct.setIdProducto(System.currentTimeMillis());
         newProduct.setNombre(name);
         newProduct.setNombreCorto(shortName);
-        newProduct.setPrecio(price);
+        newProduct.setPrecio(BigDecimal.valueOf(price));
         newProduct.setDescripcion(description);
         newProduct.setAccesoRapido(shortcut);
         newProduct.setEstado(status);
@@ -185,5 +191,44 @@ public class ItemsMgmtController extends Controller implements Initializable {
         alert.setHeaderText(null);
         alert.setContentText(msg);
         alert.showAndWait();
+    }
+    
+    /**
+     * Carga productos desde el servidor
+     */
+    public void loadProductsFromServer() {
+        System.out.println("DEBUG: Cargando productos desde servidor");
+        Respuesta respuesta = productoService.getProductos();
+        
+        if (!respuesta.getEstado()) {
+            System.err.println("Error cargando productos: " + respuesta.getMensaje());
+            showMessage("Error cargando productos: " + respuesta.getMensaje());
+            return;
+        }
+        
+        String contenido = (String) respuesta.getResultado("Productos");
+        
+        if (contenido == null || contenido.trim().isEmpty()) {
+            System.out.println("No hay productos disponibles");
+            product.clear();
+            return;
+        }
+        
+        product.clear();
+        
+        // Extraer objetos JSON
+        List<String> objetosProductos = JsonParser.extraerObjetosDelArray(contenido);
+        
+        for (String objetoJson : objetosProductos) {
+            ProductoDto producto = new ProductoDto(objetoJson);
+            product.add(producto);
+        }
+        
+        // Refrescar la tabla con el workaround de JFXTreeTableView
+        TreeItem<ProductoDto> root = new RecursiveTreeItem<>(product, RecursiveTreeObject::getChildren);
+        tbvMenuItems.setRoot(null);
+        tbvMenuItems.setRoot(root);
+        
+        System.out.println("DEBUG: Productos cargados: " + product.size());
     }
 }

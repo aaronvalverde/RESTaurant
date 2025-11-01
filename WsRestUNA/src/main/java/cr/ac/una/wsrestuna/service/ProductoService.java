@@ -26,7 +26,7 @@ public class ProductoService {
 
     private static final Logger LOG = Logger.getLogger(ProductoService.class.getName());
 
-    @PersistenceContext(unitName = "WsRestUNAPU")
+    @PersistenceContext(unitName = "RestUNA_PU")
     private EntityManager em;
 
     /**

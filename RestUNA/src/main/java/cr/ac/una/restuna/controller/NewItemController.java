@@ -1,13 +1,15 @@
 package cr.ac.una.restuna.controller;
 
+import cr.ac.una.restuna.dto.ProductoDto;
 import cr.ac.una.restuna.model.GrupoProductoDto;
-import cr.ac.una.restuna.model.ProductoDto;
 import cr.ac.una.restuna.model.SeccionDto;
 import cr.ac.una.restuna.service.GrupoProductoService;
+import cr.ac.una.restuna.service.ProductoService;
 import cr.ac.una.restuna.util.AppKeys;
 import cr.ac.una.restuna.util.FlowController;
 import cr.ac.una.restuna.util.Respuesta;
 import cr.ac.una.restuna.util.JsonParser;
+import java.math.BigDecimal;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXCheckbox;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
@@ -55,6 +57,7 @@ public class NewItemController extends Controller implements Initializable {
     private ProductoDto productEdit;
     private ItemsMgmtController parentController;
     private final GrupoProductoService grupoProductoService = new GrupoProductoService();
+    private final ProductoService productoService = new ProductoService();
     private List<GrupoProductoDto> gruposDisponibles = new ArrayList<>();
 
     /**
@@ -198,19 +201,52 @@ public class NewItemController extends Controller implements Initializable {
 
     private void addProduct() {
         try {
-            String name = txfName.getText().trim();
-            String shortName = txfShortName.getText().trim();
-            double price = Double.parseDouble(txfPrice.getText().trim());
-            String description = txaDescription.getText().trim();
-            String shortcut = cbShortcut.isSelected() ? "S" : "N";
-            String status = cbStatus.isSelected() ? "A" : "I";
-
-            ItemsMgmtController mainController = (ItemsMgmtController) FlowController.getInstance().getController(AppKeys.MENU_ITEMS_MGMT);
-            mainController.addProduct(name, shortName, price, description, shortcut, status);
-
-            Respuesta respuesta = new Respuesta(true, "Éxito", "Producto agregado correctamente");
-            showMessage(respuesta);
-
+            // Validar que se seleccionó un grupo
+            if (cmbGroup.getSelectionModel().getSelectedItem() == null) {
+                showMessage(new Respuesta(false, "Error", "Debe seleccionar un grupo de producto"));
+                return;
+            }
+            
+            // Buscar el grupo seleccionado
+            String nombreGrupoSeleccionado = cmbGroup.getSelectionModel().getSelectedItem();
+            GrupoProductoDto grupoSeleccionado = null;
+            for (GrupoProductoDto grupo : gruposDisponibles) {
+                if (grupo.getNombre().equals(nombreGrupoSeleccionado)) {
+                    grupoSeleccionado = grupo;
+                    break;
+                }
+            }
+            
+            if (grupoSeleccionado == null) {
+                showMessage(new Respuesta(false, "Error", "Grupo de producto no encontrado"));
+                return;
+            }
+            
+            // Crear DTO del producto
+            ProductoDto nuevoProducto = new ProductoDto();
+            nuevoProducto.setIdGrupoProducto(grupoSeleccionado.getIdGrupoProducto());
+            nuevoProducto.setNombre(txfName.getText().trim());
+            nuevoProducto.setNombreCorto(txfShortName.getText().trim());
+            nuevoProducto.setPrecio(new BigDecimal(txfPrice.getText().trim()));
+            nuevoProducto.setDescripcion(txaDescription.getText().trim());
+            nuevoProducto.setAccesoRapido(cbShortcut.isSelected() ? "S" : "N");
+            nuevoProducto.setEstado(cbStatus.isSelected() ? "A" : "I");
+            
+            // Guardar en el servidor
+            Respuesta respuesta = productoService.guardarProducto(nuevoProducto);
+            
+            if (!respuesta.getEstado()) {
+                showMessage(new Respuesta(false, "Error", "No se pudo guardar el producto: " + respuesta.getMensaje()));
+                return;
+            }
+            
+            showMessage(new Respuesta(true, "Éxito", "Producto agregado correctamente"));
+            
+            // Recargar tabla en el controlador padre si existe
+            if (parentController != null) {
+                parentController.loadProductsFromServer();
+            }
+            
             closeWindow();
 
         } catch (Exception e) {
@@ -222,16 +258,50 @@ public class NewItemController extends Controller implements Initializable {
 
     private void saveProduct() {
         try {
+            // Validar que se seleccionó un grupo
+            if (cmbGroup.getSelectionModel().getSelectedItem() == null) {
+                showMessage(new Respuesta(false, "Error", "Debe seleccionar un grupo de producto"));
+                return;
+            }
+            
+            // Buscar el grupo seleccionado
+            String nombreGrupoSeleccionado = cmbGroup.getSelectionModel().getSelectedItem();
+            GrupoProductoDto grupoSeleccionado = null;
+            for (GrupoProductoDto grupo : gruposDisponibles) {
+                if (grupo.getNombre().equals(nombreGrupoSeleccionado)) {
+                    grupoSeleccionado = grupo;
+                    break;
+                }
+            }
+            
+            if (grupoSeleccionado == null) {
+                showMessage(new Respuesta(false, "Error", "Grupo de producto no encontrado"));
+                return;
+            }
+            
+            // Actualizar campos del producto
+            productEdit.setIdGrupoProducto(grupoSeleccionado.getIdGrupoProducto());
             productEdit.setNombre(txfName.getText().trim());
             productEdit.setNombreCorto(txfShortName.getText().trim());
-            productEdit.setPrecio(Double.parseDouble(txfPrice.getText().trim()));
+            productEdit.setPrecio(new BigDecimal(txfPrice.getText().trim()));
             productEdit.setDescripcion(txaDescription.getText().trim());
             productEdit.setAccesoRapido(cbShortcut.isSelected() ? "S" : "N");
             productEdit.setEstado(cbStatus.isSelected() ? "A" : "I");
 
-            // falta la logica para guardar en db 
-            Respuesta respuesta = new Respuesta(true, "Éxito", "Producto guardado correctamente");
-            showMessage(respuesta);
+            // Guardar en el servidor
+            Respuesta respuesta = productoService.guardarProducto(productEdit);
+            
+            if (!respuesta.getEstado()) {
+                showMessage(new Respuesta(false, "Error", "No se pudo guardar el producto: " + respuesta.getMensaje()));
+                return;
+            }
+            
+            showMessage(new Respuesta(true, "Éxito", "Producto actualizado correctamente"));
+            
+            // Recargar tabla en el controlador padre si existe
+            if (parentController != null) {
+                parentController.loadProductsFromServer();
+            }
 
             closeWindow();
         } catch (Exception e) {
@@ -252,12 +322,19 @@ public class NewItemController extends Controller implements Initializable {
         if (txfShortName.getText() == null || txfShortName.getText().trim().isEmpty()) {
             errors += "• Nombre corto vacio\n";
         }
+        
+        if (cmbGroup.getSelectionModel().getSelectedItem() == null) {
+            errors += "• Debe seleccionar un grupo\n";
+        }
 
         if (txfPrice.getText() == null || txfPrice.getText().trim().isEmpty()) {
             errors += "• Precio vacio\n";
         } else {
             try {
-                Double.parseDouble(txfPrice.getText().trim());
+                double precio = Double.parseDouble(txfPrice.getText().trim());
+                if (precio <= 0) {
+                    errors += "• Precio debe ser mayor a 0\n";
+                }
             } catch (NumberFormatException e) {
                 errors += "• Precio debe ser un número válido\n";
             }
