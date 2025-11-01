@@ -6,7 +6,7 @@ import javafx.scene.input.KeyEvent;
 /**
  * Utility class for text field validation
  * 
- * @author aaron
+ * @author gambo
  */
 public class TextFieldValidator {
 

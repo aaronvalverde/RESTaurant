@@ -3,9 +3,16 @@ package cr.ac.una.restuna.controller;
 import cr.ac.una.restuna.model.DetalleOrdenDto;
 import cr.ac.una.restuna.model.GrupoProductoDto;
 import cr.ac.una.restuna.model.OrdenDto;
+import cr.ac.una.restuna.model.ParametroDto;
 import cr.ac.una.restuna.model.ProductoDto;
+import cr.ac.una.restuna.model.SeccionDto;
+import cr.ac.una.restuna.service.ParametroService;
 import cr.ac.una.restuna.util.AppKeys;
+import cr.ac.una.restuna.util.BillingCalculator;
 import cr.ac.una.restuna.util.FlowController;
+import cr.ac.una.restuna.util.JsonParser;
+import cr.ac.una.restuna.util.Respuesta;
+import cr.ac.una.restuna.util.UserSession;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXCheckbox;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
@@ -94,6 +101,9 @@ public class OrderController extends Controller implements Initializable {
     private List<GrupoProductoDto> groupProduct;
     private Double impIVA = 0.13;
     private Double impService = 0.10;
+    private SeccionDto currentSection;
+    private final ParametroService parametroService = new ParametroService();
+    private java.util.Map<String, ParametroDto> parametrosMap = new java.util.HashMap<>();
 
     /**
      * Initializes the controller class.
@@ -105,6 +115,9 @@ public class OrderController extends Controller implements Initializable {
 
         currentOrder = new OrdenDto();
         groupProduct = new ArrayList<>();
+        
+        // Cargar parámetros del sistema
+        cargarParametros();
 
         updateTotals();
         menuGroups();
@@ -232,15 +245,118 @@ public class OrderController extends Controller implements Initializable {
     }
 
     public void updateTotals() {
-        currentOrder.calcularSubtotal();
-        Double subtotal = currentOrder.getSubtotal();
-        Double iva = subtotal * impIVA;
-        Double service = subtotal * impService;
-        Double total = subtotal + iva + service;
-
-        lbSubtotal.setText(String.format("₡ %.2f", subtotal));
-        lbVAT.setText(String.format("₡ %.2f", iva));
-        lbServiceTax.setText(String.format("₡ %.2f", service));
-        lbTotal.setText(String.format("₡ %.2f", total));
+        // Determinar si la sección cobra impuesto
+        boolean sectionHasTax = currentSection != null && currentSection.cobraImpuesto();
+        
+        // Calcular usando BillingCalculator
+        BillingCalculator.BillingResult result = BillingCalculator.calculateBilling(
+            currentOrder.getDetalles(),
+            sectionHasTax,
+            parametrosMap
+        );
+        
+        // Actualizar labels con formato de moneda
+        lbSubtotal.setText(result.getFormattedSubtotal());
+        lbVAT.setText(result.getFormattedIva());
+        lbServiceTax.setText(result.getFormattedServiceTax());
+        lbTotal.setText(result.getFormattedTotal());
+    }
+    
+    /**
+     * Cargar parámetros del sistema (impuestos y moneda)
+     */
+    private void cargarParametros() {
+        if (!UserSession.getInstance().isAuthenticated()) {
+            System.err.println("No hay usuario autenticado para cargar parámetros");
+            return;
+        }
+        
+        Long idUsuario = UserSession.getInstance().getCurrentUser().getIdUsuario();
+        if (idUsuario == null) {
+            System.err.println("No se pudo obtener el ID del usuario");
+            return;
+        }
+        
+        javafx.concurrent.Task<Void> task = new javafx.concurrent.Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                Respuesta respuesta = parametroService.getParametrosPorUsuario(idUsuario);
+                
+                javafx.application.Platform.runLater(() -> {
+                    if (respuesta.getEstado()) {
+                        String jsonArray = (String) respuesta.getResultado("Parametros");
+                        procesarParametros(jsonArray);
+                    } else {
+                        System.err.println("Error cargando parámetros: " + respuesta.getMensaje());
+                    }
+                });
+                
+                return null;
+            }
+            
+            @Override
+            protected void failed() {
+                javafx.application.Platform.runLater(() -> {
+                    System.err.println("Error cargando parámetros: " + getException().getMessage());
+                });
+            }
+        };
+        
+        new Thread(task).start();
+    }
+    
+    /**
+     * Procesar JSON de parámetros
+     */
+    private void procesarParametros(String jsonArray) {
+        parametrosMap.clear();
+        
+        if (jsonArray == null || jsonArray.trim().isEmpty() || jsonArray.equals("[]")) {
+            return;
+        }
+        
+        // Extraer cada objeto del array JSON
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("\\{[^{}]*\\}");
+        java.util.regex.Matcher matcher = pattern.matcher(jsonArray);
+        
+        while (matcher.find()) {
+            String objetoJson = matcher.group();
+            ParametroDto parametro = parsearParametro(objetoJson);
+            if (parametro != null && parametro.getClave() != null) {
+                parametrosMap.put(parametro.getClave(), parametro);
+            }
+        }
+        
+        // Actualizar totales con nuevos parámetros
+        updateTotals();
+    }
+    
+    /**
+     * Parsear un parámetro desde JSON
+     */
+    private ParametroDto parsearParametro(String objetoJson) {
+        try {
+            ParametroDto parametro = new ParametroDto();
+            
+            parametro.setIdParametro(JsonParser.extraerValorLong(objetoJson, "idParametro"));
+            parametro.setIdUsuario(JsonParser.extraerValorLong(objetoJson, "idUsuario"));
+            parametro.setClave(JsonParser.extraerValor(objetoJson, "clave"));
+            parametro.setValor(JsonParser.extraerValor(objetoJson, "valor"));
+            parametro.setDescripcion(JsonParser.extraerValor(objetoJson, "descripcion"));
+            parametro.setTipoDato(JsonParser.extraerValor(objetoJson, "tipoDato"));
+            
+            return parametro;
+        } catch (Exception e) {
+            System.err.println("Error parseando parámetro: " + e.getMessage());
+            return null;
+        }
+    }
+    
+    /**
+     * Establecer la sección actual
+     */
+    public void setCurrentSection(SeccionDto section) {
+        this.currentSection = section;
+        updateTotals();
     }
 }

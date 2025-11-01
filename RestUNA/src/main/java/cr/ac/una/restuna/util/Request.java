@@ -295,8 +295,8 @@ public class Request {
         }
 
         // Soportar ProductoDto
-        if (objeto instanceof cr.ac.una.restuna.dto.ProductoDto) {
-            cr.ac.una.restuna.dto.ProductoDto producto = (cr.ac.una.restuna.dto.ProductoDto) objeto;
+        if (objeto instanceof cr.ac.una.restuna.model.ProductoDto) {
+            cr.ac.una.restuna.model.ProductoDto producto = (cr.ac.una.restuna.model.ProductoDto) objeto;
             StringBuilder json = new StringBuilder();
             json.append('{');
             

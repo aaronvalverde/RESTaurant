@@ -9,7 +9,6 @@ module cr.ac.una.restuna {
 
     opens cr.ac.una.restuna to javafx.fxml;
     opens cr.ac.una.restuna.controller to javafx.fxml;
-    opens cr.ac.una.restuna.dto to javafx.base;
     opens cr.ac.una.restuna.model to javafx.base;
 
     exports cr.ac.una.restuna;    

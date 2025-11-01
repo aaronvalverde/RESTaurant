@@ -3,14 +3,18 @@ package cr.ac.una.restuna.controller;
 import com.jfoenix.controls.JFXTreeTableView;
 import com.jfoenix.controls.RecursiveTreeItem;
 import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
-import cr.ac.una.restuna.dto.ProductoDto;
+import cr.ac.una.restuna.model.ProductoDto;
 import cr.ac.una.restuna.model.GrupoProductoDto;
+import cr.ac.una.restuna.model.ParametroDto;
 import cr.ac.una.restuna.service.GrupoProductoService;
+import cr.ac.una.restuna.service.ParametroService;
 import cr.ac.una.restuna.service.ProductoService;
 import cr.ac.una.restuna.util.AppKeys;
+import cr.ac.una.restuna.util.BillingCalculator;
 import cr.ac.una.restuna.util.FlowController;
 import cr.ac.una.restuna.util.JsonParser;
 import cr.ac.una.restuna.util.Respuesta;
+import cr.ac.una.restuna.util.UserSession;
 import javafx.concurrent.Task;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXFilterComboBox;
@@ -76,6 +80,8 @@ public class ItemsMgmtController extends Controller implements Initializable {
     private final ObservableList<ProductoDto> filteredProducts = FXCollections.observableArrayList();
     private final ProductoService productoService = new ProductoService();
     private final GrupoProductoService grupoProductoService = new GrupoProductoService();
+    private final ParametroService parametroService = new ParametroService();
+    private java.util.Map<String, ParametroDto> parametrosMap = new java.util.HashMap<>();
 
     /**
      * Initializes the controller class.
@@ -93,6 +99,20 @@ public class ItemsMgmtController extends Controller implements Initializable {
         tbcName.setCellValueFactory(new TreeItemPropertyValueFactory<>("nombre"));
         tbcGroup.setCellValueFactory(new TreeItemPropertyValueFactory<>("nombreGrupo"));
         tbcPrice.setCellValueFactory(new TreeItemPropertyValueFactory<>("precio"));
+        
+        // Configurar columna de precio con formato de moneda
+        tbcPrice.setCellFactory(col -> new TreeTableCell<ProductoDto, Double>() {
+            @Override
+            protected void updateItem(Double precio, boolean empty) {
+                super.updateItem(precio, empty);
+                if (empty || precio == null) {
+                    setText(null);
+                } else {
+                    setText(formatearPrecio(precio));
+                }
+            }
+        });
+        
         tbcShortcut.setCellValueFactory(new TreeItemPropertyValueFactory<>("nombreCorto"));
         tbcStatus.setCellValueFactory(new TreeItemPropertyValueFactory<>("estado"));
 
@@ -102,6 +122,7 @@ public class ItemsMgmtController extends Controller implements Initializable {
 
         confEvent();
         setActionsColumn();
+        cargarParametros(); // Cargar parámetros de moneda
         loadProductsAsync(); // Cargar productos desde el servidor
     }
 
@@ -204,7 +225,7 @@ public class ItemsMgmtController extends Controller implements Initializable {
         newProduct.setIdProducto(System.currentTimeMillis());
         newProduct.setNombre(name);
         newProduct.setNombreCorto(shortName);
-        newProduct.setPrecio(BigDecimal.valueOf(price));
+        newProduct.setPrecio(price);
         newProduct.setDescripcion(description);
         newProduct.setAccesoRapido(shortcut);
         newProduct.setEstado(status);
@@ -284,6 +305,13 @@ public class ItemsMgmtController extends Controller implements Initializable {
      */
     public void loadProductsFromServer() {
         loadProductsAsync();
+    }
+    
+    /**
+     * Recargar parámetros y refrescar precios (llamar cuando cambie MONEDA)
+     */
+    public void refrescarPrecios() {
+        cargarParametros();
     }
     
     private void loadProductsAsync() {
@@ -491,5 +519,166 @@ public class ItemsMgmtController extends Controller implements Initializable {
         TreeItem<ProductoDto> root = new RecursiveTreeItem<>(filteredProducts, RecursiveTreeObject::getChildren);
         tbvMenuItems.setRoot(null);
         tbvMenuItems.setRoot(root);
+    }
+    
+    /**
+     * Formatear precio con conversión de moneda
+     */
+    private String formatearPrecio(Double precioCRC) {
+        if (precioCRC == null) {
+            return "₡ 0.00";
+        }
+        
+        // Obtener moneda configurada
+        String moneda = obtenerMoneda();
+        
+        // Obtener tipo de cambio
+        java.math.BigDecimal tipoCambio = obtenerTipoCambio(moneda);
+        
+        // Convertir precio
+        java.math.BigDecimal precioBase = java.math.BigDecimal.valueOf(precioCRC);
+        java.math.BigDecimal precioConvertido = precioBase.multiply(tipoCambio)
+            .setScale(2, java.math.RoundingMode.HALF_UP);
+        
+        // Formatear con símbolo de moneda
+        return BillingCalculator.formatCurrency(precioConvertido, moneda);
+    }
+    
+    /**
+     * Obtener moneda configurada
+     */
+    private String obtenerMoneda() {
+        ParametroDto monedaParam = parametrosMap.get("MONEDA");
+        if (monedaParam != null && monedaParam.getValor() != null) {
+            return monedaParam.getValor();
+        }
+        return "CRC - Colón"; // Por defecto
+    }
+    
+    /**
+     * Obtener tipo de cambio según la moneda
+     */
+    private java.math.BigDecimal obtenerTipoCambio(String moneda) {
+        if (moneda == null || moneda.startsWith("CRC")) {
+            return java.math.BigDecimal.ONE; // Sin conversión para CRC
+        }
+        
+        if (moneda.startsWith("USD")) {
+            ParametroDto usdParam = parametrosMap.get("TIPO_CAMBIO_USD");
+            if (usdParam != null && usdParam.getValorComoDecimal() != null) {
+                java.math.BigDecimal rate = java.math.BigDecimal.valueOf(usdParam.getValorComoDecimal());
+                return java.math.BigDecimal.ONE.divide(rate, 6, java.math.RoundingMode.HALF_UP);
+            }
+            // Default: 1 USD = 520 CRC
+            return java.math.BigDecimal.ONE.divide(java.math.BigDecimal.valueOf(520), 6, java.math.RoundingMode.HALF_UP);
+        }
+        
+        if (moneda.startsWith("EUR")) {
+            ParametroDto eurParam = parametrosMap.get("TIPO_CAMBIO_EUR");
+            if (eurParam != null && eurParam.getValorComoDecimal() != null) {
+                java.math.BigDecimal rate = java.math.BigDecimal.valueOf(eurParam.getValorComoDecimal());
+                return java.math.BigDecimal.ONE.divide(rate, 6, java.math.RoundingMode.HALF_UP);
+            }
+            // Default: 1 EUR = 570 CRC
+            return java.math.BigDecimal.ONE.divide(java.math.BigDecimal.valueOf(570), 6, java.math.RoundingMode.HALF_UP);
+        }
+        
+        return java.math.BigDecimal.ONE; // Sin conversión
+    }
+    
+    /**
+     * Cargar parámetros del sistema (moneda y tipos de cambio)
+     */
+    private void cargarParametros() {
+        if (!UserSession.getInstance().isAuthenticated()) {
+            System.err.println("No hay usuario autenticado para cargar parámetros");
+            return;
+        }
+        
+        Long idUsuario = UserSession.getInstance().getCurrentUser().getIdUsuario();
+        if (idUsuario == null) {
+            System.err.println("No se pudo obtener el ID del usuario");
+            return;
+        }
+        
+        javafx.concurrent.Task<Void> task = new javafx.concurrent.Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                Respuesta respuesta = parametroService.getParametrosPorUsuario(idUsuario);
+                
+                javafx.application.Platform.runLater(() -> {
+                    if (respuesta.getEstado()) {
+                        String jsonArray = (String) respuesta.getResultado("Parametros");
+                        procesarParametros(jsonArray);
+                    } else {
+                        System.err.println("Error cargando parámetros: " + respuesta.getMensaje());
+                    }
+                });
+                
+                return null;
+            }
+            
+            @Override
+            protected void failed() {
+                javafx.application.Platform.runLater(() -> {
+                    System.err.println("Error cargando parámetros: " + getException().getMessage());
+                });
+            }
+        };
+        
+        new Thread(task).start();
+    }
+    
+    /**
+     * Procesar JSON de parámetros
+     */
+    private void procesarParametros(String jsonArray) {
+        parametrosMap.clear();
+        
+        if (jsonArray == null || jsonArray.trim().isEmpty() || jsonArray.equals("[]")) {
+            return;
+        }
+        
+        // Extraer cada objeto del array JSON
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("\\{[^{}]*\\}");
+        java.util.regex.Matcher matcher = pattern.matcher(jsonArray);
+        
+        while (matcher.find()) {
+            String objetoJson = matcher.group();
+            ParametroDto parametro = parsearParametro(objetoJson);
+            if (parametro != null && parametro.getClave() != null) {
+                parametrosMap.put(parametro.getClave(), parametro);
+            }
+        }
+        
+        // Refrescar la tabla para actualizar formato de precios
+        javafx.application.Platform.runLater(() -> {
+            if (!product.isEmpty()) {
+                TreeItem<ProductoDto> root = new RecursiveTreeItem<>(product, RecursiveTreeObject::getChildren);
+                tbvMenuItems.setRoot(null);
+                tbvMenuItems.setRoot(root);
+            }
+        });
+    }
+    
+    /**
+     * Parsear un parámetro desde JSON
+     */
+    private ParametroDto parsearParametro(String objetoJson) {
+        try {
+            ParametroDto parametro = new ParametroDto();
+            
+            parametro.setIdParametro(JsonParser.extraerValorLong(objetoJson, "idParametro"));
+            parametro.setIdUsuario(JsonParser.extraerValorLong(objetoJson, "idUsuario"));
+            parametro.setClave(JsonParser.extraerValor(objetoJson, "clave"));
+            parametro.setValor(JsonParser.extraerValor(objetoJson, "valor"));
+            parametro.setDescripcion(JsonParser.extraerValor(objetoJson, "descripcion"));
+            parametro.setTipoDato(JsonParser.extraerValor(objetoJson, "tipoDato"));
+            
+            return parametro;
+        } catch (Exception e) {
+            System.err.println("Error parseando parámetro: " + e.getMessage());
+            return null;
+        }
     }
 }

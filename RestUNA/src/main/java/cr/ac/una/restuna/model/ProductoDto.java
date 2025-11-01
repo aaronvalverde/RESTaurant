@@ -1,6 +1,7 @@
 package cr.ac.una.restuna.model;
 
 import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
+import cr.ac.una.restuna.util.JsonParser;
 import javafx.beans.property.*;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -31,6 +32,55 @@ public class ProductoDto extends RecursiveTreeObject<ProductoDto> implements Ser
         this.precio = new SimpleDoubleProperty();
         this.cantidadVendida = new SimpleIntegerProperty();
         this.fechaCreacion = new SimpleObjectProperty<>();
+    }
+
+    /**
+     * Constructor que parsea un objeto JSON
+     */
+    public ProductoDto(String objetoJson) {
+        this();
+        
+        if (objetoJson == null || objetoJson.trim().isEmpty()) {
+            return;
+        }
+        
+        try {
+            // Usar JsonParser para extraer valores
+            Long idProd = JsonParser.extraerValorLong(objetoJson, "idProducto");
+            if (idProd != null) setIdProducto(idProd);
+            
+            Long idGrupo = JsonParser.extraerValorLong(objetoJson, "idGrupoProducto");
+            if (idGrupo != null) setIdGrupoProducto(idGrupo);
+            
+            String nom = JsonParser.extraerValor(objetoJson, "nombre");
+            if (nom != null) setNombre(nom);
+            
+            String nomCorto = JsonParser.extraerValor(objetoJson, "nombreCorto");
+            if (nomCorto != null) setNombreCorto(nomCorto);
+            
+            String desc = JsonParser.extraerValor(objetoJson, "descripcion");
+            if (desc != null) setDescripcion(desc);
+            
+            String acceso = JsonParser.extraerValor(objetoJson, "accesoRapido");
+            if (acceso != null) setAccesoRapido(acceso);
+            
+            String est = JsonParser.extraerValor(objetoJson, "estado");
+            if (est != null) setEstado(est);
+            
+            String precioStr = JsonParser.extraerValorNumerico(objetoJson, "precio");
+            if (precioStr != null) setPrecio(Double.parseDouble(precioStr));
+            
+            Integer cantVendida = JsonParser.extraerValorInteger(objetoJson, "cantidadVendida");
+            if (cantVendida != null) setCantidadVendida(cantVendida);
+            
+            String fecha = JsonParser.extraerValor(objetoJson, "fechaCreacion");
+            if (fecha != null && fecha.contains("T")) {
+                setFechaCreacion(LocalDate.parse(fecha.split("T")[0]));
+            }
+            
+        } catch (Exception e) {
+            System.err.println("Error parseando ProductoDto: " + e.getMessage());
+        }
     }
 
    
@@ -76,6 +126,13 @@ public class ProductoDto extends RecursiveTreeObject<ProductoDto> implements Ser
 
     public GrupoProductoDto getGrupoProducto() {
         return grupoProducto;
+    }
+    
+    /**
+     * Obtener nombre del grupo (útil para tablas)
+     */
+    public String getNombreGrupo() {
+        return grupoProducto != null ? grupoProducto.getNombre() : null;
     }
 
 

@@ -1,6 +1,6 @@
 package cr.ac.una.restuna.controller;
 
-import cr.ac.una.restuna.dto.ProductoDto;
+import cr.ac.una.restuna.model.ProductoDto;
 import cr.ac.una.restuna.model.GrupoProductoDto;
 import cr.ac.una.restuna.model.SeccionDto;
 import cr.ac.una.restuna.service.GrupoProductoService;
@@ -243,7 +243,7 @@ public class NewItemController extends Controller implements Initializable {
             nuevoProducto.setIdGrupoProducto(grupoSeleccionado.getIdGrupoProducto());
             nuevoProducto.setNombre(txfName.getText().trim());
             nuevoProducto.setNombreCorto(txfShortName.getText().trim());
-            nuevoProducto.setPrecio(new BigDecimal(txfPrice.getText().trim()));
+            nuevoProducto.setPrecio(Double.parseDouble(txfPrice.getText().trim()));
             nuevoProducto.setDescripcion(txaDescription.getText().trim());
             nuevoProducto.setAccesoRapido(cbShortcut.isSelected() ? "S" : "N");
             nuevoProducto.setEstado(cbStatus.isSelected() ? "A" : "I");
@@ -299,7 +299,7 @@ public class NewItemController extends Controller implements Initializable {
             productEdit.setIdGrupoProducto(grupoSeleccionado.getIdGrupoProducto());
             productEdit.setNombre(txfName.getText().trim());
             productEdit.setNombreCorto(txfShortName.getText().trim());
-            productEdit.setPrecio(new BigDecimal(txfPrice.getText().trim()));
+            productEdit.setPrecio(Double.parseDouble(txfPrice.getText().trim()));
             productEdit.setDescripcion(txaDescription.getText().trim());
             productEdit.setAccesoRapido(cbShortcut.isSelected() ? "S" : "N");
             productEdit.setEstado(cbStatus.isSelected() ? "A" : "I");
