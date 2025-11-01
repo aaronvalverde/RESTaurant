@@ -8,6 +8,7 @@ import cr.ac.una.restuna.service.ProductoService;
 import cr.ac.una.restuna.util.AppKeys;
 import cr.ac.una.restuna.util.FlowController;
 import cr.ac.una.restuna.util.Respuesta;
+import cr.ac.una.restuna.util.TextFieldValidator;
 import cr.ac.una.restuna.util.JsonParser;
 import java.math.BigDecimal;
 import io.github.palexdev.materialfx.controls.MFXButton;
@@ -65,6 +66,11 @@ public class NewItemController extends Controller implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        // Agregar validaciones
+        TextFieldValidator.addTextOnlyValidation(txfName);
+        TextFieldValidator.addTextOnlyValidation(txfShortName);
+        TextFieldValidator.addDecimalOnlyValidation(txfPrice);
+        
         loadGrupos(); // Cargar grupos desde el servidor
         initButtons();
         validations();

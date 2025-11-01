@@ -5,6 +5,7 @@ import cr.ac.una.restuna.service.UsuarioService;
 import cr.ac.una.restuna.util.AppKeys;
 import cr.ac.una.restuna.util.FlowController;
 import cr.ac.una.restuna.util.Respuesta;
+import cr.ac.una.restuna.util.TextFieldValidator;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXPasswordField;
@@ -55,6 +56,11 @@ public class NewUserController extends Controller implements Initializable {
         // Configurar ComboBoxes con valores correctos de BD
         cmbRole.getItems().addAll("ADMINISTRADOR", "CAJERO", "SALONERO");
         cmbStatus.getItems().addAll("A", "I"); // A = Activo, I = Inactivo
+        
+        // Agregar validaciones
+        TextFieldValidator.addAlphanumericOnlyValidation(txfUsername);
+        TextFieldValidator.addTextOnlyValidation(txfName);
+        
         initButtons();
     }
 

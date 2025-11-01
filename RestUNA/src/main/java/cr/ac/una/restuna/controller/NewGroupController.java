@@ -3,6 +3,7 @@ package cr.ac.una.restuna.controller;
 import cr.ac.una.restuna.model.GrupoProductoDto;
 import cr.ac.una.restuna.service.GrupoProductoService;
 import cr.ac.una.restuna.util.Respuesta;
+import cr.ac.una.restuna.util.TextFieldValidator;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXCheckbox;
 import io.github.palexdev.materialfx.controls.MFXTextField;
@@ -47,6 +48,9 @@ public class NewGroupController extends Controller implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        // Agregar validaciones
+        TextFieldValidator.addTextOnlyValidation(txfName);
+        
         initButtons();
         validations();
     }

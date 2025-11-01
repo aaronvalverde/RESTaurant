@@ -6,6 +6,7 @@ import cr.ac.una.restuna.util.AppKeys;
 import cr.ac.una.restuna.util.FlowController;
 import cr.ac.una.restuna.util.JsonParser;
 import cr.ac.una.restuna.util.Respuesta;
+import cr.ac.una.restuna.util.TextFieldValidator;
 import cr.ac.una.restuna.util.UserSession;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
@@ -77,6 +78,11 @@ public class SettingsController extends Controller implements Initializable {
         loadLanguageOptions();
         loadCurrencyOptions();
         configurarSpinners();
+        
+        // Agregar validaciones
+        TextFieldValidator.addPhoneValidation(txfPhone);
+        TextFieldValidator.addPhoneValidation(txfSecondaryPhone);
+        TextFieldValidator.addEmailValidation(txfEmail);
 
         settingsContainer.prefHeightProperty().bind(settingsRoot.heightProperty());
         settingsContainer.prefWidthProperty().bind(settingsRoot.widthProperty());
