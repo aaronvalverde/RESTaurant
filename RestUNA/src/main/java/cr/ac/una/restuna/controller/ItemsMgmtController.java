@@ -37,6 +37,8 @@ public class ItemsMgmtController extends Controller implements Initializable {
     @FXML
     private MFXButton btnAdd;
     @FXML
+    private MFXButton btnBack;
+    @FXML
     private MFXFilterComboBox<String> cmbGroups;
     @FXML
     private MFXFilterComboBox<String> cmbStatus;
@@ -101,6 +103,11 @@ public class ItemsMgmtController extends Controller implements Initializable {
 
     @Override
     public void initialize() {
+    }
+
+    @FXML
+    void onActionBtnBack(ActionEvent event) {
+        FlowController.getInstance().goView(AppKeys.MANAGEMENT);
     }
 
     @FXML

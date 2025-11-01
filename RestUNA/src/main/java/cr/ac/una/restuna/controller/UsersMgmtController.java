@@ -51,6 +51,8 @@ public class UsersMgmtController extends Controller implements Initializable {
     @FXML
     private MFXButton btnAdd;
     @FXML
+    private MFXButton btnBack;
+    @FXML
     private MFXButton btnClearFilters;
     @FXML
     private TreeTableColumn<UserRow, String> tbcUser;
@@ -167,6 +169,11 @@ public class UsersMgmtController extends Controller implements Initializable {
     @Override
     public void initialize() {
 
+    }
+
+    @FXML
+    void onActionBtnBack(ActionEvent event) {
+        FlowController.getInstance().goView(AppKeys.MANAGEMENT);
     }
 
     @FXML

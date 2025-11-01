@@ -48,6 +48,8 @@ public class SectionsMgmtController extends Controller implements Initializable 
     @FXML
     private MFXButton btnAdd;
     @FXML
+    private MFXButton btnBack;
+    @FXML
     private MFXButton btnClearFilters;
     @FXML
     private MFXFilterComboBox<String> cmbType;
@@ -145,6 +147,11 @@ public class SectionsMgmtController extends Controller implements Initializable 
         if (!cargando) {
             cargarSecciones();
         }
+    }
+
+    @FXML
+    void onActionBtnBack(ActionEvent event) {
+        FlowController.getInstance().goView(AppKeys.MANAGEMENT);
     }
 
     @FXML
