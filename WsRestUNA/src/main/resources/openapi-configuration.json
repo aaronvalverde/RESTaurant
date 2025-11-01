@@ -16,10 +16,10 @@
         },
         "servers": [
             {
-                "url": "http://localhost:8080/WsRestUNA/ws"
+                "url": "http://localhost:8080/WsRestUNA"
             },
             {
-                "url": "https://localhost:8181/WsRestUNA/ws"
+                "url": "https://localhost:8181/WsRestUNA"
             }
         ],
         "components": {
