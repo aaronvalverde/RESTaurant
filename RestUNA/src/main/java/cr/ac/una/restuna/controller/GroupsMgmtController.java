@@ -43,6 +43,8 @@ public class GroupsMgmtController extends Controller implements Initializable {
     @FXML
     private MFXButton btnClearFilters;
     @FXML
+    private MFXButton btnBack;
+    @FXML
     private MFXFilterComboBox<String> cmbShortcut;
     @FXML
     private MFXFilterComboBox<String> cmbStatus;
@@ -116,6 +118,11 @@ public class GroupsMgmtController extends Controller implements Initializable {
         cmbShortcut.clearSelection();
         cmbStatus.clearSelection();
         groupFilter();
+    }
+
+    @FXML
+    void onActionBtnBack(ActionEvent event) {
+        FlowController.getInstance().goView(AppKeys.MANAGEMENT);
     }
 
     @FXML
