@@ -55,7 +55,7 @@
                      </graphic>
                   </MFXButton>
                   <HBox prefHeight="100.0" prefWidth="312.0" HBox.hgrow="ALWAYS" />
-                  <MFXButton fx:id="btnAdd" contentDisplay="RIGHT" minHeight="50.0" onAction="#onActionBtnAdd" text="%btn.add.group">
+                  <MFXButton fx:id="btnAdd" contentDisplay="RIGHT" minHeight="50.0" minWidth="150.0" onAction="#onActionBtnAdd" text="%btn.add.group">
                      <cursor>
                         <Cursor fx:constant="HAND" />
                      </cursor>

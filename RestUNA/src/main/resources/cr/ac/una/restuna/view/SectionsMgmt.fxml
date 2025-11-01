@@ -50,7 +50,7 @@
                         <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true" />
                      </graphic></MFXButton>
                         <HBox prefHeight="100.0" prefWidth="312.0" HBox.hgrow="ALWAYS" />
-                        <MFXButton fx:id="btnAdd" contentDisplay="RIGHT" minHeight="50.0" onAction="#onActionBtnAdd" text="%btn.add.section">
+                        <MFXButton fx:id="btnAdd" contentDisplay="RIGHT" minHeight="50.0" minWidth="150.0" onAction="#onActionBtnAdd" prefWidth="150.0" text="%btn.add.section">
                             <cursor>
                                 <Cursor fx:constant="HAND" />
                             </cursor>
