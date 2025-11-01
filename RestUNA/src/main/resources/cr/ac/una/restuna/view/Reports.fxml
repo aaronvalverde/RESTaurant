@@ -23,10 +23,13 @@
                <children>
                   <Label styleClass="jfx-titles" text="%lb.reports" />
                   <HBox prefHeight="100.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
-                  <MFXButton fx:id="btnClose" contentDisplay="RIGHT" onAction="#onActionBtnClose" prefHeight="50.0" prefWidth="100.0" text="%btn.exit">
+                  <MFXButton fx:id="btnClose" contentDisplay="RIGHT" onAction="#onActionBtnClose" prefHeight="50.0" prefWidth="100.0" rippleColor="TRANSPARENT" text="%btn.exit">
                      <graphic>
                         <ImageView fitHeight="35.0" fitWidth="35.0" pickOnBounds="true" preserveRatio="true" />
                      </graphic>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
                   </MFXButton>
                </children>
                <VBox.margin>
@@ -37,21 +40,21 @@
                <children>
                   <HBox prefHeight="130.0" prefWidth="1260.0" spacing="20.0">
                      <children>
-                        <MFXButton fx:id="btnBillingReport" alignment="BASELINE_LEFT" contentDisplay="TOP" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#onActionBtnBillingReport" rippleAnimateBackground="false" rippleColor="#bdbdbd00" text="%btn.billing.report" HBox.hgrow="ALWAYS">
+                        <MFXButton fx:id="btnBillingReport" alignment="BASELINE_LEFT" contentDisplay="TOP" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#onActionBtnBillingReport" rippleAnimateBackground="false" rippleColor="TRANSPARENT" text="%btn.billing.report" HBox.hgrow="ALWAYS">
                            <graphic>
                               <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true" />
                            </graphic>
                            <cursor>
                               <Cursor fx:constant="HAND" />
                            </cursor></MFXButton>
-                        <MFXButton fx:id="btnCashClosingReport" alignment="BASELINE_LEFT" contentDisplay="TOP" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#onActionBtnCashClosingReport" rippleAnimateBackground="false" rippleColor="#bdbdbd00" text="%btn.cashClosing.report" HBox.hgrow="ALWAYS">
+                        <MFXButton fx:id="btnCashClosingReport" alignment="BASELINE_LEFT" contentDisplay="TOP" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#onActionBtnCashClosingReport" rippleAnimateBackground="false" rippleColor="TRANSPARENT" text="%btn.cashClosing.report" HBox.hgrow="ALWAYS">
                            <graphic>
                               <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true" />
                            </graphic>
                            <cursor>
                               <Cursor fx:constant="HAND" />
                            </cursor></MFXButton>
-                        <MFXButton fx:id="btnSalesReport" alignment="BASELINE_LEFT" contentDisplay="TOP" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#onActionBtnSalesReport" rippleAnimateBackground="false" rippleColor="#bdbdbd00" text="%btn.sales.report" HBox.hgrow="ALWAYS">
+                        <MFXButton fx:id="btnSalesReport" alignment="BASELINE_LEFT" contentDisplay="TOP" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#onActionBtnSalesReport" rippleAnimateBackground="false" rippleColor="TRANSPARENT" text="%btn.sales.report" HBox.hgrow="ALWAYS">
                            <graphic>
                               <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true" />
                            </graphic>
@@ -127,15 +130,15 @@
                         </Separator>
                         <HBox alignment="CENTER_LEFT" minHeight="-Infinity" prefHeight="50.0" prefWidth="200.0" spacing="10.0">
                            <children>
-                              <MFXButton fx:id="btnGenerate" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#onActionBtnGenerate" rippleColor="#bdbdbd00" text="%btn.generate.report" HBox.hgrow="ALWAYS">
+                              <MFXButton fx:id="btnGenerate" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#onActionBtnGenerate" rippleColor="TRANSPARENT" text="%btn.generate.report" HBox.hgrow="ALWAYS">
                                  <cursor>
                                     <Cursor fx:constant="HAND" />
                                  </cursor></MFXButton>
-                              <MFXButton fx:id="btnPrint" maxHeight="1.7976931348623157E308" minHeight="-Infinity" onAction="#onActionBtnPrint" prefWidth="200.0" rippleColor="#bdbdbd00" text="%btn.print">
+                              <MFXButton fx:id="btnPrint" maxHeight="1.7976931348623157E308" minHeight="-Infinity" onAction="#onActionBtnPrint" prefWidth="200.0" rippleColor="TRANSPARENT" text="%btn.print">
                                  <cursor>
                                     <Cursor fx:constant="HAND" />
                                  </cursor></MFXButton>
-                              <MFXButton fx:id="btnDownload" maxHeight="1.7976931348623157E308" minHeight="-Infinity" onAction="#onActionBtnDownload" prefWidth="200.0" rippleColor="#bdbdbd00" text="%btn.download">
+                              <MFXButton fx:id="btnDownload" maxHeight="1.7976931348623157E308" minHeight="-Infinity" onAction="#onActionBtnDownload" prefWidth="200.0" rippleColor="TRANSPARENT" text="%btn.download">
                                  <cursor>
                                     <Cursor fx:constant="HAND" />
                                  </cursor></MFXButton>

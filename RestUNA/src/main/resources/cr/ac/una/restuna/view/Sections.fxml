@@ -145,6 +145,22 @@
                <padding>
                   <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                </padding>
+               <children>
+                  <HBox fx:id="btnToBill" alignment="CENTER" layoutX="766.0" layoutY="686.0" onDragDropped="#onDragDroppedToBill" onDragOver="#onDragOverToBill" prefHeight="100.0" prefWidth="200.0" styleClass="jfx-info-container">
+                     <children>
+                        <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
+                           <children>
+                              <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true" />
+                              <Label styleClass="jfx-labels" text="%lb.to.bill">
+                                 <font>
+                                    <Font name="System Bold" size="16.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </VBox>
+                     </children>
+                  </HBox>
+               </children>
             </AnchorPane>
          </center>
       </BorderPane>

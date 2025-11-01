@@ -438,7 +438,7 @@
 }
 
 /*cash closing*/
-#btnCash, #btnCard, #btnPayPal, #btnTip {
+#btnCash, #btnCard, #btnPayPal, #btnTip, #btnToBill {
     -fx-background-color: #334155;
     -fx-border-color: #475569;
     -fx-text-fill: white;
@@ -456,7 +456,7 @@
     -fx-border-radius: 10px;
 }
 
-#btnEnter:hover, #btnRegisterAmount:hover {
+#btnEnter:hover, #btnRegisterAmount:hover, #btnToBill:hover {
     -fx-background-color: #eab308;
     -fx-border-color: #f59e0b;
 }
@@ -667,6 +667,14 @@
 
 #btnAdd:hover > ImageView {
     -fx-image: url("../resources/icons/icons8-add-50-white.png");
+}
+
+#btnToBill > ImageView {
+    -fx-image: url("../resources/icons/icons8-checkout-50.png");
+}
+
+#btnToBill:hover > ImageView {
+    -fx-image: url("../resources/icons/icons8-checkout-50-white.png");
 }
 
 

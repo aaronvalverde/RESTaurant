@@ -6,6 +6,7 @@
 <?import io.github.palexdev.materialfx.controls.MFXScrollPane?>
 <?import io.github.palexdev.materialfx.controls.MFXTextField?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.image.ImageView?>
@@ -26,10 +27,13 @@
                      <children>
                         <Label styleClass="jfx-titles" text="%lb.order.taking" />
                         <HBox prefHeight="100.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
-                        <MFXButton fx:id="btnClose" contentDisplay="RIGHT" onAction="#onActionBtnClose" prefHeight="50.0" prefWidth="100.0" text="%btn.exit">
+                        <MFXButton fx:id="btnClose" contentDisplay="RIGHT" onAction="#onActionBtnClose" prefHeight="50.0" prefWidth="100.0" rippleColor="#bdbdbd00" text="%btn.exit">
                            <graphic>
-                              <ImageView fitHeight="35.0" fitWidth="35.0" pickOnBounds="true" preserveRatio="true" />
+                              <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true" />
                            </graphic>
+                           <cursor>
+                              <Cursor fx:constant="HAND" />
+                           </cursor>
                         </MFXButton>
                      </children>
                      <padding>
@@ -192,15 +196,33 @@
                            <children>
                               <HBox prefHeight="84.0" prefWidth="548.0" spacing="10.0" VBox.vgrow="ALWAYS">
                                  <children>
-                                    <MFXButton fx:id="btnCancel" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" onAction="#onActionBtnCancel" prefHeight="50.0" text="%btn.cancel" HBox.hgrow="ALWAYS" />
-                                    <MFXButton fx:id="btnSave" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" onAction="#onActionBtnSave" prefHeight="50.0" text="%btn.save.bill" HBox.hgrow="ALWAYS" />
+                                    <MFXButton fx:id="btnCancel" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" onAction="#onActionBtnCancel" prefHeight="50.0" prefWidth="218.5" rippleColor="#bdbdbd00" text="%btn.cancel" HBox.hgrow="ALWAYS">
+                                       <graphic>
+                                          <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true" />
+                                       </graphic>
+                                       <cursor>
+                                          <Cursor fx:constant="HAND" />
+                                       </cursor></MFXButton>
+                                    <MFXButton fx:id="btnSave" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" onAction="#onActionBtnSave" prefHeight="50.0" prefWidth="218.5" rippleColor="#bdbdbd00" text="%btn.save.bill" HBox.hgrow="ALWAYS">
+                                       <graphic>
+                                          <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true" />
+                                       </graphic>
+                                       <cursor>
+                                          <Cursor fx:constant="HAND" />
+                                       </cursor></MFXButton>
                                  </children>
                               </HBox>
                            </children>
                         </VBox>
                         <VBox prefHeight="200.0" prefWidth="100.0" VBox.vgrow="ALWAYS">
                            <children>
-                              <MFXButton fx:id="btnToBill" maxWidth="1.7976931348623157E308" onAction="#onActionBtnToBill" prefHeight="50.0" text="%btn.to.bill" VBox.vgrow="ALWAYS" />
+                              <MFXButton fx:id="btnToBill" maxWidth="1.7976931348623157E308" onAction="#onActionBtnToBill" prefHeight="50.0" rippleColor="#bdbdbd00" text="%btn.to.bill" VBox.vgrow="ALWAYS">
+                                 <graphic>
+                                    <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true" />
+                                 </graphic>
+                                 <cursor>
+                                    <Cursor fx:constant="HAND" />
+                                 </cursor></MFXButton>
                            </children>
                         </VBox>
                      </children>
