@@ -11,10 +11,12 @@ import io.github.palexdev.materialfx.controls.MFXCheckbox;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXScrollPane;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -103,7 +105,7 @@ public class OrderController extends Controller implements Initializable {
 
         currentOrder = new OrdenDto();
         groupProduct = new ArrayList<>();
-    
+
         updateTotals();
         menuGroups();
     }
@@ -114,7 +116,7 @@ public class OrderController extends Controller implements Initializable {
 
     @FXML
     private void onActionBtnClose(ActionEvent event) {
-        //FlowController.getInstance().goView(AppKeys.MAIN);
+        FlowController.getInstance().goHome();
     }
 
     @FXML

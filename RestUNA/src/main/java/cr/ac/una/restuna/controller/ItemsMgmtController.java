@@ -46,8 +46,6 @@ public class ItemsMgmtController extends Controller implements Initializable {
     @FXML
     private MFXButton btnBack;
     @FXML
-    private MFXButton btnClearFilters;
-    @FXML
     private MFXFilterComboBox<String> cmbGroups;
     @FXML
     private MFXFilterComboBox<String> cmbStatus;
@@ -158,7 +156,7 @@ public class ItemsMgmtController extends Controller implements Initializable {
         confirmAlert.setTitle("Confirmar eliminación");
         confirmAlert.setHeaderText("¿Está seguro que desea eliminar este producto?");
         confirmAlert.setContentText("Producto: " + productoDto.getNombre());
-        
+
         confirmAlert.showAndWait().ifPresent(response -> {
             if (response == javafx.scene.control.ButtonType.OK) {
                 Task<Respuesta> deleteTask = new Task<Respuesta>() {
@@ -167,10 +165,10 @@ public class ItemsMgmtController extends Controller implements Initializable {
                         return productoService.eliminarProducto(productoDto.getIdProducto());
                     }
                 };
-                
+
                 deleteTask.setOnSucceeded(e -> {
                     Respuesta respuesta = deleteTask.getValue();
-                    
+
                     if (respuesta.getEstado()) {
                         showMessage("Producto eliminado correctamente");
                         loadProductsFromServer(); // Recargar la tabla
@@ -178,12 +176,12 @@ public class ItemsMgmtController extends Controller implements Initializable {
                         showMessage("Error al eliminar el producto: " + respuesta.getMensaje());
                     }
                 });
-                
+
                 deleteTask.setOnFailed(e -> {
                     showMessage("Excepción al eliminar producto: " + deleteTask.getException().getMessage());
                     deleteTask.getException().printStackTrace();
                 });
-                
+
                 new Thread(deleteTask).start();
             }
         });

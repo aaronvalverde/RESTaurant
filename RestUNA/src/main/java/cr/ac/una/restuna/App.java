@@ -6,6 +6,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.ResourceBundle;
@@ -23,6 +24,7 @@ public class App extends Application {
         FlowController.getInstance().goMain(AppKeys.LOGIN);
         stage.setScene(scene);
         stage.setTitle("RESTuna");
+        stage.getIcons().addAll(new Image(getClass().getResourceAsStream("/cr/ac/una/restuna/resources/RESTuna.png")));
         stage.show();
     }
 
@@ -38,5 +40,4 @@ public class App extends Application {
     public static void main(String[] args) {
         launch();
     }
-
 }

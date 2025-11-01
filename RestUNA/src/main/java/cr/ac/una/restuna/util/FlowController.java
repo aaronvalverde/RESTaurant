@@ -197,6 +197,35 @@ public class FlowController {
         });
     }
 
+    public void goViewInContent(String viewName, BorderPane target) {
+        Platform.runLater(() -> {
+            try {
+                FXMLLoader loader = loadLoader(viewName);
+                if (loader == null) {
+                    logger.log(Level.SEVERE, "Loader is null for view: " + viewName);
+                    return;
+                }
+
+                Controller controller = loader.getController();
+                if (controller == null) {
+                    logger.log(Level.SEVERE, "Controller is null for view: " + viewName);
+                    return;
+                }
+
+                controller.setStage(mainStage);
+                Parent newContent = loader.getRoot();
+
+                if (target != null) {
+                    target.setCenter(newContent);
+                } else {
+                    goView(viewName);
+                }
+            } catch (Exception e) {
+                logger.log(Level.SEVERE, "Error loading view in content: " + viewName, e);
+            }
+        });
+    }
+
     private BorderPane findContentArea(Parent root) {
         return findNodeById(root, "contentArea", BorderPane.class);
     }

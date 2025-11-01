@@ -14,6 +14,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 
 /**
@@ -49,6 +51,8 @@ public class ReportsController extends Controller implements Initializable {
     private MFXButton btnPrint;
     @FXML
     private MFXButton btnDownload;
+    @FXML
+    private MFXButton btnClose;
 
     private MFXButton activeButton;
 
@@ -98,6 +102,11 @@ public class ReportsController extends Controller implements Initializable {
     private void onActionBtnDownload(ActionEvent event) {
     }
 
+    @FXML
+    private void onActionBtnClose(ActionEvent event) {
+        FlowController.getInstance().goHome();
+    }
+
     private String getLanguageString(String key) {
         return FlowController.getInstance().getLanguage().getString(key);
     }
@@ -112,7 +121,7 @@ public class ReportsController extends Controller implements Initializable {
     private void initView() {
         lbReportType.setText(getLanguageString("lb.billing.report"));
         setBoxes(false);
-}
+    }
 
     private void loadCashierOptions() {
         //cmbCashier
@@ -131,7 +140,7 @@ public class ReportsController extends Controller implements Initializable {
         if (activeButton != null) {
             activeButton.setStyle("");
         }
-        button.setStyle("-fx-background-color: linear-gradient(to right, #eab308, #d97706); -fx-border-color: #f59e0b");
+        button.setStyle("-fx-background-color: #475569;\n-fx-border-color: #475569");
         activeButton = button;
     }
 }

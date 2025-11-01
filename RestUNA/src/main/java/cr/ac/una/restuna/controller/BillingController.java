@@ -111,7 +111,6 @@ public class BillingController extends Controller implements Initializable {
     //métodos de pago
     @FXML
     void onActionBtnCash(ActionEvent event) {
-
         addPay("Cash");
     }
 

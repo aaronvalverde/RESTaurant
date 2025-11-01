@@ -2,6 +2,7 @@
 
 <?import io.github.palexdev.materialfx.controls.MFXButton?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.image.ImageView?>
@@ -20,19 +21,31 @@
                   <MFXButton fx:id="btnUsers" contentDisplay="TOP" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" onAction="#onActionBtnUsers" prefHeight="80.0" text="%btn.user.mgmt" VBox.vgrow="ALWAYS">
                      <graphic>
                         <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true" />
-                     </graphic></MFXButton>
+                     </graphic>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor></MFXButton>
                   <MFXButton fx:id="btnSectionsMgmt" contentDisplay="TOP" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" onAction="#onActionBtnSections" prefHeight="80.0" text="%btn.sections.mgmt" VBox.vgrow="ALWAYS">
                      <graphic>
                         <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true" />
-                     </graphic></MFXButton>
+                     </graphic>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor></MFXButton>
                   <MFXButton fx:id="btnGroups" contentDisplay="TOP" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" onAction="#onActionBtnGroups" prefHeight="80.0" text="%btn.menu.groups" VBox.vgrow="ALWAYS">
                      <graphic>
                         <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true" />
-                     </graphic></MFXButton>
+                     </graphic>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor></MFXButton>
                   <MFXButton fx:id="btnItems" contentDisplay="TOP" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" onAction="#onActionBtnItems" prefHeight="80.0" text="%btn.menu.items" VBox.vgrow="ALWAYS">
                      <graphic>
                         <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true" />
-                     </graphic></MFXButton>
+                     </graphic>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor></MFXButton>
                </children>
                <VBox.margin>
                   <Insets top="10.0" />
@@ -42,7 +55,10 @@
             <MFXButton fx:id="btnExit" contentDisplay="TOP" maxWidth="1.7976931348623157E308" onAction="#onActionBtnExit" prefHeight="80.0" text="%btn.exit">
                <graphic>
                   <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true" />
-               </graphic></MFXButton>
+               </graphic>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor></MFXButton>
          </children>
          <padding>
             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />

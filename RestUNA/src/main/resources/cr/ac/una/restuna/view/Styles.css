@@ -17,6 +17,10 @@
     -mfx-color: white;
 }
 
+.mfx-scroll-pane {
+    -fx-background-color: transparent;
+}
+
 .mfx-text-field {
     -mfx-main: #64748b;
     -fx-font-size: 13px;
@@ -28,7 +32,6 @@
     -fx-background-color: #334155;
     -fx-border-color: #475569;
     -fx-border-radius: 10px;
-    -fx-text-fill: white;
     -fx-text-fill: white;
 }
 
@@ -53,6 +56,21 @@
 .mfx-scroll-pane .scroll-bar:horizontal .thumb:hover,
 .mfx-scroll-pane .scroll-bar:vertical .thumb:hover {
     -fx-background-color: #525D74;
+}
+
+.mfx-checkbox {
+    -mfx-main: #eab308;
+    -mfx-secondary: #eab308;
+    -fx-text-fill: white;
+    -fx-pref-height: 50px;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+}
+
+.mfx-checkbox .box {
+    -fx-border-color: #eab308;
+    -fx-pref-height: 20px;
+    -fx-pref-width: 20px;
 }
 
 #btnSignIn {
@@ -85,10 +103,9 @@
 
 #btnEditMode,
 #btnAddTable,
-#btnDeleteTable,
-#btnExit,
+#btnExit, #btnClose,
 #btnExitEditMode, #btnPrint, #btnDownload, #btnSignIn,
-#btnKeypad {
+#btnKeypad, #btnChooseImage, #btnChangeImage, #btnDeleteImage {
     -fx-background-color: #334155;
     -fx-border-color: #475569;
     -fx-background-radius: 10px;
@@ -97,6 +114,8 @@
     -fx-font-size: 14px;
     -fx-font-weight: bold;
 }
+
+
 
 /*hover*/
 
@@ -115,14 +134,14 @@
     -fx-background-color: #eab308;
     -fx-border-color: #f59e0b;
     -fx-font-weight: bold;
-    -fx-font-family: "Tahoma";
 }
 
 #btnBillingReport:hover,
 #btnCashClosingReport:hover,
 #btnSalesReport:hover, #btnPrint:hover,
 #btnDownload:hover, #btnAddTable:hover, #btnExit:hover,
-#btnAddTable:hover, #btnDeleteTable:hover, #btnKeypad:hover {
+#btnAddTable:hover, #btnKeypad:hover, #btnClose:hover,
+#btnChooseImage:hover, #btnChangeImage:hover, #btnDeleteImage:hover {
     -fx-background-color: #475569;
 }
 
@@ -136,7 +155,7 @@
 }
 
 #btnGenerate:hover {
-    -fx-background-color: linear-gradient(to right, #fcd34d, #f97316); /* más claro/brillante */
+    -fx-background-color: linear-gradient(to right, #fcd34d, #f97316);
 }
 
 /*management  buttons*/
@@ -158,15 +177,15 @@
 }
 
 #btnChooseImage > ImageView {
-    -fx-image: url("../resources/icons/icons8-añadir-imagen-50.png");
+    -fx-image: url("../resources/icons/icons8-add-image-50.png");
 }
 
 #btnChangeImage > ImageView {
-    -fx-image: url("../resources/icons/icons8-editar-imagen-50.png");
+    -fx-image: url("../resources/icons/icons8-edit-image-50.png");
 }
 
 #btnDeleteImage > ImageView {
-    -fx-image: url("../resources/icons/icons8-eliminar-imagen-50.png");
+    -fx-image: url("../resources/icons/icons8-remove-image-50.png");
 }
 
 #imvTableGraphic {
@@ -175,10 +194,9 @@
 
 /*section buttons*/
 
-#btnEdit > ImageView {
+#btnEdit > ImageView, #btnEditMode > ImageView {
     -fx-image: url("../resources/icons/icons8-edit-50.png");
 }
-
 #btnDelete > ImageView {
     -fx-image: url("../resources/icons/icons8-delete-50.png");
 }
@@ -188,12 +206,16 @@
 }
 
 #btnDeleteTable > ImageView {
-    -fx-image: url("../resources/icons/icons8-delete-50.png");
+    -fx-image: url("../resources/icons/icons8-trash-can-50.png");
 }
 
 #btnExitEditMode > ImageView {
-    -fx-image: url("../resources/icons/icons8-multiply-50.png");
+    -fx-image: url("../resources/icons/icons8-salida-50-yellow.png");
 }
+#btnExitEditMode:hover > ImageView {
+    -fx-image: url("../resources/icons/icons8-exit-50.png");
+}
+
 
 /*main normal*/
 /*main hover*/
@@ -230,6 +252,14 @@
     -fx-image: url("../resources/icons/icons8-administrador-del-hombre-50-yellow.png");
 }
 
+#btnHome > ImageView {
+    -fx-image: url("../resources/icons/icons8-home-50.png");
+}
+
+#btnEditMode:hover > ImageView {
+    -fx-image: url("../resources/icons/icons8-edit-50-white.png");
+}
+
 /*======================================================================================================================*/
 /*main hover*/
 
@@ -258,13 +288,31 @@
 }
 
 #btnLogout:hover > ImageView {
-    -fx-image: url("../resources/icons/icons8-salida-50.png")
+    -fx-image: url("../resources/icons/icons8-exit-50.png")
 }
 
 #btnManagement:hover > ImageView {
     -fx-image: url("../resources/icons/icons8-administrador-del-hombre-50.png");
 }
 
+#btnHome:hover > ImageView {
+    -fx-image: url("../resources/icons/icons8-home-50-white.png");
+}
+
+#btnSaveChanges > ImageView {
+    -fx-image: url("../resources/icons/icons8-save-50-white.png");
+}
+
+#btnSaveChanges {
+    -fx-background-color: #0ea5e9;
+    -fx-background-radius: 10px;
+    -fx-border-radius: 10px;
+    -fx-text-fill: white;
+}
+
+#btnSaveChanges:hover {
+    -fx-background-color: #38bdf8;
+}
 
 /*cash opening*/
 #btnKeypad > ImageView {
@@ -301,12 +349,19 @@
     -fx-background-color: #E57373;
 }
 
-#btnClose > ImageView {
-    -fx-image: url("../resources/icons/icons8-salida-50.png");
+#btnDeleteTable {
+    -fx-background-color: red;
+    -fx-text-fill: white;
+    -fx-background-radius: 10px;
+    -fx-border-radius: 10px;
 }
 
-#btnClose {
-    -fx-background-color: #555555;
+#btnDeleteTable:hover {
+    -fx-background-color: #E57373;
+}
+
+#btnClose > ImageView {
+    -fx-image: url("../resources/icons/icons8-salida-50-yellow.png");
 }
 
 #btnRemove > ImageView {
@@ -419,6 +474,7 @@
     -fx-image: url("../resources/icons/icons8-dinero-50.png");
 }
 
+
 #btnCard > ImageView {
     -fx-image: url("../resources/icons/icons8-tarjetas-bancarias-50.png");
 }
@@ -427,9 +483,11 @@
     -fx-image: url("../resources/icons/icons8-paypal-50.png");
 }
 
+
 #btnTip > ImageView {
     -fx-image: url("../resources/icons/icons8-regalo-50.png");
 }
+
 
 /* JFXTreeTableView Base */
 .jfx-tree-table-view {
@@ -438,6 +496,8 @@
     -fx-background-insets: 0;
     -fx-padding: 0;
     -fx-border-width: 0;
+    -fx-background-radius: 10px;
+    -fx-border-radius: 10px;
 }
 
 /* Column Header */
@@ -534,6 +594,7 @@
 #btnItems > ImageView {
     -fx-image: url("../resources/icons/icons8-plato-yellow.png");
 }
+
 #btnExit > ImageView {
     -fx-image: url("../resources/icons/icons8-salida-50-yellow.png");
 }
@@ -546,6 +607,7 @@
     -fx-background-radius: 10px;
     -fx-border-radius: 10px;
 }
+
 #btnSave > ImageView {
     -fx-image: url("../resources/icons/icons8-guardar-50.png");
 }
@@ -554,7 +616,57 @@
     -fx-background-color: #eab308;
     -fx-border-color: #f59e0b;
 }
+
 #btnSave:hover > ImageView {
     -fx-image: url("../resources/icons/icons8-guardar-50-blanco.png");
 }
+
+.jfx-no-fill-container {
+    -fx-border-color: #475569;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+}
+
+#btnBillingReport > ImageView {
+    -fx-image: url("../resources/icons/icons8-factura-50-yellow.png");
+}
+
+#btnCashClosingReport > ImageView {
+    -fx-image: url("../resources/icons/icons8-caja-registradora-50-yellow.png");
+}
+
+#btnSalesReport > ImageView {
+    -fx-image: url("../resources/icons/icons8-sales-50-2.png");
+}
+
+#btnClearFilters, #btnAdd {
+    -fx-background-color: #334155;
+    -fx-border-color: #475569;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 10px;
+    -fx-border-radius: 10px;
+}
+
+#btnClearFilters:hover {
+    -fx-background-color: #475569;
+}
+
+#btnAdd:hover {
+    -fx-background-color: #eab308;
+    -fx-border-color: #f59e0b;
+}
+
+#btnClearFilters > ImageView {
+    -fx-image: url("../resources/icons/icons8-clear-filters-50.png");
+}
+
+#btnAdd > ImageView {
+    -fx-image: url("../resources/icons/icons8-add-50.png");
+}
+
+#btnAdd:hover > ImageView {
+    -fx-image: url("../resources/icons/icons8-add-50-white.png");
+}
+
 
