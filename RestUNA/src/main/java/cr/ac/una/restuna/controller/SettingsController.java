@@ -2,6 +2,7 @@ package cr.ac.una.restuna.controller;
 
 import cr.ac.una.restuna.model.ParametroDto;
 import cr.ac.una.restuna.service.ParametroService;
+import cr.ac.una.restuna.util.AppKeys;
 import cr.ac.una.restuna.util.FlowController;
 import cr.ac.una.restuna.util.JsonParser;
 import cr.ac.una.restuna.util.Respuesta;
@@ -429,6 +430,11 @@ public class SettingsController extends Controller implements Initializable {
     }
 
     private void guardarParametrosEnServidor(List<ParametroDto> parametros) {
+        // Detectar si cambió el idioma
+        String nuevoIdioma = obtenerCodigoIdioma();
+        String idiomaOriginal = valoresOriginales.get("IDIOMA");
+        final boolean cambioIdioma = idiomaOriginal != null && !nuevoIdioma.equals(idiomaOriginal);
+        
         Task<Void> task = new Task<Void>() {
             @Override
             protected Void call() throws Exception {
@@ -436,22 +442,33 @@ public class SettingsController extends Controller implements Initializable {
                 
                 Platform.runLater(() -> {
                     if (respuesta.getEstado()) {
-                        // Aplicar el cambio de idioma al sistema inmediatamente
-                        String codigoIdioma = obtenerCodigoIdioma();
-                        aplicarCambioDeIdioma(codigoIdioma);
-                        
-                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                        alert.setTitle("Configuración");
-                        alert.setHeaderText(null);
-                        alert.setContentText("La configuración se guardó correctamente");
-                        alert.showAndWait();
-                        
-                        // Recargar parámetros
-                        String jsonArray = (String) respuesta.getResultado("Parametros");
-                        procesarParametros(jsonArray);
-                        
-                        // Actualizar valores originales después de guardar
-                        guardarValoresOriginales();
+                        if (cambioIdioma) {
+                            // Mostrar mensaje de que se requiere logout
+                            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                            alert.setTitle("Cambio de idioma");
+                            alert.setHeaderText(null);
+                            alert.setContentText("La configuración se guardó correctamente.\n\n" +
+                                    "El cambio de idioma requiere cerrar sesión.\n" +
+                                    "Por favor, inicie sesión nuevamente.");
+                            alert.showAndWait();
+                            
+                            // Cerrar sesión y volver al login
+                            UserSession.getInstance().clearSession();
+                            FlowController.getInstance().goMain(AppKeys.LOGIN);
+                        } else {
+                            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                            alert.setTitle("Configuración");
+                            alert.setHeaderText(null);
+                            alert.setContentText("La configuración se guardó correctamente");
+                            alert.showAndWait();
+                            
+                            // Recargar parámetros
+                            String jsonArray = (String) respuesta.getResultado("Parametros");
+                            procesarParametros(jsonArray);
+                            
+                            // Actualizar valores originales después de guardar
+                            guardarValoresOriginales();
+                        }
                     } else {
                         Alert alert = new Alert(Alert.AlertType.ERROR);
                         alert.setTitle("Error");
