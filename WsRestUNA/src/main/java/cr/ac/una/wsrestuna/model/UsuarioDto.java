@@ -1,5 +1,6 @@
 package cr.ac.una.wsrestuna.model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.json.bind.annotation.JsonbProperty;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
@@ -9,43 +10,55 @@ import java.time.LocalDateTime;
  * DTO para transferencia de datos de Usuario
  * Excluye información sensible como contraseñas y tokens
  */
+@Schema(description = "Usuario del sistema REST UNA")
 public class UsuarioDto implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    @Schema(description = "Identificador del usuario", example = "1")
     @JsonbProperty("idUsuario")
     private Long idUsuario;
 
     @NotBlank(message = "El usuario es obligatorio")
     @Size(max = 50, message = "El usuario no puede exceder 50 caracteres")
+    @Schema(description = "Nombre de usuario para inicio de sesión", example = "admin")
     @JsonbProperty("usuario")
     private String usuario;
     
     @NotBlank(message = "El nombre es obligatorio")
     @Size(max = 100, message = "El nombre no puede exceder 100 caracteres")
+    @Schema(description = "Nombre completo del usuario", example = "Administrador General")
     @JsonbProperty("nombre")
     private String nombre;
 
     @NotBlank(message = "El rol es obligatorio")
     @Pattern(regexp = "^(ADMINISTRADOR|CAJERO|SALONERO)$", message = "El rol debe ser ADMINISTRADOR, CAJERO o SALONERO")
+    @Schema(description = "Rol del usuario", allowableValues = {"ADMINISTRADOR", "CAJERO", "SALONERO"}, example = "ADMINISTRADOR")
     @JsonbProperty("rol")
     private String rol;
 
     @NotBlank(message = "El estado es obligatorio")
     @Pattern(regexp = "^[AI]$", message = "El estado debe ser A (Activo) o I (Inactivo)")
+    @Schema(description = "Estado del usuario", allowableValues = {"A", "I"}, example = "A")
     @JsonbProperty("estado")
     private String estado;
 
+    @Schema(description = "Fecha de creación del usuario", example = "2024-05-30T08:30:00")
     private LocalDateTime fechaCreacion;
+    @Schema(description = "Fecha del último acceso", example = "2024-06-01T12:15:00")
     private LocalDateTime fechaUltimoAcceso;
 
     // Campo para nueva contraseña (solo para creación/actualización)
     @Size(min = 6, max = 255, message = "La contraseña debe tener entre 6 y 255 caracteres")
+    @Schema(description = "Contraseña en texto plano al crear/actualizar (no se devuelve)", example = "P@ssw0rd")
     private String nuevaContrasena;
 
     // Campos de control de modificación (siguiendo patrón plantilla)
+    @Schema(description = "Indica si el registro fue modificado", example = "false")
     private Boolean modificado;
+    @Schema(description = "Marca de tiempo de modificación", example = "2024-06-01T12:15:00")
     private LocalDateTime fecha;
+    @Schema(description = "Token JWT emitido para autenticación", example = "eyJhbGciOiJIUzI1NiJ9...")
     private String token;
 
     // Constructores
