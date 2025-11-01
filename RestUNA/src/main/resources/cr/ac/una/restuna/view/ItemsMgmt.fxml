@@ -74,7 +74,7 @@
                             <columns>
                                 <TreeTableColumn fx:id="tbcID" prefWidth="75.0" text="%tbc.id" />
                                 <TreeTableColumn fx:id="tbcName" prefWidth="75.0" text="%tbc.name" />
-                                <TreeTableColumn fx:id="tbcShortcut" prefWidth="75.0" text="%tbc.group" />
+                                <TreeTableColumn fx:id="tbcGroup" prefWidth="75.0" text="%tbc.group" />
                                 <TreeTableColumn fx:id="tbcPrice" prefWidth="75.0" text="%tbc.price" />
                                 <TreeTableColumn fx:id="tbcShortcut" prefWidth="75.0" text="%tbc.shortcut" />
                         <TreeTableColumn fx:id="tbcStatus" prefWidth="75.0" text="%tbc.status" />
