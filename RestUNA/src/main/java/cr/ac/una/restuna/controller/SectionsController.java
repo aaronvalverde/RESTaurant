@@ -379,7 +379,8 @@ public class SectionsController extends Controller implements Initializable {
             return;
         }
         
-        sectionPane.getChildren().clear();
+        // Limpiar solo los botones de mesa, preservando el btnToBill
+        sectionPane.getChildren().removeIf(node -> node instanceof MFXButton);
         mesaButtonMap.clear();
         mesasActuales.clear();
         mesaSeleccionada = null;
