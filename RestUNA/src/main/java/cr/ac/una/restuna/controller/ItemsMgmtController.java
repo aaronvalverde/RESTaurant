@@ -46,6 +46,8 @@ public class ItemsMgmtController extends Controller implements Initializable {
     @FXML
     private MFXButton btnBack;
     @FXML
+    private MFXButton btnClearFilters;
+    @FXML
     private MFXFilterComboBox<String> cmbGroups;
     @FXML
     private MFXFilterComboBox<String> cmbStatus;
@@ -123,6 +125,13 @@ public class ItemsMgmtController extends Controller implements Initializable {
     }
 
     @FXML
+    void onActionBtnClearFilters(ActionEvent event) {
+        txfSearch.clear();
+        cmbGroups.clearSelection();
+        cmbStatus.clearSelection();
+    }
+
+    @FXML
     void onActionBtnAdd(ActionEvent event) {
         try {
             NewItemController item = (NewItemController) FlowController.getInstance().getController(AppKeys.NEW_MENU_ITEM);
@@ -142,6 +151,42 @@ public class ItemsMgmtController extends Controller implements Initializable {
         controller.setParentController(this);
         controller.loadProduct(productoDto);
         FlowController.getInstance().goViewInWindowModal(AppKeys.NEW_MENU_ITEM, new Stage(), false);
+    }
+
+    private void onDeleteItem(ProductoDto productoDto) {
+        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmAlert.setTitle("Confirmar eliminación");
+        confirmAlert.setHeaderText("¿Está seguro que desea eliminar este producto?");
+        confirmAlert.setContentText("Producto: " + productoDto.getNombre());
+        
+        confirmAlert.showAndWait().ifPresent(response -> {
+            if (response == javafx.scene.control.ButtonType.OK) {
+                Task<Respuesta> deleteTask = new Task<Respuesta>() {
+                    @Override
+                    protected Respuesta call() throws Exception {
+                        return productoService.eliminarProducto(productoDto.getIdProducto());
+                    }
+                };
+                
+                deleteTask.setOnSucceeded(e -> {
+                    Respuesta respuesta = deleteTask.getValue();
+                    
+                    if (respuesta.getEstado()) {
+                        showMessage("Producto eliminado correctamente");
+                        loadProductsFromServer(); // Recargar la tabla
+                    } else {
+                        showMessage("Error al eliminar el producto: " + respuesta.getMensaje());
+                    }
+                });
+                
+                deleteTask.setOnFailed(e -> {
+                    showMessage("Excepción al eliminar producto: " + deleteTask.getException().getMessage());
+                    deleteTask.getException().printStackTrace();
+                });
+                
+                new Thread(deleteTask).start();
+            }
+        });
     }
 
     public void addProduct(String name, String shortName, double price, String description, String shortcut, String status) {
@@ -200,7 +245,7 @@ public class ItemsMgmtController extends Controller implements Initializable {
                 btnDelete.setOnAction(e -> {
                     ProductoDto productoDto = getTreeTableView().getTreeItem(getIndex()).getValue();
                     if (productoDto != null) {
-                        //lógica para eliminar la columna de la tabla y DB.
+                        onDeleteItem(productoDto);
                     }
                 });
                 

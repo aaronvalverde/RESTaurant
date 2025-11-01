@@ -54,6 +54,11 @@
                                 <Cursor fx:constant="HAND" />
                             </cursor>
                         </MFXFilterComboBox>
+                        <MFXButton fx:id="btnClearFilters" onAction="#onActionBtnClearFilters" text="%btn.clear.filters">
+                            <cursor>
+                                <Cursor fx:constant="HAND" />
+                            </cursor>
+                        </MFXButton>
                         <HBox prefHeight="100.0" prefWidth="312.0" HBox.hgrow="ALWAYS" />
                         <MFXButton fx:id="btnAdd" onAction="#onActionBtnAdd" text="%btn.add.item">
                             <cursor>
