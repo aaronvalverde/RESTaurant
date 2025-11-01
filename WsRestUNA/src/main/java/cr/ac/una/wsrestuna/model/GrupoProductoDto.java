@@ -1,5 +1,6 @@
 package cr.ac.una.wsrestuna.model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -7,17 +8,26 @@ import java.util.Date;
  * DTO para transferencia de datos de GrupoProducto
  * POJO simple sin dependencias JavaFX
  */
+@Schema(description = "Grupo o categoría de productos del menú")
 public class GrupoProductoDto implements Serializable {
     
     private static final long serialVersionUID = 1L;
     
+    @Schema(description = "Identificador único del grupo", example = "1")
     private Long idGrupoProducto;
+    @Schema(description = "Nombre del grupo", example = "Bebidas")
     private String nombre;
+    @Schema(description = "Descripción del grupo", example = "Bebidas calientes y frías")
     private String descripcion;
+    @Schema(description = "Indica si está disponible en acceso rápido", allowableValues = {"S", "N"}, example = "S")
     private String accesoRapido;
+    @Schema(description = "Orden de visualización en el POS", example = "1")
     private Long ordenVisualizacion;
+    @Schema(description = "Cantidad vendida acumulada", example = "120")
     private Long cantidadVendida;
+    @Schema(description = "Estado del grupo", allowableValues = {"A", "I"}, example = "A")
     private String estado;
+    @Schema(description = "Fecha de creación del grupo", example = "2024-05-30T00:00:00Z")
     private Date fechaCreacion;
     
     public GrupoProductoDto() {

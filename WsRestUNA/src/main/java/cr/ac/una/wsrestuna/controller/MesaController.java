@@ -3,8 +3,22 @@ package cr.ac.una.wsrestuna.controller;
 import cr.ac.una.wsrestuna.model.MesaDto;
 import cr.ac.una.wsrestuna.service.MesaService;
 import cr.ac.una.wsrestuna.util.Respuesta;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.ejb.EJB;
-import jakarta.ws.rs.*;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.List;
@@ -15,6 +29,7 @@ import java.util.logging.Logger;
  * Controlador REST para gestión de mesas del restaurante
  */
 @Path("/MesaController")
+@Tag(name = "Mesas", description = "Operaciones sobre mesas del restaurante")
 public class MesaController {
     
     private static final Logger LOG = Logger.getLogger(MesaController.class.getName());
@@ -30,7 +45,18 @@ public class MesaController {
     @Path("/mesa/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response getMesa(@PathParam("id") Long id) {
+    @Operation(summary = "Obtiene una mesa por ID")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Mesa encontrada",
+                content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                        schema = @Schema(implementation = MesaDto.class))),
+        @ApiResponse(responseCode = "404", description = "Mesa no encontrada",
+                content = @Content(mediaType = MediaType.TEXT_PLAIN)),
+        @ApiResponse(responseCode = "500", description = "Error interno",
+                content = @Content(mediaType = MediaType.TEXT_PLAIN))
+    })
+    public Response getMesa(@Parameter(description = "ID de la mesa", example = "15")
+                            @PathParam("id") Long id) {
         try {
             Respuesta res = mesaService.getMesa(id);
             if (!res.getEstado()) {
@@ -53,6 +79,14 @@ public class MesaController {
     @Path("/mesas")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(summary = "Lista todas las mesas")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Listado de mesas",
+                content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                        schema = @Schema(implementation = MesaDto.class))),
+        @ApiResponse(responseCode = "500", description = "Error interno",
+                content = @Content(mediaType = MediaType.TEXT_PLAIN))
+    })
     public Response getMesas() {
         try {
             Respuesta res = mesaService.getMesas();
@@ -79,7 +113,16 @@ public class MesaController {
     @Path("/mesas/seccion/{idSeccion}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response getMesasPorSeccion(@PathParam("idSeccion") Long idSeccion) {
+    @Operation(summary = "Lista mesas por sección")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Listado de mesas",
+                content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                        schema = @Schema(implementation = MesaDto.class))),
+        @ApiResponse(responseCode = "500", description = "Error interno",
+                content = @Content(mediaType = MediaType.TEXT_PLAIN))
+    })
+    public Response getMesasPorSeccion(@Parameter(description = "ID de la sección", example = "2")
+                                       @PathParam("idSeccion") Long idSeccion) {
         try {
             Respuesta res = mesaService.getMesasPorSeccion(idSeccion);
             if (!res.getEstado()) {
@@ -105,7 +148,16 @@ public class MesaController {
     @Path("/mesas/estado/{estado}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response getMesasPorEstado(@PathParam("estado") String estado) {
+    @Operation(summary = "Lista mesas por estado")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Listado de mesas",
+                content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                        schema = @Schema(implementation = MesaDto.class))),
+        @ApiResponse(responseCode = "500", description = "Error interno",
+                content = @Content(mediaType = MediaType.TEXT_PLAIN))
+    })
+    public Response getMesasPorEstado(@Parameter(description = "Estado a filtrar", example = "LIBRE")
+                                      @PathParam("estado") String estado) {
         try {
             Respuesta res = mesaService.getMesasPorEstado(estado);
             if (!res.getEstado()) {
@@ -131,6 +183,14 @@ public class MesaController {
     @Path("/mesas/libres")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(summary = "Lista mesas libres")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Listado de mesas libres",
+                content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                        schema = @Schema(implementation = MesaDto.class))),
+        @ApiResponse(responseCode = "500", description = "Error interno",
+                content = @Content(mediaType = MediaType.TEXT_PLAIN))
+    })
     public Response getMesasLibres() {
         try {
             Respuesta res = mesaService.getMesasLibres();
@@ -157,7 +217,17 @@ public class MesaController {
     @Path("/mesa")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response guardarMesa(MesaDto mesa) {
+    @Operation(summary = "Guarda una mesa")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Mesa guardada",
+                content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                        schema = @Schema(implementation = MesaDto.class))),
+        @ApiResponse(responseCode = "400", description = "Datos inválidos",
+                content = @Content(mediaType = MediaType.TEXT_PLAIN)),
+        @ApiResponse(responseCode = "500", description = "Error interno",
+                content = @Content(mediaType = MediaType.TEXT_PLAIN))
+    })
+    public Response guardarMesa(@Parameter(description = "Información de la mesa") MesaDto mesa) {
         try {
             Respuesta res = mesaService.guardarMesa(mesa);
             if (!res.getEstado()) {
@@ -180,7 +250,15 @@ public class MesaController {
     @Path("/mesas")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response guardarMesas(List<MesaDto> mesas) {
+    @Operation(summary = "Guarda varias mesas a la vez")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Mesas guardadas",
+                content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                        schema = @Schema(implementation = MesaDto.class))),
+        @ApiResponse(responseCode = "500", description = "Error interno",
+                content = @Content(mediaType = MediaType.TEXT_PLAIN))
+    })
+    public Response guardarMesas(@Parameter(description = "Listado de mesas") List<MesaDto> mesas) {
         try {
             Respuesta res = mesaService.guardarMesas(mesas);
             if (!res.getEstado()) {
@@ -206,7 +284,19 @@ public class MesaController {
     @Path("/mesa/{id}/estado/{estado}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response actualizarEstadoMesa(@PathParam("id") Long id, @PathParam("estado") String estado) {
+    @Operation(summary = "Actualiza el estado de una mesa")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Mesa actualizada",
+                content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                        schema = @Schema(implementation = MesaDto.class))),
+        @ApiResponse(responseCode = "400", description = "Cambios inválidos",
+                content = @Content(mediaType = MediaType.APPLICATION_JSON)),
+        @ApiResponse(responseCode = "500", description = "Error interno",
+                content = @Content(mediaType = MediaType.TEXT_PLAIN))
+    })
+    public Response actualizarEstadoMesa(
+            @Parameter(description = "ID de la mesa", example = "15") @PathParam("id") Long id,
+            @Parameter(description = "Nuevo estado", example = "OCUPADA") @PathParam("estado") String estado) {
         try {
             Respuesta res = mesaService.actualizarEstadoMesa(id, estado);
             if (!res.getEstado()) {
@@ -229,7 +319,16 @@ public class MesaController {
     @Path("/mesa/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response eliminarMesa(@PathParam("id") Long id) {
+    @Operation(summary = "Elimina una mesa")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Mesa eliminada"),
+        @ApiResponse(responseCode = "400", description = "No se pudo eliminar",
+                content = @Content(mediaType = MediaType.APPLICATION_JSON)),
+        @ApiResponse(responseCode = "500", description = "Error interno",
+                content = @Content(mediaType = MediaType.TEXT_PLAIN))
+    })
+    public Response eliminarMesa(@Parameter(description = "ID de la mesa", example = "12")
+                                 @PathParam("id") Long id) {
         try {
             Respuesta res = mesaService.eliminarMesa(id);
             if (!res.getEstado()) {

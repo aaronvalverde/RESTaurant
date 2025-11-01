@@ -1,5 +1,6 @@
 package cr.ac.una.wsrestuna.model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -7,18 +8,28 @@ import java.util.Date;
  * DTO para transferir datos de secciones/salones
  * Incluye la imagen asociada opcionalmente
  */
+@Schema(description = "Sección o salón del restaurante")
 public class SeccionDto implements Serializable {
     
     private static final long serialVersionUID = 1L;
     
+    @Schema(description = "Identificador de la sección", example = "1")
     private Long idSeccion;
+    @Schema(description = "Nombre de la sección", example = "Salón Principal")
     private String nombre;
+    @Schema(description = "Tipo de sección", example = "SALON")
     private String tipo;
+    @Schema(description = "Indica si cobra impuesto", allowableValues = {"S", "N"}, example = "S")
     private String cobraImpuesto;
+    @Schema(description = "Estado de la sección", allowableValues = {"A", "I"}, example = "A")
     private String estado;
+    @Schema(description = "Fecha de creación", example = "2024-05-30T00:00:00Z")
     private Date fechaCreacion;
+    @Schema(description = "ID del archivo de imagen asociado", example = "10")
     private Long idArchivoImagen;
+    @Schema(description = "Archivo de imagen asociado")
     private ArchivoDto imagen;
+    @Schema(description = "Indica si el registro fue modificado", example = "false")
     private Boolean modificado;
     
     public SeccionDto() {

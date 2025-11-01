@@ -1,5 +1,6 @@
 package cr.ac.una.wsrestuna.model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -7,15 +8,22 @@ import java.util.Date;
  * DTO para transferir datos de archivos entre cliente y servidor
  * Utiliza Base64 para el contenido binario
  */
+@Schema(description = "Archivo almacenado en el sistema")
 public class ArchivoDto implements Serializable {
     
     private static final long serialVersionUID = 1L;
     
+    @Schema(description = "Identificador del archivo", example = "5")
     private Long idArchivo;
+    @Schema(description = "Nombre original del archivo", example = "logo.png")
     private String nombreArchivo;
+    @Schema(description = "Tipo MIME del archivo", example = "image/png")
     private String tipoMime;
+    @Schema(description = "Tamaño del archivo en bytes", example = "102400")
     private Long tamanio;
+    @Schema(description = "Contenido codificado en Base64")
     private String contenidoBase64; // Contenido en Base64 para JSON
+    @Schema(description = "Fecha de subida", example = "2024-05-30T00:00:00Z")
     private Date fechaSubida;
     
     public ArchivoDto() {
