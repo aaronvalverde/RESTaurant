@@ -166,4 +166,61 @@ public class CierreCajaDto extends RecursiveTreeObject<CierreCajaDto> implements
         this.observaciones.set(observaciones);
     }
 
+    // Property methods for JavaFX binding
+    public LongProperty idCierreCajaProperty() {
+        return idCierreCaja;
+    }
+
+    public LongProperty idUsuarioCajeroProperty() {
+        return idUsuarioCajero;
+    }
+
+    public ObjectProperty<Date> fechaAperturaProperty() {
+        return fechaApertura;
+    }
+
+    public ObjectProperty<Date> fechaCierreProperty() {
+        return fechaCierre;
+    }
+
+    public LongProperty efectivoInicialProperty() {
+        return efectivoInicial;
+    }
+
+    public LongProperty efectivoSistemaProperty() {
+        return efectivoSistema;
+    }
+
+    public LongProperty efectivoDeclaradoProperty() {
+        return efectivoDeclarado;
+    }
+
+    public LongProperty tarjetaSistemaProperty() {
+        return tarjetaSistema;
+    }
+
+    public LongProperty tarjetaDeclaradoProperty() {
+        return tarjetaDeclarado;
+    }
+
+    public LongProperty diferenciaEfectivoProperty() {
+        return diferenciaEfectivo;
+    }
+
+    public LongProperty diferenciaTarjetaProperty() {
+        return diferenciaTarjeta;
+    }
+
+    public IntegerProperty totalFacturasProperty() {
+        return totalFacturas;
+    }
+
+    public StringProperty estadoProperty() {
+        return estado;
+    }
+
+    public StringProperty observacionesProperty() {
+        return observaciones;
+    }
+
 }
