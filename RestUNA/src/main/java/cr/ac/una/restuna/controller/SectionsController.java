@@ -22,10 +22,7 @@ import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextInputDialog;
-import javafx.scene.input.ClipboardContent;
-import javafx.scene.input.Dragboard;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.TransferMode;
+import javafx.scene.input.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import cr.ac.una.restuna.util.JsonParser;
@@ -58,6 +55,8 @@ public class SectionsController extends Controller implements Initializable {
     private AnchorPane sectionPane;
     @FXML
     private VBox editModeBox;
+    @FXML
+    private VBox btnToBill;
     
     // Servicios
     private final SeccionService seccionService = new SeccionService();
@@ -517,5 +516,15 @@ public class SectionsController extends Controller implements Initializable {
         alert.setHeaderText(null);
         alert.setContentText(mensaje);
         alert.showAndWait();
+    }
+
+    @FXML
+    void onDragDroppedToBill(DragEvent event) {
+
+    }
+
+    @FXML
+    void onDragOverToBill(DragEvent event) {
+
     }
 }
