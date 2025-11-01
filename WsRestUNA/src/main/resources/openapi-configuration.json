@@ -1,0 +1,40 @@
+{
+    "resourcePackages": [
+        "cr.ac.una.wsrestuna.controller"
+    ],
+    "prettyPrint": true,
+    "cacheTTL": 0,
+    "openAPI": {
+        "info": {
+            "version": "1.0.0",
+            "title": "REST UNA API",
+            "description": "Servicios REST del sistema RESTaurant.",
+            "contact": {
+                "name": "Equipo REST UNA",
+                "email": "soporte@restuna.local"
+            }
+        },
+        "servers": [
+            {
+                "url": "http://localhost:8080/WsRestUNA/ws"
+            },
+            {
+                "url": "https://localhost:8181/WsRestUNA/ws"
+            }
+        ],
+        "components": {
+            "securitySchemes": {
+                "jwt-auth": {
+                    "type": "http",
+                    "description": "Json Web Token (JWT)",
+                    "in": "header",
+                    "scheme": "bearer",
+                    "bearerFormat": "JWT"
+                }
+            }
+        }
+    },
+    "swaggerUi": {
+        "path": "/docs"
+    }
+}
