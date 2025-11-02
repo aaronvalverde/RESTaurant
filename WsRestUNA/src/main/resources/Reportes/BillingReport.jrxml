@@ -1,6 +1,7 @@
 <!-- Created with Jaspersoft Studio version 7.0.3.final using JasperReports Library version 7.0.3-41034ca841d452f3305ba55b9042260aaa1ab5dd  -->
 <jasperReport name="Blank_A4" language="java" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="855562f7-f5f0-41b4-bc74-f38c1d4fe466">
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<style name="Table_TH" mode="Opaque" backcolor="#F0F8FF">
 		<box>
 			<pen lineWidth="0.5" lineColor="#000000"/>
@@ -56,23 +57,35 @@
 		</box>
 	</style>
 	<dataset name="Empty Dataset1" uuid="939e252e-9c8a-4149-905f-c8e0ffec1f1e"/>
-	<parameter name="RESTUNA" class="java.lang.String"/>
 	<parameter name="FACTURA" class="java.lang.Long"/>
 	<parameter name="FECHA" class="java.util.Date"/>
 	<parameter name="CLIENTE" class="java.lang.String"/>
 	<parameter name="ADMINISTRADOR" class="java.lang.String"/>
-	<parameter name="PRODUCTO" class="java.lang.String"/>
-	<parameter name="CANTIDAD" class="java.lang.Long"/>
-	<parameter name="PRECIO_UNITARIO" class="java.lang.Long"/>
-	<parameter name="SUBTOTAL" class="java.lang.Long"/>
-	<parameter name="ImpVenta" class="java.lang.Long"/>
-	<parameter name="ImpServicio" class="java.lang.Long"/>
-	<parameter name="Descuento" class="java.lang.Long"/>
-	<parameter name="Vuelto" class="java.lang.Long"/>
-	<parameter name="Correo" class="java.lang.String"/>
-	<parameter name="Total" class="java.lang.Long"/>
 	<parameter name="FECHAF" class="java.sql.Date"/>
-	<query language="sql"><![CDATA[]]></query>
+	<query language="sql"><![CDATA[SELECT 
+    'RESTAURANTE RESTUNA' AS RESTUNA,
+    f.ID_FACTURA AS FACTURA,
+    f.FECHA_FACTURA AS FECHA,
+    f.FECHA_FACTURA AS FECHAF,
+    NVL(c.NOMBRE || ' ' || c.APELLIDOS, 'CLIENTE GENERAL') AS CLIENTE,
+    u.NOMBRE AS ADMINISTRADOR,
+    p.NOMBRE AS PRODUCTO,
+    df.CANTIDAD AS CANTIDAD,
+    df.PRECIO_UNITARIO AS "PRECIO UNITARIO",
+    df.SUBTOTAL AS SUBTOTAL,
+    f.IMPUESTO_VENTA AS ImpVenta,
+    f.IMPUESTO_SERVICIO AS ImpServicio,
+    f.DESCUENTO AS Descuento,
+    f.VUELTO AS Vuelto,
+    f.CORREO_ENVIADO AS Correo,
+    f.TOTAL AS Total
+FROM FACTURA f
+    INNER JOIN USUARIO u ON f.ID_USUARIO_CAJERO = u.ID_USUARIO
+    LEFT JOIN CLIENTE c ON f.ID_CLIENTE = c.ID_CLIENTE
+    INNER JOIN DETALLE_FACTURA df ON f.ID_FACTURA = df.ID_FACTURA
+    INNER JOIN PRODUCTO p ON df.ID_PRODUCTO = p.ID_PRODUCTO
+WHERE f.ID_FACTURA = $P{FACTURA}
+AND f.ESTADO = 'ACTIVA']]></query>
 	<field name="RESTUNA" class="java.lang.String"/>
 	<field name="FACTURA" class="java.lang.Long"/>
 	<field name="CLIENTE" class="java.lang.String"/>
@@ -106,10 +119,10 @@
 			<expression><![CDATA[$P{FACTURA}]]></expression>
 		</element>
 		<element kind="textField" uuid="1ae2cde5-975f-4481-b793-b2d74a75226e" x="110" y="60" width="100" height="30" fontSize="13.0">
-			<expression><![CDATA[$P{CLIENTE}]]></expression>
+			<expression><![CDATA[$F{CLIENTE}]]></expression>
 		</element>
 		<element kind="textField" uuid="638a0a24-377f-48cd-a685-bff589f999f3" x="110" y="100" width="170" height="30" fontSize="15.0">
-			<expression><![CDATA[$P{ADMINISTRADOR}]]></expression>
+			<expression><![CDATA[$F{ADMINISTRADOR}]]></expression>
 		</element>
 		<element kind="textField" uuid="c6cb34ec-511e-4cda-80b1-84a674268994" x="430" y="10" width="150" height="30" fontSize="16.0">
 			<expression><![CDATA[$P{FECHA}]]></expression>
@@ -141,16 +154,16 @@
 	</pageHeader>
 	<columnHeader height="80" splitType="Stretch">
 		<element kind="textField" uuid="ada822c0-b150-46b8-b2b1-bcc8b5f1fbe1" x="130" y="50" width="100" height="30" fontSize="13.0">
-			<expression><![CDATA[$P{CANTIDAD}]]></expression>
+			<expression><![CDATA[$F{CANTIDAD}]]></expression>
 		</element>
 		<element kind="textField" uuid="1bfb73e4-501c-442f-99b8-b330b7219e09" x="250" y="50" width="170" height="30" fontSize="13.0">
-			<expression><![CDATA[$P{PRECIO_UNITARIO}]]></expression>
+			<expression><![CDATA[$F{PRECIO UNITARIO}]]></expression>
 		</element>
 		<element kind="textField" uuid="7fad3984-f094-47ec-8939-d249322aaa70" x="440" y="50" width="100" height="30" fontSize="13.0">
-			<expression><![CDATA[$P{SUBTOTAL}]]></expression>
+			<expression><![CDATA[$F{SUBTOTAL}]]></expression>
 		</element>
 		<element kind="textField" uuid="cdb52df9-21ec-4adc-9d9f-1905f321c94c" x="10" y="50" width="100" height="30" fontSize="12.0">
-			<expression><![CDATA[$P{PRODUCTO}]]></expression>
+			<expression><![CDATA[$F{PRODUCTO}]]></expression>
 		</element>
 		<element kind="staticText" uuid="31690742-d2b6-42b1-867d-b1ee9a162d58" x="10" y="10" width="100" height="30" fontSize="16.0">
 			<text><![CDATA[PRODUCTO]]></text>
@@ -167,21 +180,21 @@
 		<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 	</columnHeader>
 	<detail>
-		<band height="240" splitType="Stretch">
+		<band height="238" splitType="Stretch">
 			<element kind="textField" uuid="99751bec-984b-44bc-872b-a86eaef4041a" x="380" y="10" width="100" height="30" fontSize="13.0">
-				<expression><![CDATA[$P{ImpVenta}]]></expression>
+				<expression><![CDATA[$F{ImpVenta}]]></expression>
 			</element>
 			<element kind="textField" uuid="33281d1f-24a3-4201-9b78-7056b7b11f6e" x="380" y="50" width="100" height="30" fontSize="13.0">
-				<expression><![CDATA[$P{ImpServicio}]]></expression>
+				<expression><![CDATA[$F{ImpServicio}]]></expression>
 			</element>
 			<element kind="textField" uuid="13f8eb52-63b2-4917-94a4-d3375104993c" x="380" y="130" width="100" height="30" fontSize="13.0">
-				<expression><![CDATA[$P{Vuelto}]]></expression>
+				<expression><![CDATA[$F{Vuelto}]]></expression>
 			</element>
 			<element kind="textField" uuid="2915691f-881b-478e-ba0b-7a4bb4146150" x="380" y="90" width="100" height="30" fontSize="13.0">
-				<expression><![CDATA[$P{Descuento}]]></expression>
+				<expression><![CDATA[$F{Descuento}]]></expression>
 			</element>
 			<element kind="textField" uuid="e45eafd8-4415-4a05-9192-187183586247" x="380" y="170" width="100" height="30" fontSize="13.0">
-				<expression><![CDATA[$P{Correo}]]></expression>
+				<expression><![CDATA[$F{Correo}]]></expression>
 			</element>
 			<element kind="staticText" uuid="7b9b4b89-0a0a-4124-be04-2c56bcc0f3cf" x="270" y="10" width="100" height="30" fontSize="16.0">
 				<text><![CDATA[IMPVENTA]]></text>
@@ -205,7 +218,7 @@
 				<text><![CDATA[TOTAL]]></text>
 			</element>
 			<element kind="textField" uuid="c60ffb4d-c934-4415-bcb8-9bf20acfda92" x="380" y="208" width="100" height="30" fontSize="13.0">
-				<expression><![CDATA[$P{Total}]]></expression>
+				<expression><![CDATA[$F{Total}]]></expression>
 			</element>
 			<element kind="rectangle" uuid="070e1123-9960-4c3f-8483-0c54479f7146" x="-20" y="236" width="600" height="1">
 				<pen lineColor="#E6312E"/>

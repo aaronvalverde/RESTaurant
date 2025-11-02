@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<jdbcDataAdapter class="net.sf.jasperreports.data.jdbc.JdbcDataAdapterImpl">
+	<name>New Data Adapter 1</name>
+	<classpath>C:\payara-6.2025.8\payara6\glassfish\domains\domain1\lib\ojdbc11.jar</classpath>
+	<driver>oracle.jdbc.driver.OracleDriver</driver>
+	<username>RestUNA</username>
+	<password>una</password>
+	<url>jdbc:oracle:thin:@//localhost:1521/XEPDB1</url>
+	<database></database>
+	<savePassword>true</savePassword>
+	<serverAddress></serverAddress>
+</jdbcDataAdapter>
