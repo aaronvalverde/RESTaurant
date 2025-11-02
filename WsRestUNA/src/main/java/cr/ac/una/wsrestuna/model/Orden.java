@@ -13,8 +13,7 @@ import java.util.Objects;
 /**
  * Entidad que representa una orden en el sistema.
  * 
- * @author Kendall Fonseca
- * @author Kaleb Alfaro
+ * @author gambo
  */
 @Entity
 @Table(name = "ORDEN", schema = "RESTUNA")
@@ -38,7 +37,7 @@ public class Orden implements Serializable {
     private Long idOrden;
 
     @NotNull
-    @Column(name = "FECHA_HORA", nullable = false)
+    @Column(name = "FECHA_CREACION", nullable = false)
     private LocalDateTime fechaHora;
 
     @NotNull
@@ -69,7 +68,7 @@ public class Orden implements Serializable {
 
     @NotNull
     @ManyToOne
-    @JoinColumn(name = "ID_SALONERO", referencedColumnName = "ID_USUARIO", nullable = false)
+    @JoinColumn(name = "ID_USUARIO_SALONERO", referencedColumnName = "ID_USUARIO", nullable = false)
     private Usuario salonero;
 
     @OneToMany(mappedBy = "orden", cascade = CascadeType.ALL, orphanRemoval = true)

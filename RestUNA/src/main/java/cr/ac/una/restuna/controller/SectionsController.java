@@ -135,11 +135,11 @@ public class SectionsController extends Controller implements Initializable {
             return;
         }
         
-        // Solicitar número de mesa
+        // Solicitar número o nombre de mesa
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Nueva Mesa");
         dialog.setHeaderText("Agregar nueva mesa");
-        dialog.setContentText("Número de mesa:");
+        dialog.setContentText("Número o nombre de mesa:");
         
         Optional<String> resultado = dialog.showAndWait();
         if (resultado.isEmpty() || resultado.get().trim().isEmpty()) {
@@ -148,36 +148,11 @@ public class SectionsController extends Controller implements Initializable {
         
         String numeroMesa = resultado.get().trim();
         
-        // Solicitar capacidad
-        TextInputDialog capacidadDialog = new TextInputDialog("4");
-        capacidadDialog.setTitle("Nueva Mesa");
-        capacidadDialog.setHeaderText("Capacidad de la mesa");
-        capacidadDialog.setContentText("Número de personas:");
-        
-        Optional<String> capResultado = capacidadDialog.showAndWait();
-        if (capResultado.isEmpty()) {
-            return;
-        }
-        
-        int capacidad;
-        try {
-            capacidad = Integer.parseInt(capResultado.get().trim());
-            if (capacidad < 1 || capacidad > 20) {
-                mostrarAlerta(Alert.AlertType.ERROR, "Nueva Mesa", 
-                    "La capacidad debe estar entre 1 y 20 personas");
-                return;
-            }
-        } catch (NumberFormatException e) {
-            mostrarAlerta(Alert.AlertType.ERROR, "Nueva Mesa", 
-                "Capacidad inválida");
-            return;
-        }
-        
-        // Crear mesa
+        // Crear mesa con capacidad por defecto
         MesaDto mesa = new MesaDto();
         mesa.setIdSeccion(seccionActual.getIdSeccion());
         mesa.setNumeroMesa(numeroMesa);
-        mesa.setCapacidad(capacidad);
+        mesa.setCapacidad(4); // Capacidad por defecto
         mesa.setPosicionX(100.0);
         mesa.setPosicionY(100.0);
         mesa.setEstado("LIBRE");
@@ -454,14 +429,16 @@ public class SectionsController extends Controller implements Initializable {
             btnMesa.relocate(mesa.getPosicionX(), mesa.getPosicionY());
         }
         
-        // Drag & Drop para mover
+        // Drag & Drop - en modo edición para mover, fuera de modo edición para facturar
         btnMesa.setOnDragDetected(e -> {
+            Dragboard db = btnMesa.startDragAndDrop(TransferMode.MOVE);
+            ClipboardContent content = new ClipboardContent();
             if (modoEdicion) {
-                Dragboard db = btnMesa.startDragAndDrop(TransferMode.MOVE);
-                ClipboardContent content = new ClipboardContent();
-                content.putString("mesa");
-                db.setContent(content);
+                content.putString("mover");
+            } else {
+                content.putString("facturar");
             }
+            db.setContent(content);
             e.consume();
         });
         
@@ -521,11 +498,32 @@ public class SectionsController extends Controller implements Initializable {
 
     @FXML
     void onDragDroppedToBill(DragEvent event) {
-
+        if (event.getGestureSource() instanceof MFXButton) {
+            MFXButton btnMesa = (MFXButton) event.getGestureSource();
+            MesaDto mesa = mesaButtonMap.get(btnMesa);
+            
+            if (mesa != null && "OCUPADA".equals(mesa.getEstado())) {
+                // Ir a la vista de facturación
+                FlowController.getInstance().goView("BillingView");
+                event.setDropCompleted(true);
+            } else if (mesa != null && !"OCUPADA".equals(mesa.getEstado())) {
+                mostrarAlerta(Alert.AlertType.WARNING, "Facturar Mesa", 
+                    "Solo se pueden facturar mesas ocupadas");
+                event.setDropCompleted(false);
+            }
+        }
+        event.consume();
     }
 
     @FXML
     void onDragOverToBill(DragEvent event) {
-
+        if (event.getGestureSource() instanceof MFXButton && !modoEdicion) {
+            MFXButton btnMesa = (MFXButton) event.getGestureSource();
+            MesaDto mesa = mesaButtonMap.get(btnMesa);
+            if (mesa != null && "OCUPADA".equals(mesa.getEstado())) {
+                event.acceptTransferModes(TransferMode.MOVE);
+            }
+        }
+        event.consume();
     }
 }

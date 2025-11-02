@@ -607,31 +607,6 @@ BEGIN
 END;
 /
 
--- Actualizar subtotal de orden al modificar detalles
-CREATE OR REPLACE TRIGGER tr_DetalleOrden_Actualizar_Subtotal
-AFTER INSERT OR UPDATE OR DELETE ON DETALLE_ORDEN FOR EACH ROW
-DECLARE
-  v_subtotal NUMBER(10,2);
-BEGIN
-  -- Calcular nuevo subtotal de la orden
-  IF INSERTING OR UPDATING THEN
-    SELECT NVL(SUM(SUBTOTAL), 0) INTO v_subtotal 
-    FROM DETALLE_ORDEN WHERE ID_ORDEN = :NEW.ID_ORDEN;
-    
-    UPDATE ORDEN SET SUBTOTAL = v_subtotal 
-    WHERE ID_ORDEN = :NEW.ID_ORDEN;
-  END IF;
-  
-  IF DELETING THEN
-    SELECT NVL(SUM(SUBTOTAL), 0) INTO v_subtotal 
-    FROM DETALLE_ORDEN WHERE ID_ORDEN = :OLD.ID_ORDEN;
-    
-    UPDATE ORDEN SET SUBTOTAL = v_subtotal 
-    WHERE ID_ORDEN = :OLD.ID_ORDEN;
-  END IF;
-END;
-/
-
 -- Actualizar contador de ventas de productos
 CREATE OR REPLACE TRIGGER tr_DetalleFactura_Contador_Ventas
 AFTER INSERT ON DETALLE_FACTURA FOR EACH ROW

@@ -2,6 +2,7 @@ package cr.ac.una.restuna.controller;
 
 import cr.ac.una.restuna.model.DetalleOrdenDto;
 import cr.ac.una.restuna.model.ProductoDto;
+import cr.ac.una.restuna.util.BillingCalculator;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -82,7 +83,12 @@ public class OrderItemController extends Controller implements Initializable {
         detail.setCantidad(quantity);
         detail.setSubtotal(price * quantity);
         lbQuantity.setText(quantity.toString());
-        lbTotal.setText(String.format("$ %.2f", detail.getSubtotal()));
+        
+        // Usar el método formatearPrecio del controlador padre que ya hace la conversión
+        if (parentController != null) {
+            lbTotal.setText(parentController.formatearPrecio(detail.getSubtotal()));
+        }
+        
         parentController.updateTotals();
     }
 
@@ -97,13 +103,28 @@ public class OrderItemController extends Controller implements Initializable {
         this.detail.setSubtotal(product.getPrecio());
 
         lbItemName.setText(product.getNombre());
-        lbItemPrice.setText(String.format("₡ %.2f", product.getPrecio()));
         lbQuantity.setText(quantity.toString());
-        lbTotal.setText(String.format("₡ %.2f", product.getPrecio()));
+        
+        // Los precios se actualizarán cuando se llame setParentController -> updatePriceDisplay
     }
 
     public void setParentController(OrderController controller) {
         this.parentController = controller;
+        // Actualizar precios con la moneda correcta
+        updatePriceDisplay();
+    }
+    
+    /**
+     * Actualizar visualización de precios con la moneda actual
+     */
+    public void updatePriceDisplay() {
+        if (parentController == null || price == null) {
+            return;
+        }
+        
+        // Usar el método formatearPrecio del controlador padre que ya hace la conversión
+        lbItemPrice.setText(parentController.formatearPrecio(price));
+        lbTotal.setText(parentController.formatearPrecio(price * quantity));
     }
 
     public void OrderItemController(String itemName, Double itemPrice) {

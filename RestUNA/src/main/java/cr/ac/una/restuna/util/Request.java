@@ -349,6 +349,83 @@ public class Request {
             return json.toString();
         }
 
+        // Soportar OrdenDto
+        if (objeto instanceof cr.ac.una.restuna.model.OrdenDto) {
+            cr.ac.una.restuna.model.OrdenDto orden = (cr.ac.una.restuna.model.OrdenDto) objeto;
+            StringBuilder json = new StringBuilder();
+            json.append('{');
+            
+            // ID (si existe)
+            if (orden.getIdOrden() != null && orden.getIdOrden() > 0) {
+                json.append("\"idOrden\":").append(orden.getIdOrden()).append(',');
+            }
+            
+            // ID Mesa
+            if (orden.getIdMesa() != null) {
+                json.append("\"idMesa\":").append(orden.getIdMesa()).append(',');
+            }
+            
+            // ID Sección
+            if (orden.getIdSeccion() != null) {
+                json.append("\"idSeccion\":").append(orden.getIdSeccion()).append(',');
+            }
+            
+            // ID Cliente
+            if (orden.getIdCliente() != null) {
+                json.append("\"idCliente\":").append(orden.getIdCliente()).append(',');
+            }
+            
+            // ID Salonero
+            if (orden.getIdSalonero() != null) {
+                json.append("\"idSalonero\":").append(orden.getIdSalonero()).append(',');
+            }
+            
+            // Número Orden
+            if (orden.getNumeroOrden() != null && !orden.getNumeroOrden().isEmpty()) {
+                json.append("\"numeroOrden\":\"").append(escaparJson(orden.getNumeroOrden())).append("\",");
+            }
+            
+            // Estado
+            if (orden.getEstado() != null) {
+                json.append("\"estado\":\"").append(escaparJson(orden.getEstado())).append("\",");
+            }
+            
+            // Observaciones
+            if (orden.getObservaciones() != null && !orden.getObservaciones().isEmpty()) {
+                json.append("\"observaciones\":\"").append(escaparJson(orden.getObservaciones())).append("\",");
+            }
+            
+            // Fecha Hora (formato ISO LocalDateTime sin nanosegundos)
+            if (orden.getFechaHora() != null) {
+                // Truncar a segundos para coincidir con formato backend: yyyy-MM-dd'T'HH:mm:ss
+                java.time.LocalDateTime fechaTruncada = orden.getFechaHora().truncatedTo(java.time.temporal.ChronoUnit.SECONDS);
+                json.append("\"fechaHora\":\"").append(fechaTruncada.toString()).append("\",");
+            }
+            
+            // Subtotal
+            if (orden.getSubtotal() != null) {
+                json.append("\"subtotal\":").append(orden.getSubtotal()).append(',');
+            }
+            
+            // Detalles (lista de DetalleOrdenDto)
+            if (orden.getDetalles() != null && !orden.getDetalles().isEmpty()) {
+                json.append("\"detalles\":[");
+                for (int i = 0; i < orden.getDetalles().size(); i++) {
+                    if (i > 0) json.append(',');
+                    json.append(convertirDetalleOrdenDtoAJson(orden.getDetalles().get(i)));
+                }
+                json.append("],");
+            }
+            
+            // Eliminar la última coma si existe
+            if (json.charAt(json.length() - 1) == ',') {
+                json.setLength(json.length() - 1);
+            }
+            
+            json.append('}');
+            return json.toString();
+        }
+
         // Soportar List (para listas de DTOs como List<ParametroDto>)
         if (objeto instanceof java.util.List) {
             java.util.List<?> lista = (java.util.List<?>) objeto;
@@ -423,6 +500,57 @@ public class Request {
         // Modificado
         if (parametro.getModificado() != null) {
             json.append("\"modificado\":").append(parametro.getModificado()).append(',');
+        }
+        
+        // Eliminar la última coma si existe
+        if (json.charAt(json.length() - 1) == ',') {
+            json.setLength(json.length() - 1);
+        }
+        
+        json.append('}');
+        return json.toString();
+    }
+    
+    /**
+     * Convierte un DetalleOrdenDto a JSON
+     */
+    private String convertirDetalleOrdenDtoAJson(cr.ac.una.restuna.model.DetalleOrdenDto detalle) {
+        StringBuilder json = new StringBuilder();
+        json.append('{');
+        
+        // ID (si existe)
+        if (detalle.getIdDetalleOrden() != null && detalle.getIdDetalleOrden() > 0) {
+            json.append("\"idDetalleOrden\":").append(detalle.getIdDetalleOrden()).append(',');
+        }
+        
+        // ID Orden
+        if (detalle.getIdOrden() != null) {
+            json.append("\"idOrden\":").append(detalle.getIdOrden()).append(',');
+        }
+        
+        // ID Producto (obligatorio)
+        if (detalle.getIdProducto() != null) {
+            json.append("\"idProducto\":").append(detalle.getIdProducto()).append(',');
+        }
+        
+        // Cantidad (obligatoria)
+        if (detalle.getCantidad() != null) {
+            json.append("\"cantidad\":").append(detalle.getCantidad()).append(',');
+        }
+        
+        // Precio Unitario (obligatorio)
+        if (detalle.getPrecioUnitario() != null) {
+            json.append("\"precioUnitario\":").append(detalle.getPrecioUnitario()).append(',');
+        }
+        
+        // Subtotal (obligatorio)
+        if (detalle.getSubtotal() != null) {
+            json.append("\"subtotal\":").append(detalle.getSubtotal()).append(',');
+        }
+        
+        // Observaciones
+        if (detalle.getObservaciones() != null && !detalle.getObservaciones().isEmpty()) {
+            json.append("\"observaciones\":\"").append(escaparJson(detalle.getObservaciones())).append("\",");
         }
         
         // Eliminar la última coma si existe

@@ -193,23 +193,42 @@ public class OrderController extends Controller implements Initializable {
             return;
         }
         
+        // DEBUG: Verificar modos activos
+        System.out.println("DEBUG - billingMode: " + billingMode);
+        System.out.println("DEBUG - sectionMode: " + sectionMode);
+        System.out.println("DEBUG - quickBillingMode: " + quickBillingMode);
+        System.out.println("DEBUG - currentSection: " + currentSection);
+        System.out.println("DEBUG - currentMesa: " + currentMesa);
+        
         // Establecer datos de la orden
         if (!billingMode && !sectionMode && !quickBillingMode) {
             // Modo normal - requiere sección y mesa
-            if (cmbSection.getSelectedItem() == null) {
+            if (currentSection == null) {
                 mostrarAlerta("Sección requerida", "Debe seleccionar una sección");
                 return;
             }
-            if (cmbTable.getSelectedItem() == null) {
+            if (currentMesa == null) {
                 mostrarAlerta("Mesa requerida", "Debe seleccionar una mesa");
                 return;
             }
-            currentOrder.setIdMesa(cmbTable.getSelectedItem().getIdMesa());
-            currentOrder.setIdSeccion(cmbSection.getSelectedItem().getIdSeccion());
+            currentOrder.setIdMesa(currentMesa.getIdMesa());
+            currentOrder.setIdSeccion(currentSection.getIdSeccion());
         } else if (sectionMode && currentMesa != null) {
             // Modo desde vista de sección
             currentOrder.setIdMesa(currentMesa.getIdMesa());
             currentOrder.setIdSeccion(currentMesa.getIdSeccion());
+        } else if (billingMode && currentMesa != null && currentSection != null) {
+            // Modo facturación - desde BillingView
+            currentOrder.setIdMesa(currentMesa.getIdMesa());
+            currentOrder.setIdSeccion(currentSection.getIdSeccion());
+        } else if (quickBillingMode) {
+            // Modo facturación rápida - no requiere mesa
+            // Solo requiere sección
+            if (currentSection == null) {
+                mostrarAlerta("Sección requerida", "Debe seleccionar una sección");
+                return;
+            }
+            currentOrder.setIdSeccion(currentSection.getIdSeccion());
         }
         
         // Establecer usuario (salonero actual)
@@ -221,20 +240,50 @@ public class OrderController extends Controller implements Initializable {
         currentOrder.setFechaHora(java.time.LocalDateTime.now());
         
         // Estado inicial
-        currentOrder.setEstado("PENDIENTE");
+        currentOrder.setEstado("ABIERTA");
+        
+        // Calcular subtotal de la orden
+        currentOrder.calcularSubtotal();
         
         // Guardar en background
         javafx.concurrent.Task<Respuesta> task = new javafx.concurrent.Task<Respuesta>() {
             @Override
             protected Respuesta call() throws Exception {
-                return ordenService.guardarOrden(currentOrder);
+                // Guardar la orden
+                Respuesta respuesta = ordenService.guardarOrden(currentOrder);
+                
+                // Si se guardó exitosamente, actualizar estado de la mesa a OCUPADA
+                if (respuesta.getEstado() && currentOrder.getIdMesa() != null) {
+                    MesaDto mesa = null;
+                    
+                    // Obtener la mesa actual
+                    if (currentMesa != null && currentMesa.getIdMesa().equals(currentOrder.getIdMesa())) {
+                        mesa = currentMesa;
+                    } else {
+                        // Buscar en el combo
+                        for (MesaDto m : mesas) {
+                            if (m.getIdMesa().equals(currentOrder.getIdMesa())) {
+                                mesa = m;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    // Actualizar estado a OCUPADA
+                    if (mesa != null) {
+                        mesa.setEstado("OCUPADA");
+                        mesaService.guardarMesa(mesa);
+                    }
+                }
+                
+                return respuesta;
             }
             
             @Override
             protected void succeeded() {
                 Respuesta respuesta = getValue();
                 if (respuesta.getEstado()) {
-                    mostrarAlerta("Éxito", "Orden guardada correctamente");
+                    mostrarAlerta("Éxito", "Orden guardada correctamente. La mesa ahora está ocupada.");
                     limpiarOrden();
                 } else {
                     mostrarAlerta("Error", "Error al guardar la orden: " + respuesta.getMensaje());
@@ -258,6 +307,16 @@ public class OrderController extends Controller implements Initializable {
         orderContainer.getChildren().clear();
         txfClientName.clear();
         updateTotals();
+    }
+    
+    /**
+     * Obtener la moneda actual configurada
+     */
+    public String getMonedaActual() {
+        if (parametrosMap != null && parametrosMap.containsKey("MONEDA")) {
+            return parametrosMap.get("MONEDA").getValor();
+        }
+        return "CRC - Colón"; // Default
     }
     
     /**
@@ -384,6 +443,21 @@ public class OrderController extends Controller implements Initializable {
     }
 
     private void addProduct(ProductoDto product) {
+        // Validar que haya mesa seleccionada
+        boolean mesaValida = false;
+        
+        if (quickBillingMode) {
+            // En modo quick billing no requiere mesa
+            mesaValida = true;
+        } else if (currentMesa != null) {
+            // Si hay mesa (de cualquier modo), es válido
+            mesaValida = true;
+        }
+        
+        if (!mesaValida) {
+            mostrarAlerta("Mesa requerida", "Debe seleccionar una sección y mesa antes de agregar productos");
+            return;
+        }
 
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/cr/ac/una/restuna/view/OrderItem.fxml"));
@@ -392,6 +466,9 @@ public class OrderController extends Controller implements Initializable {
             OrderItemController itemController = loader.getController();
             itemController.selectProduct(product);
             itemController.setParentController(this);
+            
+            // Guardar referencia del controlador en el nodo para actualizaciones futuras
+            itemNode.setUserData(itemController);
 
             orderContainer.getChildren().add(itemNode);
 
@@ -429,6 +506,21 @@ public class OrderController extends Controller implements Initializable {
         lbVAT.setText(result.getFormattedIva());
         lbServiceTax.setText(result.getFormattedServiceTax());
         lbTotal.setText(result.getFormattedTotal());
+        
+        // Actualizar precios de todos los items en la vista
+        actualizarPreciosItems();
+    }
+    
+    /**
+     * Actualizar la visualización de precios de todos los items de la orden
+     */
+    private void actualizarPreciosItems() {
+        for (javafx.scene.Node node : orderContainer.getChildren()) {
+            Object userData = node.getUserData();
+            if (userData instanceof OrderItemController) {
+                ((OrderItemController) userData).updatePriceDisplay();
+            }
+        }
     }
     
     /**
@@ -577,6 +669,12 @@ public class OrderController extends Controller implements Initializable {
             @Override
             public MesaDto fromString(String string) {
                 return null;
+            }
+        });
+        
+        cmbTable.selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                currentMesa = newVal;
             }
         });
         
@@ -939,7 +1037,7 @@ public class OrderController extends Controller implements Initializable {
     /**
      * Formatear precio con moneda actual y conversión usando BillingCalculator
      */
-    private String formatearPrecio(Double precioCRC) {
+    public String formatearPrecio(Double precioCRC) {
         if (precioCRC == null) {
             precioCRC = 0.0;
         }
@@ -967,7 +1065,7 @@ public class OrderController extends Controller implements Initializable {
      * Para USD: 1/520 (convierte CRC a USD)
      * Para EUR: 1/570 (convierte CRC a EUR)
      */
-    private java.math.BigDecimal obtenerTipoCambio(String moneda) {
+    public java.math.BigDecimal obtenerTipoCambio(String moneda) {
         if (moneda == null || moneda.startsWith("CRC")) {
             return java.math.BigDecimal.ONE; // Sin conversión para CRC
         }

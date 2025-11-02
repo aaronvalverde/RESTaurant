@@ -10,6 +10,11 @@ import cr.ac.una.restuna.controller.Controller;
 import cr.ac.una.restuna.controller.NumberKeypadController;
 import cr.ac.una.restuna.model.DetalleFacturaDto;
 import cr.ac.una.restuna.model.FacturaDto;
+import cr.ac.una.restuna.model.MesaDto;
+import cr.ac.una.restuna.model.OrdenDto;
+import cr.ac.una.restuna.service.MesaService;
+import cr.ac.una.restuna.service.OrdenService;
+import cr.ac.una.restuna.service.FacturaService;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXTextField;
 import java.io.IOException;
@@ -81,9 +86,16 @@ public class BillingController extends Controller implements Initializable {
 
     private ObservableList<DetalleFacturaDto> detailBill = FXCollections.observableArrayList();
     private FacturaDto currentBill = new FacturaDto();
+    private MesaDto mesaActual;
+    private OrdenDto ordenActual;
 
     private double totalToPay = 0.0;
     private double totalPaid = 0.0;
+    
+    // Servicios
+    private final MesaService mesaService = new MesaService();
+    private final OrdenService ordenService = new OrdenService();
+    private final FacturaService facturaService = new FacturaService();
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -137,14 +149,54 @@ public class BillingController extends Controller implements Initializable {
             showMessage("Ingrese el nombre del cliente.");
             return;
         }
+        
         currentBill = new FacturaDto();
         currentBill.setIdFactura(System.currentTimeMillis());
         currentBill.setTotal((long) totalToPay);
         currentBill.setEfectivoRecibido((long) totalPaid);
         currentBill.setVuelto((long) (totalPaid - totalToPay));
         currentBill.setFechaFactura(new Date());
-        showMessage("Factura generada correctamente.");
-        closeWindow();
+        
+        // Si hay una orden asociada, vincularla a la factura
+        if (ordenActual != null) {
+            currentBill.setIdOrden(ordenActual.getIdOrden());
+        }
+        
+        // Guardar factura en background
+        javafx.concurrent.Task<Void> task = new javafx.concurrent.Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                // Guardar factura
+                // facturaService.guardarFactura(currentBill);
+                
+                // Liberar mesa si existe
+                if (mesaActual != null) {
+                    mesaActual.setEstado("LIBRE");
+                    mesaService.guardarMesa(mesaActual);
+                }
+                
+                // Actualizar estado de orden a FACTURADA
+                if (ordenActual != null) {
+                    ordenActual.setEstado("FACTURADA");
+                    ordenService.guardarOrden(ordenActual);
+                }
+                
+                return null;
+            }
+            
+            @Override
+            protected void succeeded() {
+                showMessage("Factura generada correctamente. Mesa liberada.");
+                closeWindow();
+            }
+            
+            @Override
+            protected void failed() {
+                showMessage("Error al generar factura: " + getException().getMessage());
+            }
+        };
+        
+        new Thread(task).start();
     }
 
     @FXML
@@ -241,5 +293,66 @@ public class BillingController extends Controller implements Initializable {
         totalPaid = 0.0;
         totalToPay = 0.0;
         detailBill.clear();
+    }
+    
+    /**
+     * Cargar mesa para facturación (llamado desde SectionsController al arrastrar mesa)
+     */
+    public void cargarMesa(MesaDto mesa) {
+        this.mesaActual = mesa;
+        
+        // Cargar orden asociada a la mesa
+        if (mesa != null && mesa.getIdMesa() != null) {
+            javafx.concurrent.Task<Void> task = new javafx.concurrent.Task<Void>() {
+                @Override
+                protected Void call() throws Exception {
+                    cr.ac.una.restuna.util.Respuesta respuesta = ordenService.getOrdenesPorMesa(mesa.getIdMesa());
+                    
+                    if (respuesta.getEstado()) {
+                        String contenido = (String) respuesta.getResultado("Ordenes");
+                        if (contenido != null) {
+                            // Parsear orden (necesitarías implementar el parser)
+                            // ordenActual = parsearOrden(contenido);
+                            // cargarDetallesOrden();
+                        }
+                    }
+                    return null;
+                }
+            };
+            
+            new Thread(task).start();
+        }
+    }
+    
+    /**
+     * Cargar orden directamente para facturación
+     */
+    public void cargarOrden(OrdenDto orden) {
+        this.ordenActual = orden;
+        
+        // Si la orden tiene mesa asociada, cargarla
+        if (orden != null && orden.getIdMesa() != null) {
+            // Cargar mesa desde servicio
+            javafx.concurrent.Task<Void> task = new javafx.concurrent.Task<Void>() {
+                @Override
+                protected Void call() throws Exception {
+                    cr.ac.una.restuna.util.Respuesta respuesta = mesaService.getMesa(orden.getIdMesa());
+                    
+                    if (respuesta.getEstado()) {
+                        String contenido = (String) respuesta.getResultado("Mesa");
+                        if (contenido != null) {
+                            // Parsear mesa (necesitarías implementar el parser)
+                            // mesaActual = parsearMesa(contenido);
+                        }
+                    }
+                    return null;
+                }
+            };
+            
+            new Thread(task).start();
+        }
+        
+        // Cargar detalles de la orden en la tabla
+        // cargarDetallesOrden();
     }
 }

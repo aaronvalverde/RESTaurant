@@ -209,7 +209,9 @@ public class OrdenController {
         try {
             Respuesta res = ordenService.crear(ordenDto);
             if (!res.getEstado()) {
-                return Response.status(Response.Status.BAD_REQUEST).entity(res).build();
+                return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(res.getMensaje())
+                    .build();
             }
             return Response.ok((OrdenDto) res.getResultado("Orden")).build();
         } catch (Exception ex) {
@@ -241,7 +243,9 @@ public class OrdenController {
         try {
             Respuesta res = ordenService.actualizar(ordenDto);
             if (!res.getEstado()) {
-                return Response.status(Response.Status.BAD_REQUEST).entity(res).build();
+                return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(res.getMensaje())
+                    .build();
             }
             return Response.ok((OrdenDto) res.getResultado("Orden")).build();
         } catch (Exception ex) {
