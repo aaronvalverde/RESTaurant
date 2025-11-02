@@ -95,6 +95,7 @@ public class SectionsController extends Controller implements Initializable {
      * Se configura UNA SOLA VEZ para que funcione con todas las mesas
      */
     private void configurarDragAndDrop() {
+        // Drag & drop para mover mesas en modo edición
         sectionPane.setOnDragOver(e -> {
             if (e.getGestureSource() instanceof MFXButton && modoEdicion) {
                 e.acceptTransferModes(TransferMode.MOVE);
@@ -120,6 +121,34 @@ public class SectionsController extends Controller implements Initializable {
                     // Guardar inmediatamente la nueva posición
                     guardarPosicionMesa(mesa);
                     
+                    e.setDropCompleted(true);
+                }
+            }
+            e.consume();
+        });
+        
+        // Drag & drop hacia el botón de facturar (solo mesas OCUPADAS)
+        btnToBill.setOnDragOver(e -> {
+            if (e.getGestureSource() instanceof MFXButton && !modoEdicion) {
+                MFXButton btnMesa = (MFXButton) e.getGestureSource();
+                MesaDto mesa = mesaButtonMap.get(btnMesa);
+                
+                // Solo aceptar mesas OCUPADAS
+                if (mesa != null && "OCUPADA".equals(mesa.getEstado())) {
+                    e.acceptTransferModes(TransferMode.MOVE);
+                }
+            }
+            e.consume();
+        });
+        
+        btnToBill.setOnDragDropped(e -> {
+            if (!modoEdicion && e.getGestureSource() instanceof MFXButton) {
+                MFXButton btnMesa = (MFXButton) e.getGestureSource();
+                MesaDto mesa = mesaButtonMap.get(btnMesa);
+                
+                if (mesa != null && "OCUPADA".equals(mesa.getEstado())) {
+                    // Abrir facturación con esta mesa
+                    abrirFacturacion(mesa);
                     e.setDropCompleted(true);
                 }
             }
@@ -437,17 +466,23 @@ public class SectionsController extends Controller implements Initializable {
             btnMesa.relocate(mesa.getPosicionX(), mesa.getPosicionY());
         }
         
-        // Drag & Drop - en modo edición para mover, fuera de modo edición para facturar
+        // Drag & Drop - en modo edición para mover, fuera de modo edición para facturar (solo OCUPADAS)
         btnMesa.setOnDragDetected(e -> {
-            Dragboard db = btnMesa.startDragAndDrop(TransferMode.MOVE);
-            ClipboardContent content = new ClipboardContent();
             if (modoEdicion) {
+                // En modo edición, cualquier mesa se puede mover
+                Dragboard db = btnMesa.startDragAndDrop(TransferMode.MOVE);
+                ClipboardContent content = new ClipboardContent();
                 content.putString("mover");
-            } else {
+                db.setContent(content);
+                e.consume();
+            } else if ("OCUPADA".equals(mesa.getEstado())) {
+                // Fuera de modo edición, solo mesas OCUPADAS se pueden arrastrar a facturar
+                Dragboard db = btnMesa.startDragAndDrop(TransferMode.MOVE);
+                ClipboardContent content = new ClipboardContent();
                 content.putString("facturar");
+                db.setContent(content);
+                e.consume();
             }
-            db.setContent(content);
-            e.consume();
         });
         
         // Click para seleccionar
@@ -503,6 +538,14 @@ public class SectionsController extends Controller implements Initializable {
         alert.setContentText(mensaje);
         alert.showAndWait();
     }
+    
+    /**
+     * Abre la vista de facturación con la mesa seleccionada
+     */
+    private void abrirFacturacion(MesaDto mesa) {
+        // TODO: Implementar lógica para pasar la orden de la mesa a BillingController
+        FlowController.getInstance().goView(AppKeys.BILLING);
+    }
 
     @FXML
     void onDragDroppedToBill(DragEvent event) {
@@ -511,8 +554,8 @@ public class SectionsController extends Controller implements Initializable {
             MesaDto mesa = mesaButtonMap.get(btnMesa);
             
             if (mesa != null && "OCUPADA".equals(mesa.getEstado())) {
-                // Ir a la vista de facturación
-                FlowController.getInstance().goView("BillingView");
+                // Abrir facturación con la mesa seleccionada
+                abrirFacturacion(mesa);
                 event.setDropCompleted(true);
             } else if (mesa != null && !"OCUPADA".equals(mesa.getEstado())) {
                 mostrarAlerta(Alert.AlertType.WARNING, "Facturar Mesa", 
