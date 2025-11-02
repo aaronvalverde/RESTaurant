@@ -100,10 +100,24 @@ public class OrdenService {
                         "El ID de la mesa es requerido", "ID nulo");
             }
             
-            TypedQuery<Orden> query = em.createNamedQuery("Orden.findByMesa", Orden.class);
-            query.setParameter("idMesa", idMesa);
-            query.setParameter("estado", estado);
-            List<Orden> ordenes = query.getResultList();
+            TypedQuery<Orden> query;
+            List<Orden> ordenes;
+            
+            if (estado == null || estado.trim().isEmpty()) {
+                // Si no se especifica estado, buscar todas las órdenes de la mesa
+                query = em.createQuery(
+                    "SELECT o FROM Orden o WHERE o.mesa.idMesa = :idMesa ORDER BY o.fechaHora DESC", 
+                    Orden.class);
+                query.setParameter("idMesa", idMesa);
+                ordenes = query.getResultList();
+            } else {
+                // Si se especifica estado, usar el NamedQuery
+                query = em.createNamedQuery("Orden.findByMesa", Orden.class);
+                query.setParameter("idMesa", idMesa);
+                query.setParameter("estado", estado);
+                ordenes = query.getResultList();
+            }
+            
             List<OrdenDto> ordenesDto = ordenes.stream()
                     .map(OrdenDto::new)
                     .collect(Collectors.toList());
@@ -124,10 +138,24 @@ public class OrdenService {
                         "El ID de la sección es requerido", "ID nulo");
             }
             
-            TypedQuery<Orden> query = em.createNamedQuery("Orden.findBySeccion", Orden.class);
-            query.setParameter("idSeccion", idSeccion);
-            query.setParameter("estado", estado);
-            List<Orden> ordenes = query.getResultList();
+            TypedQuery<Orden> query;
+            List<Orden> ordenes;
+            
+            if (estado == null || estado.trim().isEmpty()) {
+                // Si no se especifica estado, buscar todas las órdenes de la sección
+                query = em.createQuery(
+                    "SELECT o FROM Orden o WHERE o.seccion.idSeccion = :idSeccion ORDER BY o.fechaHora DESC", 
+                    Orden.class);
+                query.setParameter("idSeccion", idSeccion);
+                ordenes = query.getResultList();
+            } else {
+                // Si se especifica estado, usar el NamedQuery
+                query = em.createNamedQuery("Orden.findBySeccion", Orden.class);
+                query.setParameter("idSeccion", idSeccion);
+                query.setParameter("estado", estado);
+                ordenes = query.getResultList();
+            }
+            
             List<OrdenDto> ordenesDto = ordenes.stream()
                     .map(OrdenDto::new)
                     .collect(Collectors.toList());

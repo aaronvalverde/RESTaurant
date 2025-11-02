@@ -312,6 +312,243 @@ public class OrderController extends Controller implements Initializable {
     }
     
     /**
+     * Cargar la orden activa de una mesa ocupada
+     */
+    private void cargarOrdenDeMesa(Long idMesa) {
+        javafx.concurrent.Task<Void> task = new javafx.concurrent.Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                System.out.println("DEBUG - Cargando orden de mesa ID: " + idMesa);
+                Respuesta respuesta = ordenService.getOrdenesPorMesa(idMesa);
+                
+                javafx.application.Platform.runLater(() -> {
+                    if (respuesta.getEstado()) {
+                        String jsonArray = (String) respuesta.getResultado("Ordenes");
+                        System.out.println("DEBUG - JSON de órdenes recibido: " + jsonArray);
+                        
+                        if (jsonArray != null && !jsonArray.trim().isEmpty() && !jsonArray.equals("[]")) {
+                            // Parsear las órdenes
+                            List<String> objetosOrdenes = JsonParser.extraerObjetosDelArray(jsonArray);
+                            System.out.println("DEBUG - Número de órdenes encontradas: " + objetosOrdenes.size());
+                            
+                            // Buscar la orden ABIERTA (activa)
+                            boolean ordenEncontrada = false;
+                            for (String objetoJson : objetosOrdenes) {
+                                String estado = JsonParser.extraerValor(objetoJson, "estado");
+                                System.out.println("DEBUG - Orden con estado: " + estado);
+                                if ("ABIERTA".equals(estado)) {
+                                    // Parsear la orden completa
+                                    parsearYCargarOrden(objetoJson);
+                                    ordenEncontrada = true;
+                                    break;
+                                }
+                            }
+                            
+                            if (!ordenEncontrada) {
+                                System.out.println("DEBUG - No se encontró ninguna orden ABIERTA");
+                                mostrarAlerta("Mesa Ocupada", 
+                                    "Esta mesa está marcada como OCUPADA pero no tiene una orden activa.\n" +
+                                    "Puede crear una nueva orden o cambiar el estado de la mesa.");
+                            }
+                        } else {
+                            System.out.println("DEBUG - Array de órdenes vacío o nulo");
+                            mostrarAlerta("Mesa Ocupada", 
+                                "Esta mesa está marcada como OCUPADA pero no tiene órdenes registradas.\n" +
+                                "Puede crear una nueva orden o cambiar el estado de la mesa a LIBRE.");
+                        }
+                    } else {
+                        System.out.println("DEBUG - Error al obtener órdenes: " + respuesta.getMensaje());
+                        mostrarAlerta("Error", "Error al cargar órdenes: " + respuesta.getMensaje());
+                    }
+                });
+                
+                return null;
+            }
+        };
+        
+        new Thread(task).start();
+    }
+    
+    /**
+     * Parsear y cargar una orden desde JSON
+     */
+    private void parsearYCargarOrden(String objetoJson) {
+        try {
+            System.out.println("DEBUG - Parseando orden: " + objetoJson);
+            
+            // Crear nueva orden con los datos parseados
+            OrdenDto orden = new OrdenDto();
+            orden.setIdOrden(JsonParser.extraerValorLong(objetoJson, "idOrden"));
+            orden.setIdMesa(JsonParser.extraerValorLong(objetoJson, "idMesa"));
+            orden.setIdSeccion(JsonParser.extraerValorLong(objetoJson, "idSeccion"));
+            
+            // Intentar ambos nombres de campo para el salonero
+            Long idSalonero = JsonParser.extraerValorLong(objetoJson, "idSalonero");
+            if (idSalonero == null) {
+                idSalonero = JsonParser.extraerValorLong(objetoJson, "idUsuarioSalonero");
+            }
+            orden.setIdSalonero(idSalonero);
+            orden.setEstado(JsonParser.extraerValor(objetoJson, "estado"));
+            
+            // Parsear fecha - intentar ambos nombres de campo
+            String fechaStr = JsonParser.extraerValor(objetoJson, "fecha");
+            if (fechaStr == null || fechaStr.isEmpty()) {
+                fechaStr = JsonParser.extraerValor(objetoJson, "fechaCreacion");
+            }
+            if (fechaStr != null && !fechaStr.isEmpty()) {
+                orden.setFechaHora(java.time.LocalDateTime.parse(fechaStr));
+            }
+            
+            System.out.println("DEBUG - Orden parseada - ID: " + orden.getIdOrden() + ", Mesa: " + orden.getIdMesa());
+            
+            // Parsear detalles - usar extraerArray para obtener el array anidado
+            String detallesJson = JsonParser.extraerArray(objetoJson, "detalles");
+            System.out.println("DEBUG - Detalles JSON: " + detallesJson);
+            
+            if (detallesJson != null && !detallesJson.equals("[]")) {
+                List<String> objetosDetalles = JsonParser.extraerObjetosDelArray(detallesJson);
+                System.out.println("DEBUG - Número de detalles: " + objetosDetalles.size());
+                List<DetalleOrdenDto> detalles = new ArrayList<>();
+                
+                for (String detalleJson : objetosDetalles) {
+                    System.out.println("DEBUG - Parseando detalle: " + detalleJson);
+                    DetalleOrdenDto detalle = new DetalleOrdenDto();
+                    detalle.setIdDetalleOrden(JsonParser.extraerValorLong(detalleJson, "idDetalleOrden"));
+                    detalle.setIdProducto(JsonParser.extraerValorLong(detalleJson, "idProducto"));
+                    
+                    Integer cantidad = JsonParser.extraerValorInteger(detalleJson, "cantidad");
+                    if (cantidad != null) {
+                        detalle.setCantidad(cantidad);
+                    }
+                    
+                    String precioStr = JsonParser.extraerValorNumerico(detalleJson, "precioUnitario");
+                    if (precioStr != null) {
+                        detalle.setPrecioUnitario(Double.parseDouble(precioStr));
+                    }
+                    
+                    String subtotalStr = JsonParser.extraerValorNumerico(detalleJson, "subtotal");
+                    if (subtotalStr != null) {
+                        detalle.setSubtotal(Double.parseDouble(subtotalStr));
+                    }
+                    
+                    detalle.setObservaciones(JsonParser.extraerValor(detalleJson, "observaciones"));
+                    
+                    System.out.println("DEBUG - Detalle parseado - Producto ID: " + detalle.getIdProducto() + 
+                                     ", Cantidad: " + detalle.getCantidad() + ", Precio: " + detalle.getPrecioUnitario());
+                    
+                    detalles.add(detalle);
+                }
+                
+                orden.setDetalles(detalles);
+            }
+            
+            // Establecer como orden actual
+            currentOrder = orden;
+            System.out.println("DEBUG - Orden establecida como actual con " + 
+                             (orden.getDetalles() != null ? orden.getDetalles().size() : 0) + " detalles");
+            
+            // Cargar detalles en la interfaz
+            orderContainer.getChildren().clear();
+            System.out.println("DEBUG - OrderContainer limpiado, cargando productos...");
+            
+            for (DetalleOrdenDto detalle : orden.getDetalles()) {
+                // Buscar el producto correspondiente y agregar a la interfaz
+                cargarProductoYAgregarDetalle(detalle);
+            }
+            
+            // Actualizar totales
+            updateTotals();
+            
+            // Mostrar mensaje
+            mostrarAlerta("Orden Cargada", "Se ha cargado la orden existente de esta mesa. Puede modificarla o ir a facturar.");
+            
+        } catch (Exception e) {
+            System.err.println("Error parseando orden: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Cargar producto y agregar detalle a la interfaz
+     */
+    private void cargarProductoYAgregarDetalle(DetalleOrdenDto detalle) {
+        System.out.println("DEBUG - Cargando producto ID: " + detalle.getIdProducto() + " con cantidad: " + detalle.getCantidad());
+        
+        // Buscar el producto en la lista actual de productos
+        javafx.concurrent.Task<Void> task = new javafx.concurrent.Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                System.out.println("DEBUG - Solicitando producto al servicio...");
+                // Obtener el producto desde el servicio
+                Respuesta respuesta = productoService.getProducto(detalle.getIdProducto());
+                
+                javafx.application.Platform.runLater(() -> {
+                    System.out.println("DEBUG - Respuesta del servicio - Estado: " + respuesta.getEstado());
+                    if (respuesta.getEstado()) {
+                        // El servicio puede devolver ProductoDto directamente o como JSON String
+                        Object resultado = respuesta.getResultado("Producto");
+                        ProductoDto producto = null;
+                        
+                        if (resultado instanceof ProductoDto) {
+                            // Si es directamente un ProductoDto
+                            producto = (ProductoDto) resultado;
+                            System.out.println("DEBUG - Producto recibido directamente: " + producto.getNombre());
+                        } else if (resultado instanceof String) {
+                            // Si es JSON String
+                            String productoJson = (String) resultado;
+                            System.out.println("DEBUG - Producto JSON recibido: " + productoJson);
+                            producto = parsearProducto(productoJson);
+                        }
+                        
+                        if (producto != null) {
+                            System.out.println("DEBUG - Producto listo: " + producto.getNombre());
+                            // Agregar el producto a la orden las veces que indica cantidad
+                            Integer cantidad = detalle.getCantidad() != null ? detalle.getCantidad() : 1;
+                            System.out.println("DEBUG - Agregando producto " + cantidad + " veces");
+                            for (int i = 0; i < cantidad; i++) {
+                                addProduct(producto);
+                            }
+                            System.out.println("DEBUG - Producto agregado exitosamente");
+                        } else {
+                            System.err.println("DEBUG - Error: no se pudo obtener el producto");
+                        }
+                    } else {
+                        System.err.println("DEBUG - Error en respuesta del servicio: " + respuesta.getMensaje());
+                    }
+                });
+                
+                return null;
+            }
+        };
+        
+        new Thread(task).start();
+    }
+    
+    /**
+     * Parsear un producto desde JSON
+     */
+    private ProductoDto parsearProducto(String objetoJson) {
+        try {
+            ProductoDto producto = new ProductoDto();
+            producto.setIdProducto(JsonParser.extraerValorLong(objetoJson, "idProducto"));
+            producto.setNombre(JsonParser.extraerValor(objetoJson, "nombre"));
+            producto.setDescripcion(JsonParser.extraerValor(objetoJson, "descripcion"));
+            
+            String precioStr = JsonParser.extraerValorNumerico(objetoJson, "precio");
+            if (precioStr != null) {
+                producto.setPrecio(Double.parseDouble(precioStr));
+            }
+            
+            producto.setEstado(JsonParser.extraerValor(objetoJson, "estado"));
+            
+            return producto;
+        } catch (Exception e) {
+            System.err.println("Error parseando producto: " + e.getMessage());
+            return null;
+        }
+    }
+    
+    /**
      * Obtener la moneda actual configurada
      */
     public String getMonedaActual() {
@@ -665,7 +902,13 @@ public class OrderController extends Controller implements Initializable {
         cmbTable.setConverter(new javafx.util.StringConverter<MesaDto>() {
             @Override
             public String toString(MesaDto mesa) {
-                return mesa != null ? mesa.getNumeroMesa() : "";
+                if (mesa == null) return "";
+                // Agregar distintivo si la mesa está ocupada
+                String estado = mesa.getEstado();
+                if ("OCUPADA".equals(estado)) {
+                    return mesa.getNumeroMesa() + " (OCUPADA)";
+                }
+                return mesa.getNumeroMesa();
             }
             
             @Override
@@ -677,6 +920,13 @@ public class OrderController extends Controller implements Initializable {
         cmbTable.selectedItemProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null) {
                 currentMesa = newVal;
+                // Si la mesa está ocupada, cargar su orden
+                if ("OCUPADA".equals(newVal.getEstado())) {
+                    cargarOrdenDeMesa(newVal.getIdMesa());
+                } else {
+                    // Si es una mesa libre, limpiar la orden
+                    limpiarOrden();
+                }
             }
         });
         
@@ -804,7 +1054,8 @@ public class OrderController extends Controller implements Initializable {
         
         for (String objetoJson : objetosMesas) {
             MesaDto mesa = parsearMesa(objetoJson);
-            if (mesa != null && "LIBRE".equals(mesa.getEstado())) {
+            // Mostrar todas las mesas (LIBRE y OCUPADA)
+            if (mesa != null && ("LIBRE".equals(mesa.getEstado()) || "OCUPADA".equals(mesa.getEstado()))) {
                 mesas.add(mesa);
             }
         }

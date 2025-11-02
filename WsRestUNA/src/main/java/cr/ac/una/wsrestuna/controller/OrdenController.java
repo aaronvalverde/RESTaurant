@@ -125,6 +125,38 @@ public class OrdenController {
     }
     
     @GET
+    @Path("/ordenes/mesa/{idMesa}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(summary = "Lista todas las órdenes de una mesa")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Listado de órdenes",
+                content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                        schema = @Schema(implementation = OrdenDto.class))),
+        @ApiResponse(responseCode = "500", description = "Error interno",
+                content = @Content(mediaType = MediaType.TEXT_PLAIN))
+    })
+    public Response getAllOrdenesPorMesa(@Parameter(description = "ID de la mesa", example = "5")
+                                      @PathParam("idMesa") Long idMesa) {
+        try {
+            // Obtener todas las órdenes de la mesa (sin filtro de estado)
+            Respuesta res = ordenService.obtenerPorMesa(idMesa, null);
+            if (!res.getEstado()) {
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(res).build();
+            }
+            
+            @SuppressWarnings("unchecked")
+            List<OrdenDto> ordenes = (List<OrdenDto>) res.getResultado("Ordenes");
+            return Response.ok(ordenes).build();
+        } catch (Exception ex) {
+            LOG.log(Level.SEVERE, "Error obteniendo órdenes por mesa.", ex);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity("Error obteniendo órdenes: " + ex.getMessage())
+                .build();
+        }
+    }
+    
+    @GET
     @Path("/ordenes/mesa/{idMesa}/{estado}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
@@ -136,9 +168,9 @@ public class OrdenController {
         @ApiResponse(responseCode = "500", description = "Error interno",
                 content = @Content(mediaType = MediaType.TEXT_PLAIN))
     })
-    public Response getOrdenesPorMesa(@Parameter(description = "ID de la mesa", example = "5")
+    public Response getOrdenesPorMesaYEstado(@Parameter(description = "ID de la mesa", example = "5")
                                       @PathParam("idMesa") Long idMesa,
-                                      @Parameter(description = "Estado de la orden", example = "PENDIENTE")
+                                      @Parameter(description = "Estado de la orden", example = "ABIERTA")
                                       @PathParam("estado") String estado) {
         try {
             Respuesta res = ordenService.obtenerPorMesa(idMesa, estado);

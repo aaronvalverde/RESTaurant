@@ -160,4 +160,55 @@ public class JsonParser {
 
         return objetos;
     }
+    
+    /**
+     * Extrae un array anidado de un objeto JSON
+     * @param json El objeto JSON como String
+     * @param campo El nombre del campo que contiene el array
+     * @return El array JSON como String o null si no se encuentra
+     */
+    public static String extraerArray(String json, String campo) {
+        String patron = "\"" + campo + "\"\\s*:\\s*(\\[.*?\\])";
+        Pattern pattern = Pattern.compile(patron, Pattern.DOTALL);
+        Matcher matcher = pattern.matcher(json);
+        
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+        
+        // Si el patrón simple no funciona, buscar con balanceo de corchetes
+        int startIndex = json.indexOf("\"" + campo + "\"");
+        if (startIndex == -1) {
+            return null;
+        }
+        
+        // Buscar el inicio del array después del campo
+        int arrayStart = json.indexOf('[', startIndex);
+        if (arrayStart == -1) {
+            return null;
+        }
+        
+        // Balancear corchetes para encontrar el final del array
+        int nivel = 0;
+        int arrayEnd = -1;
+        
+        for (int i = arrayStart; i < json.length(); i++) {
+            char c = json.charAt(i);
+            if (c == '[') {
+                nivel++;
+            } else if (c == ']') {
+                nivel--;
+                if (nivel == 0) {
+                    arrayEnd = i;
+                    break;
+                }
+            }
+        }
+        
+        if (arrayEnd != -1) {
+            return json.substring(arrayStart, arrayEnd + 1);
+        }
+        
+        return null;
+    }
 }
