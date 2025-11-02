@@ -269,8 +269,10 @@ public class OrderController extends Controller implements Initializable {
                         }
                     }
                     
-                    // Actualizar estado a OCUPADA
+                    // DEBUG: Ver coordenadas antes de guardar
                     if (mesa != null) {
+                        System.out.println("DEBUG - Mesa antes de guardar: " + mesa.getNumeroMesa() + 
+                                         " posX=" + mesa.getPosicionX() + " posY=" + mesa.getPosicionY());
                         mesa.setEstado("OCUPADA");
                         mesaService.guardarMesa(mesa);
                     }
@@ -818,6 +820,17 @@ public class OrderController extends Controller implements Initializable {
             mesa.setIdSeccion(JsonParser.extraerValorLong(objetoJson, "idSeccion"));
             mesa.setNumeroMesa(JsonParser.extraerValor(objetoJson, "numeroMesa"));
             mesa.setEstado(JsonParser.extraerValor(objetoJson, "estado"));
+            
+            // Parsear coordenadas de posición
+            String posXStr = JsonParser.extraerValorNumerico(objetoJson, "posicionX");
+            if (posXStr != null && !posXStr.isEmpty()) {
+                mesa.setPosicionX(Double.parseDouble(posXStr));
+            }
+            
+            String posYStr = JsonParser.extraerValorNumerico(objetoJson, "posicionY");
+            if (posYStr != null && !posYStr.isEmpty()) {
+                mesa.setPosicionY(Double.parseDouble(posYStr));
+            }
             
             return mesa;
         } catch (Exception e) {
