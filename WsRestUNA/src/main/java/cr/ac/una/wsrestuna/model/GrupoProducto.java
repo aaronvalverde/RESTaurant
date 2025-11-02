@@ -12,7 +12,7 @@ import java.util.Date;
  * Mapea la tabla GRUPO_PRODUCTO
  */
 @Entity
-@Table(name = "GRUPO_PRODUCTO")
+@Table(name = "GRUPO_PRODUCTO", schema = "RESTUNA")
 @NamedQueries({
     @NamedQuery(name = "GrupoProducto.findAll", query = "SELECT g FROM GrupoProducto g ORDER BY g.ordenVisualizacion, g.nombre"),
     @NamedQuery(name = "GrupoProducto.findActivos", query = "SELECT g FROM GrupoProducto g WHERE g.estado = 'A' ORDER BY g.ordenVisualizacion, g.nombre"),

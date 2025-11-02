@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
  * Representa usuarios del sistema: administradores, cajeros y saloneros
  */
 @Entity
-@Table(name = "USUARIO")
+@Table(name = "USUARIO", schema = "RESTUNA")
 @NamedQueries({
     @NamedQuery(name = "Usuario.findAll", query = "SELECT u FROM Usuario u ORDER BY u.usuario"),
     @NamedQuery(name = "Usuario.findByUsuario", query = "SELECT u FROM Usuario u WHERE u.usuario = :usuario"),

@@ -9,7 +9,7 @@ import java.util.Date;
  * Mapea la tabla ARCHIVO
  */
 @Entity
-@Table(name = "ARCHIVO")
+@Table(name = "ARCHIVO", schema = "RESTUNA")
 @NamedQueries({
     @NamedQuery(name = "Archivo.findAll", query = "SELECT a FROM Archivo a"),
     @NamedQuery(name = "Archivo.findById", query = "SELECT a FROM Archivo a WHERE a.idArchivo = :idArchivo")

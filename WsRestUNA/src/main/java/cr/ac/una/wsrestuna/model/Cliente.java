@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
  * @author gambo
  */
 @Entity
-@Table(name = "CLIENTE")
+@Table(name = "CLIENTE", schema = "RESTUNA")
 @NamedQueries({
     @NamedQuery(name = "Cliente.findAll", query = "SELECT c FROM Cliente c ORDER BY c.nombre"),
     @NamedQuery(name = "Cliente.findByCedula", query = "SELECT c FROM Cliente c WHERE c.cedula = :cedula"),

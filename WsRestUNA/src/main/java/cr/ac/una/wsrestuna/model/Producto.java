@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
  * Entidad JPA para la tabla PRODUCTO
  */
 @Entity
-@Table(name = "PRODUCTO")
+@Table(name = "PRODUCTO", schema = "RESTUNA")
 @NamedQueries({
     @NamedQuery(name = "Producto.findAll", 
                 query = "SELECT p FROM Producto p ORDER BY p.idGrupoProducto.ordenVisualizacion, p.nombre"),

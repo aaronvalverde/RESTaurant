@@ -10,7 +10,7 @@ import java.time.LocalDate;
  * Representa parámetros de configuración del sistema por usuario
  */
 @Entity
-@Table(name = "PARAMETRO")
+@Table(name = "PARAMETRO", schema = "RESTUNA")
 @NamedQueries({
     @NamedQuery(name = "Parametro.findAll", query = "SELECT p FROM Parametro p ORDER BY p.clave"),
     @NamedQuery(name = "Parametro.findByUsuario", 

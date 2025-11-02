@@ -730,7 +730,7 @@ COMMENT ON COLUMN ORDEN.ID_CLIENTE           IS 'Cliente asociado a la orden (op
 COMMENT ON COLUMN ORDEN.ID_USUARIO_SALONERO  IS 'Salonero que toma la orden (FK).';
 COMMENT ON COLUMN ORDEN.NUMERO_ORDEN         IS 'Número único de orden generado automáticamente.';
 COMMENT ON COLUMN ORDEN.FECHA_CREACION       IS 'Fecha y hora de creación de la orden.';
-COMMENT ON ORDEN.ESTADO               IS 'Estado: ABIERTA, FACTURADA, CANCELADA.';
+COMMENT ON COLUMN ORDEN.ESTADO               IS 'Estado: ABIERTA, FACTURADA, CANCELADA.';
 COMMENT ON COLUMN ORDEN.OBSERVACIONES        IS 'Observaciones especiales de la orden.';
 COMMENT ON COLUMN ORDEN.SUBTOTAL             IS 'Subtotal calculado automáticamente de los detalles.';
 

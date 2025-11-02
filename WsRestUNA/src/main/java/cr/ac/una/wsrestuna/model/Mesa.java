@@ -15,7 +15,7 @@ import java.util.Date;
  * Mapea la tabla MESA
  */
 @Entity
-@Table(name = "MESA")
+@Table(name = "MESA", schema = "RESTUNA")
 @NamedQueries({
     @NamedQuery(name = "Mesa.findAll", query = "SELECT m FROM Mesa m ORDER BY m.seccion.nombre, m.numeroMesa"),
     @NamedQuery(name = "Mesa.findBySeccion", query = "SELECT m FROM Mesa m WHERE m.seccion.idSeccion = :idSeccion ORDER BY m.numeroMesa"),

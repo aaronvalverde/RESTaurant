@@ -12,7 +12,7 @@ import java.util.Date;
  * Mapea la tabla SECCION
  */
 @Entity
-@Table(name = "SECCION")
+@Table(name = "SECCION", schema = "RESTUNA")
 @NamedQueries({
     @NamedQuery(name = "Seccion.findAll", query = "SELECT s FROM Seccion s ORDER BY s.nombre"),
     @NamedQuery(name = "Seccion.findActivas", query = "SELECT s FROM Seccion s WHERE s.estado = 'A' ORDER BY s.nombre"),
