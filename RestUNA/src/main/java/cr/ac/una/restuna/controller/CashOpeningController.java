@@ -1,6 +1,8 @@
 package cr.ac.una.restuna.controller;
 
 import cr.ac.una.restuna.model.CierreCajaDto;
+import cr.ac.una.restuna.model.ParametroDto;
+import cr.ac.una.restuna.service.ParametroService;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXTextField;
 import java.io.IOException;
@@ -40,6 +42,9 @@ public class CashOpeningController extends Controller implements Initializable {
     private Boolean onKeypadMode = false;
     public static CierreCajaDto activeOpening;
 
+    private final ParametroService parametroService =  new ParametroService();
+    
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         loadKeypad();
@@ -79,10 +84,38 @@ public class CashOpeningController extends Controller implements Initializable {
             activeOpening.setFechaApertura(new Date());
             activeOpening.setEfectivoInicial((long) initAmount);
             activeOpening.setEstado("A");
+            
+            saveParameters(initAmount);
+            
             showMessage("Caja abierta con éxito.");
             closeWindow();
         } catch (NumberFormatException e) {
             showMessage("Ingrese un monto válido.");
+        }
+    }
+    
+    private void saveParameters(double initAmount){
+        
+        try{
+            
+            ParametroDto status = new ParametroDto();
+            status.setClave("CAJA_ESTADO");
+            status.setValor("A");
+            
+            ParametroDto date = new ParametroDto();
+            date.setClave("FECHA_APERTURA");
+            date.setValor(new Date().toString());
+            
+            ParametroDto amount = new ParametroDto();
+            amount.setClave("MONTO_INICIAL");
+            amount.setValor(String.valueOf(initAmount));
+            
+            parametroService.guardarParametro(status);
+            parametroService.guardarParametro(date);
+            parametroService.guardarParametro(amount);
+            
+        }catch(Exception e){
+            showMessage("Error al guardar parametros");
         }
     }
 

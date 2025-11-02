@@ -9,6 +9,8 @@ import com.jfoenix.controls.RecursiveTreeItem;
 import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
 import cr.ac.una.restuna.model.CierreCajaDto;
 import cr.ac.una.restuna.model.DetalleFacturaDto;
+import cr.ac.una.restuna.model.ParametroDto;
+import cr.ac.una.restuna.service.ParametroService;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXScrollPane;
 import io.github.palexdev.materialfx.controls.MFXTextField;
@@ -70,8 +72,12 @@ public class CashClosingController extends Controller implements Initializable {
 
     private ObservableList<CierreCajaDto> closingBox = FXCollections.observableArrayList();
     private CierreCajaDto currentClosing = new CierreCajaDto();
+    
     @FXML
     private MFXButton btnPayPal;
+    
+    private final ParametroService parametroService = new ParametroService();
+    
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -121,11 +127,32 @@ public class CashClosingController extends Controller implements Initializable {
         currentClosing = CashOpeningController.activeOpening;
         currentClosing.setFechaCierre(new Date());
         currentClosing.setEstado("CERRADA");
+        saveParameters();
         showMessage("Cierre de caja completado correctamente.");
         CashOpeningController.activeOpening = null;
         closeWindow();
     }
 
+     private void saveParameters(){
+        
+        try{
+            
+            ParametroDto status = new ParametroDto();
+            status.setClave("CAJA_ESTADO");
+            status.setValor("A");
+            
+            ParametroDto date = new ParametroDto();
+            date.setClave("FECHA_APERTURA");
+            date.setValor(new Date().toString()); 
+            
+            parametroService.guardarParametro(status);
+            parametroService.guardarParametro(date);
+            
+        }catch(Exception e){
+            showMessage("Error al guardar parametros");
+        }
+    }
+     
     @FXML
     void onActionBtnTip(ActionEvent event) {
         setActiveButton(btnTip);
