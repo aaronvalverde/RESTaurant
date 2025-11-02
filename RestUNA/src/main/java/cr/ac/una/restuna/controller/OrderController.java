@@ -146,7 +146,8 @@ public class OrderController extends Controller implements Initializable {
         
         // Cargar datos
         cargarSecciones();
-        cargarGrupos();
+        cargarGruposAccesoRapido(); // Para barra horizontal
+        cargarTodosGrupos(); // Para combo box
         cargarTodosLosProductos();
         configurarBuscador();
         cargarParametros();
@@ -730,7 +731,10 @@ public class OrderController extends Controller implements Initializable {
     /**
      * Cargar grupos de productos
      */
-    private void cargarGrupos() {
+    /**
+     * Cargar grupos de acceso rápido para la barra horizontal
+     */
+    private void cargarGruposAccesoRapido() {
         javafx.concurrent.Task<Void> task = new javafx.concurrent.Task<Void>() {
             @Override
             protected Void call() throws Exception {
@@ -739,7 +743,7 @@ public class OrderController extends Controller implements Initializable {
                 javafx.application.Platform.runLater(() -> {
                     if (respuesta.getEstado()) {
                         String jsonArray = (String) respuesta.getResultado("GrupoProductos");
-                        procesarGrupos(jsonArray);
+                        procesarGruposAccesoRapido(jsonArray);
                     }
                 });
                 
@@ -751,10 +755,32 @@ public class OrderController extends Controller implements Initializable {
     }
     
     /**
-     * Procesar JSON de grupos
+     * Cargar todos los grupos para el combo box
      */
-    private void procesarGrupos(String jsonArray) {
-        grupos.clear();
+    private void cargarTodosGrupos() {
+        javafx.concurrent.Task<Void> task = new javafx.concurrent.Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                Respuesta respuesta = grupoProductoService.getGrupoProductosActivos();
+                
+                javafx.application.Platform.runLater(() -> {
+                    if (respuesta.getEstado()) {
+                        String jsonArray = (String) respuesta.getResultado("GrupoProductos");
+                        procesarTodosGrupos(jsonArray);
+                    }
+                });
+                
+                return null;
+            }
+        };
+        
+        new Thread(task).start();
+    }
+    
+    /**
+     * Procesar JSON de grupos de acceso rápido (para barra horizontal)
+     */
+    private void procesarGruposAccesoRapido(String jsonArray) {
         groupProduct.clear();
         
         if (jsonArray == null || jsonArray.trim().isEmpty() || jsonArray.equals("[]")) {
@@ -766,13 +792,32 @@ public class OrderController extends Controller implements Initializable {
         for (String objetoJson : objetosGrupos) {
             GrupoProductoDto grupo = parsearGrupo(objetoJson);
             if (grupo != null) {
-                grupos.add(grupo);
                 groupProduct.add(grupo);
             }
         }
         
         // Mostrar grupos en la barra horizontal
         menuGroups();
+    }
+    
+    /**
+     * Procesar JSON de todos los grupos (para combo box)
+     */
+    private void procesarTodosGrupos(String jsonArray) {
+        grupos.clear();
+        
+        if (jsonArray == null || jsonArray.trim().isEmpty() || jsonArray.equals("[]")) {
+            return;
+        }
+        
+        List<String> objetosGrupos = JsonParser.extraerObjetosDelArray(jsonArray);
+        
+        for (String objetoJson : objetosGrupos) {
+            GrupoProductoDto grupo = parsearGrupo(objetoJson);
+            if (grupo != null) {
+                grupos.add(grupo);
+            }
+        }
     }
     
     /**
