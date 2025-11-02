@@ -512,16 +512,17 @@ public class OrderController extends Controller implements Initializable {
                         
                         if (producto != null) {
                             System.out.println("DEBUG - Producto listo: " + producto.getNombre());
-                            // Agregar el producto a la interfaz UNA SOLA VEZ
-                            Integer cantidad = detalle.getCantidad() != null ? detalle.getCantidad() : 1;
-                            System.out.println("DEBUG - Cantidad del detalle: " + cantidad);
+                            System.out.println("DEBUG - Cantidad del detalle: " + detalle.getCantidad());
+                            System.out.println("DEBUG - Precio unitario: " + detalle.getPrecioUnitario());
+                            System.out.println("DEBUG - Subtotal del detalle: " + detalle.getSubtotal());
                             
                             try {
                                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/cr/ac/una/restuna/view/OrderItem.fxml"));
                                 Node itemNode = loader.load();
 
                                 OrderItemController itemController = loader.getController();
-                                itemController.selectProduct(producto);
+                                // Usar loadExistingDetail() para cargar el detalle con su cantidad específica
+                                itemController.loadExistingDetail(producto, detalle);
                                 itemController.setParentController(OrderController.this);
                                 
                                 // Agregar el detalle al currentOrder manualmente

@@ -107,6 +107,24 @@ public class OrderItemController extends Controller implements Initializable {
         
         // Los precios se actualizarán cuando se llame setParentController -> updatePriceDisplay
     }
+    
+    /**
+     * Cargar un detalle existente de la base de datos con su cantidad específica
+     * Se usa al cargar órdenes existentes desde la BD
+     */
+    public void loadExistingDetail(ProductoDto product, DetalleOrdenDto existingDetail) {
+        this.product = product;
+        this.price = product.getPrecio();
+        this.detail = existingDetail;
+        
+        // Establecer la cantidad desde el detalle existente
+        this.quantity = existingDetail.getCantidad() != null ? existingDetail.getCantidad() : 1;
+        
+        lbItemName.setText(product.getNombre());
+        lbQuantity.setText(quantity.toString());
+        
+        // Los precios se actualizarán cuando se llame setParentController -> updatePriceDisplay
+    }
 
     public void setParentController(OrderController controller) {
         this.parentController = controller;
