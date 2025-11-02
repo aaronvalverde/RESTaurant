@@ -1,0 +1,136 @@
+<!-- Created with Jaspersoft Studio version 7.0.3.final using JasperReports Library version 7.0.3-41034ca841d452f3305ba55b9042260aaa1ab5dd  -->
+<jasperReport name="CashClosingrReport" language="java" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="3f096f10-59b4-4c86-a9f4-5fdf7e7715c8">
+	<parameter name="CAJERO" class="java.lang.Long"/>
+	<parameter name="FECHAI" class="java.sql.Date"/>
+	<parameter name="DINEROI" class="java.lang.Long"/>
+	<parameter name="CARD" class="java.lang.Long"/>
+	<parameter name="CASH" class="java.lang.Long"/>
+	<parameter name="PAYPAL" class="java.lang.Long"/>
+	<parameter name="TIP" class="java.lang.Long"/>
+	<parameter name="TOTAL" class="java.lang.Long"/>
+	<parameter name="SOBRA" class="java.lang.Long"/>
+	<parameter name="FALT" class="java.lang.Long"/>
+	<parameter name="TFACTURA" class="java.lang.Integer"/>
+	<query language="sql"><![CDATA[]]></query>
+	<field name="CAJERO" class="java.lang.Long"/>
+	<field name="FECHAI" class="java.sql.Date"/>
+	<field name="DINEROI" class="java.lang.Long"/>
+	<field name="CARD" class="java.lang.Long"/>
+	<field name="CASH" class="java.lang.Long"/>
+	<field name="PAYPAL" class="java.lang.Long"/>
+	<field name="TIP" class="java.lang.Long"/>
+	<field name="TOTAL" class="java.lang.Long"/>
+	<field name="SOBRA" class="java.lang.Long"/>
+	<field name="FALT" class="java.lang.Long"/>
+	<field name="TFACTURA" class="java.lang.Integer"/>
+	<background splitType="Stretch"/>
+	<title height="112" splitType="Stretch">
+		<element kind="staticText" uuid="770cf889-84ac-4ea4-b75a-923645859068" x="200" y="30" width="164" height="30" fontSize="22.0">
+			<text><![CDATA[Cierre de Caja]]></text>
+		</element>
+		<element kind="image" uuid="ef8d5c4b-a0a5-4215-b5b4-a42aa3eacea1" x="20" y="6" width="100" height="100">
+			<expression><![CDATA["C:/Users/fonse/Pictures/images.png"]]></expression>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<property name="com.jaspersoft.studio.unit.width" value="px"/>
+		</element>
+	</title>
+	<pageHeader height="134" splitType="Stretch">
+		<element kind="staticText" uuid="ccfd85e2-035f-482c-9b10-783c1a3a3399" x="0" y="10" width="100" height="30" fontSize="16.0">
+			<text><![CDATA[CAJERO]]></text>
+		</element>
+		<element kind="staticText" uuid="d501ef4e-655e-4611-8dfc-3b0a8c1f1dd5" x="0" y="50" width="100" height="30" fontSize="16.0">
+			<text><![CDATA[Fecha Inicio]]></text>
+		</element>
+		<element kind="staticText" uuid="935c4b74-b963-4d1a-a51a-5afc28a04706" x="0" y="90" width="100" height="30" fontSize="16.0">
+			<text><![CDATA[Dinero Inicial]]></text>
+		</element>
+		<element kind="rectangle" uuid="f20f9ef5-db9f-45e0-8cf5-da5528a142c1" x="-20" y="0" width="601" height="1">
+			<pen lineColor="#EB302D"/>
+		</element>
+		<element kind="textField" uuid="4c4f4ab6-ffa0-4fca-ac9d-c75136ebcee2" x="140" y="10" width="170" height="30" fontSize="16.0">
+			<expression><![CDATA[$P{CAJERO}]]></expression>
+		</element>
+		<element kind="textField" uuid="dd81a0a4-2fce-41a4-a9c3-3d652fe2455d" x="140" y="50" width="100" height="30" fontSize="16.0">
+			<expression><![CDATA[$P{FECHAI}]]></expression>
+		</element>
+		<element kind="textField" uuid="6456fda3-75f0-453b-a000-aac29e5dbfd7" x="140" y="90" width="100" height="30" fontSize="16.0">
+			<expression><![CDATA[$P{DINEROI}]]></expression>
+		</element>
+	</pageHeader>
+	<columnHeader height="62" splitType="Stretch">
+		<element kind="staticText" uuid="0f9d5a0d-c497-443a-9442-0e938b3bf5a7" x="-10" y="30" width="120" height="30" fontSize="16.0">
+			<text><![CDATA[Metodo de Pago]]></text>
+		</element>
+		<element kind="staticText" uuid="d24959d4-2d8f-4201-8dca-a4658f8aecc1" x="130" y="32" width="100" height="30" fontSize="16.0">
+			<text><![CDATA[MONTO]]></text>
+		</element>
+		<element kind="rectangle" uuid="df8766a4-78c8-45ec-aff6-910d7c8513db" x="-20" y="7" width="601" height="1">
+			<pen lineColor="#F51F1B"/>
+		</element>
+	</columnHeader>
+	<detail>
+		<band height="166" splitType="Stretch">
+			<element kind="staticText" uuid="8bbcaf27-73ac-4f03-b7ca-ec5d28c9891c" x="-10" y="10" width="100" height="30" fontSize="16.0">
+				<text><![CDATA[CARD]]></text>
+			</element>
+			<element kind="staticText" uuid="0e1ac2ed-384c-4b15-a158-d4f233a8b9da" x="-10" y="50" width="100" height="30" fontSize="16.0">
+				<text><![CDATA[CASH]]></text>
+			</element>
+			<element kind="staticText" uuid="89015ea3-bbf6-45eb-b6cc-e8607111a271" x="-10" y="128" width="100" height="30" fontSize="16.0">
+				<text><![CDATA[TIP]]></text>
+			</element>
+			<element kind="staticText" uuid="0b947661-c601-4cc0-a90d-f08f2b178a82" x="-10" y="90" width="100" height="30" fontSize="16.0">
+				<text><![CDATA[PAYPAL]]></text>
+			</element>
+			<element kind="rectangle" uuid="a1deab76-6b38-47ff-8f54-88819a754793" x="-21" y="7" width="600" height="1">
+				<pen lineColor="#F21E1B"/>
+			</element>
+			<element kind="rectangle" uuid="e9702ef6-c660-4f4a-a5ec-aeec8c2bf10e" x="-21" y="160" width="600" height="1">
+				<pen lineColor="#F21511"/>
+			</element>
+			<element kind="rectangle" uuid="8b281cd7-c5dd-4514-9ca1-ac1e8dc9ddba" x="100" y="10" width="1" height="148">
+				<pen lineColor="#ED1B18"/>
+			</element>
+			<element kind="textField" uuid="5b83abaa-50ae-4d08-bdf1-79ff44909b4a" x="130" y="10" width="100" height="30" fontSize="16.0">
+				<expression><![CDATA[$P{CARD}]]></expression>
+			</element>
+			<element kind="textField" uuid="a8cef0d0-b84c-414c-9e4f-413e5759b71e" x="130" y="50" width="100" height="30" fontSize="16.0">
+				<expression><![CDATA[$P{CASH}]]></expression>
+			</element>
+			<element kind="textField" uuid="f09deb32-684c-4d71-84b7-46a5167c41cf" x="130" y="90" width="100" height="30" fontSize="16.0">
+				<expression><![CDATA[$P{PAYPAL}]]></expression>
+			</element>
+			<element kind="textField" uuid="e0f86a42-8242-4370-b501-3bd32255121a" x="130" y="130" width="100" height="30" fontSize="16.0">
+				<expression><![CDATA[$P{TIP}]]></expression>
+			</element>
+		</band>
+	</detail>
+	<columnFooter height="143" splitType="Stretch">
+		<element kind="staticText" uuid="772cdae8-2f60-464c-b6f3-b2e8992ff25c" x="-10" y="10" width="100" height="30" fontSize="16.0">
+			<text><![CDATA[TOTAL]]></text>
+		</element>
+		<element kind="staticText" uuid="180deb61-a4d7-4dc7-8109-cb03ccdd096e" x="130" y="10" width="100" height="30" fontSize="16.0">
+			<text><![CDATA[SOBRANTE]]></text>
+		</element>
+		<element kind="staticText" uuid="a13c105c-fa2b-4fd4-a8c4-ba0826d0e437" x="270" y="10" width="100" height="30" fontSize="16.0">
+			<text><![CDATA[FALTANTE]]></text>
+		</element>
+		<element kind="textField" uuid="3c8522bb-aea4-47ad-ba13-a3023e1346b4" x="130" y="50" width="100" height="30" fontSize="16.0">
+			<expression><![CDATA[$P{SOBRA}]]></expression>
+		</element>
+		<element kind="textField" uuid="52f831ef-a00c-4376-808f-ab2748fe0a5b" x="270" y="50" width="100" height="30" fontSize="16.0">
+			<expression><![CDATA[$P{FALT}]]></expression>
+		</element>
+		<element kind="staticText" uuid="19dc511b-46bf-4262-86f7-764bd4dec92f" x="410" y="10" width="150" height="30" fontSize="16.0">
+			<text><![CDATA[TOTAL FACTURAS]]></text>
+		</element>
+		<element kind="textField" uuid="a7d665d3-c62a-4eb7-abba-3c0168b6b034" x="-10" y="50" width="100" height="30" fontSize="16.0">
+			<expression><![CDATA[$P{TOTAL}]]></expression>
+		</element>
+		<element kind="textField" uuid="ee009fc5-a1e6-4f90-9be7-d589b04d1764" x="410" y="50" width="120" height="30" fontSize="16.0">
+			<expression><![CDATA[$P{TFACTURA}]]></expression>
+		</element>
+	</columnFooter>
+	<pageFooter height="107" splitType="Stretch"/>
+	<summary height="230" splitType="Stretch"/>
+</jasperReport>
