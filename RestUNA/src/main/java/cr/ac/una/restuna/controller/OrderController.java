@@ -405,10 +405,11 @@ public class OrderController extends Controller implements Initializable {
             String detallesJson = JsonParser.extraerArray(objetoJson, "detalles");
             System.out.println("DEBUG - Detalles JSON: " + detallesJson);
             
+            List<DetalleOrdenDto> detalles = new ArrayList<>();
+            
             if (detallesJson != null && !detallesJson.equals("[]")) {
                 List<String> objetosDetalles = JsonParser.extraerObjetosDelArray(detallesJson);
                 System.out.println("DEBUG - Número de detalles: " + objetosDetalles.size());
-                List<DetalleOrdenDto> detalles = new ArrayList<>();
                 
                 for (String detalleJson : objetosDetalles) {
                     System.out.println("DEBUG - Parseando detalle: " + detalleJson);
@@ -439,25 +440,34 @@ public class OrderController extends Controller implements Initializable {
                     detalles.add(detalle);
                 }
                 
-                orden.setDetalles(detalles);
+                // NO agregamos los detalles a la orden aquí
+                // Los detalles se agregarán cuando se carguen los productos en la interfaz
+                // orden.setDetalles(detalles);
             }
             
-            // Establecer como orden actual
-            currentOrder = orden;
-            System.out.println("DEBUG - Orden establecida como actual con " + 
-                             (orden.getDetalles() != null ? orden.getDetalles().size() : 0) + " detalles");
+            // Establecer como orden actual SIN detalles
+            // Los detalles se crearán al cargar los productos
+            currentOrder.setIdOrden(orden.getIdOrden());
+            currentOrder.setIdMesa(orden.getIdMesa());
+            currentOrder.setIdSeccion(orden.getIdSeccion());
+            currentOrder.setIdSalonero(orden.getIdSalonero());
+            currentOrder.setEstado(orden.getEstado());
+            currentOrder.setFechaHora(orden.getFechaHora());
+            
+            System.out.println("DEBUG - Orden establecida como actual, cargando " + detalles.size() + " detalles en interfaz");
             
             // Cargar detalles en la interfaz
             orderContainer.getChildren().clear();
             System.out.println("DEBUG - OrderContainer limpiado, cargando productos...");
             
-            for (DetalleOrdenDto detalle : orden.getDetalles()) {
+            // Pasar los detalles parseados para cargar los productos
+            for (DetalleOrdenDto detalle : detalles) {
                 // Buscar el producto correspondiente y agregar a la interfaz
                 cargarProductoYAgregarDetalle(detalle);
             }
             
-            // Actualizar totales
-            updateTotals();
+            // NO llamar updateTotals() aquí porque los productos se cargan de forma asíncrona
+            // updateTotals() se llamará después de que se agregue el último producto
             
             // Mostrar mensaje
             mostrarAlerta("Orden Cargada", "Se ha cargado la orden existente de esta mesa. Puede modificarla o ir a facturar.");
@@ -502,13 +512,33 @@ public class OrderController extends Controller implements Initializable {
                         
                         if (producto != null) {
                             System.out.println("DEBUG - Producto listo: " + producto.getNombre());
-                            // Agregar el producto a la orden las veces que indica cantidad
+                            // Agregar el producto a la interfaz UNA SOLA VEZ
                             Integer cantidad = detalle.getCantidad() != null ? detalle.getCantidad() : 1;
-                            System.out.println("DEBUG - Agregando producto " + cantidad + " veces");
-                            for (int i = 0; i < cantidad; i++) {
-                                addProduct(producto);
+                            System.out.println("DEBUG - Cantidad del detalle: " + cantidad);
+                            
+                            try {
+                                FXMLLoader loader = new FXMLLoader(getClass().getResource("/cr/ac/una/restuna/view/OrderItem.fxml"));
+                                Node itemNode = loader.load();
+
+                                OrderItemController itemController = loader.getController();
+                                itemController.selectProduct(producto);
+                                itemController.setParentController(OrderController.this);
+                                
+                                // Agregar el detalle al currentOrder manualmente
+                                currentOrder.getDetalles().add(detalle);
+                                
+                                // Guardar referencia del controlador en el nodo
+                                itemNode.setUserData(itemController);
+                                orderContainer.getChildren().add(itemNode);
+                                
+                                // Actualizar totales después de agregar este producto
+                                updateTotals();
+                                
+                                System.out.println("DEBUG - Producto agregado a interfaz exitosamente");
+                            } catch (Exception e) {
+                                System.err.println("DEBUG - Error cargando OrderItem: " + e.getMessage());
+                                e.printStackTrace();
                             }
-                            System.out.println("DEBUG - Producto agregado exitosamente");
                         } else {
                             System.err.println("DEBUG - Error: no se pudo obtener el producto");
                         }
