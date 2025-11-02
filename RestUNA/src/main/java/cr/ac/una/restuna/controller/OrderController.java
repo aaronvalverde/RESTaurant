@@ -456,6 +456,9 @@ public class OrderController extends Controller implements Initializable {
             
             System.out.println("DEBUG - Orden establecida como actual, cargando " + detalles.size() + " detalles en interfaz");
             
+            // Limpiar los detalles antiguos del currentOrder antes de cargar los nuevos
+            currentOrder.getDetalles().clear();
+            
             // Cargar detalles en la interfaz
             orderContainer.getChildren().clear();
             System.out.println("DEBUG - OrderContainer limpiado, cargando productos...");
