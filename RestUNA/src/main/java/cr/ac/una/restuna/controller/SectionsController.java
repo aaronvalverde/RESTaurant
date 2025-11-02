@@ -195,6 +195,14 @@ public class SectionsController extends Controller implements Initializable {
             return;
         }
         
+        // Validar que la mesa no esté ocupada
+        if ("OCUPADA".equals(mesa.getEstado())) {
+            mostrarAlerta(Alert.AlertType.ERROR, "Eliminar Mesa", 
+                "No se puede eliminar una mesa ocupada con órdenes activas. " +
+                "Primero debe facturar o cancelar las órdenes de esta mesa.");
+            return;
+        }
+        
         // Confirmar eliminación
         Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
         confirmacion.setTitle("Eliminar Mesa");
