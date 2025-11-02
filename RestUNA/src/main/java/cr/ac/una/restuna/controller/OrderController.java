@@ -37,7 +37,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.layout.GridPane;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
@@ -61,7 +62,7 @@ public class OrderController extends Controller implements Initializable {
     @FXML
     private MFXScrollPane productsRoot;
     @FXML
-    private GridPane itemsGrid;
+    private VBox productsContainer;
     @FXML
     private MFXTextField txfClientName;
     @FXML
@@ -86,6 +87,8 @@ public class OrderController extends Controller implements Initializable {
     private MFXComboBox<GrupoProductoDto> cmbGroups;
     @FXML
     private HBox groupsBox;
+    @FXML
+    private MFXButton btnClearFilters;
     @FXML
     private Label lbSubtotal;
     @FXML
@@ -121,6 +124,8 @@ public class OrderController extends Controller implements Initializable {
     private javafx.collections.ObservableList<SeccionDto> secciones = javafx.collections.FXCollections.observableArrayList();
     private javafx.collections.ObservableList<MesaDto> mesas = javafx.collections.FXCollections.observableArrayList();
     private javafx.collections.ObservableList<GrupoProductoDto> grupos = javafx.collections.FXCollections.observableArrayList();
+    private List<ProductoDto> todosLosProductos = new ArrayList<>();
+    private TableView<ProductoDto> tableProductos;
 
     /**
      * Initializes the controller class.
@@ -133,12 +138,17 @@ public class OrderController extends Controller implements Initializable {
         currentOrder = new OrdenDto();
         groupProduct = new ArrayList<>();
         
+        // Inicializar tabla de productos
+        inicializarTablaProductos();
+        
         // Configurar combos
         configurarCombos();
         
         // Cargar datos
         cargarSecciones();
         cargarGrupos();
+        cargarTodosLosProductos();
+        configurarBuscador();
         cargarParametros();
 
         updateTotals();
@@ -163,6 +173,13 @@ public class OrderController extends Controller implements Initializable {
     @FXML
     private void onActionBtnSave(ActionEvent event) {
         guardarOrden();
+    }
+    
+    @FXML
+    private void onActionBtnClearFilters(ActionEvent event) {
+        txfSearch.clear();
+        cmbGroups.clearSelection();
+        mostrarTodosLosProductos();
     }
     
     /**
@@ -288,40 +305,81 @@ public class OrderController extends Controller implements Initializable {
         billingModeBox.setVisible(!isVisible);
         billingModeBox.setManaged(!isVisible);
     }
-
+    
+    /**
+     * Inicializar tabla de productos
+     */
+    private void inicializarTablaProductos() {
+        tableProductos = new TableView<>();
+        tableProductos.setMaxHeight(Double.MAX_VALUE);
+        
+        // Columna Nombre
+        TableColumn<ProductoDto, String> colNombre = new TableColumn<>("Producto");
+        colNombre.setCellValueFactory(cellData -> {
+            String nombre = cellData.getValue().getNombreCorto() != null && 
+                          !cellData.getValue().getNombreCorto().isEmpty()
+                ? cellData.getValue().getNombreCorto()
+                : cellData.getValue().getNombre();
+            return new javafx.beans.property.SimpleStringProperty(nombre);
+        });
+        colNombre.setPrefWidth(250);
+        
+        // Columna Grupo
+        TableColumn<ProductoDto, String> colGrupo = new TableColumn<>("Grupo");
+        colGrupo.setCellValueFactory(cellData -> {
+            Long idGrupo = cellData.getValue().getIdGrupoProducto();
+            String nombreGrupo = "";
+            if (idGrupo != null) {
+                for (GrupoProductoDto grupo : grupos) {
+                    if (grupo.getIdGrupoProducto().equals(idGrupo)) {
+                        nombreGrupo = grupo.getNombre();
+                        break;
+                    }
+                }
+            }
+            return new javafx.beans.property.SimpleStringProperty(nombreGrupo);
+        });
+        colGrupo.setPrefWidth(150);
+        
+        // Columna Precio
+        TableColumn<ProductoDto, String> colPrecio = new TableColumn<>("Precio");
+        colPrecio.setCellValueFactory(cellData -> {
+            return new javafx.beans.property.SimpleStringProperty(formatearPrecio(cellData.getValue().getPrecio()));
+        });
+        colPrecio.setPrefWidth(120);
+        
+        tableProductos.getColumns().addAll(colNombre, colGrupo, colPrecio);
+        
+        // Evento de doble clic para agregar producto
+        tableProductos.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) {
+                ProductoDto selected = tableProductos.getSelectionModel().getSelectedItem();
+                if (selected != null) {
+                    addProduct(selected);
+                }
+            }
+        });
+        
+        productsContainer.getChildren().add(tableProductos);
+        VBox.setVgrow(tableProductos, javafx.scene.layout.Priority.ALWAYS);
+    }
+    
+    /**
+     * Mostrar grupos en la barra horizontal
+     */
     private void menuGroups() {
         groupsBox.getChildren().clear();
 
         for (GrupoProductoDto group : groupProduct) {
-
             MFXButton btnGroup = new MFXButton(group.getNombre());
             btnGroup.getStyleClass().add("group-button");
-            btnGroup.setOnAction(x -> showProduct(group));
+            btnGroup.setOnAction(x -> {
+                // Seleccionar grupo en combo y filtrar
+                cmbGroups.selectItem(group);
+                mostrarProductosPorGrupo(group);
+            });
             groupsBox.getChildren().add(btnGroup);
-
         }
-
-    }
-
-    private void showProduct(GrupoProductoDto group) {
-
-        itemsGrid.getChildren().clear();
-
-        int col = 0;
-        int row = 0;
-
-        for (ProductoDto product : group.getProduct()) {
-            MFXButton btnProduct = new MFXButton(product.getNombreCorto() + "\n$" + product.getPrecio());
-            btnProduct.getStyleClass().add("group-button");
-            btnProduct.setOnAction(x -> addProduct(product));
-            itemsGrid.add(btnProduct, col, row);
-            col++;
-            if (col == 3) {
-                col = 0;
-                row++;
-            }
-        }
-
     }
 
     private void addProduct(ProductoDto product) {
@@ -396,6 +454,8 @@ public class OrderController extends Controller implements Initializable {
                     if (respuesta.getEstado()) {
                         String jsonArray = (String) respuesta.getResultado("Parametros");
                         procesarParametros(jsonArray);
+                        // Actualizar tabla después de cargar parámetros
+                        actualizarTablaProductos();
                     } else {
                         System.err.println("Error cargando parámetros: " + respuesta.getMensaje());
                     }
@@ -521,6 +581,7 @@ public class OrderController extends Controller implements Initializable {
         
         // Configurar combo de grupos
         cmbGroups.setItems(grupos);
+        cmbGroups.setPromptText("Todos los grupos");
         cmbGroups.setConverter(new javafx.util.StringConverter<GrupoProductoDto>() {
             @Override
             public String toString(GrupoProductoDto grupo) {
@@ -535,7 +596,9 @@ public class OrderController extends Controller implements Initializable {
         
         cmbGroups.selectedItemProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null) {
-                cargarProductosPorGrupo(newVal);
+                mostrarProductosPorGrupo(newVal);
+            } else {
+                mostrarTodosLosProductos();
             }
         });
     }
@@ -723,9 +786,6 @@ public class OrderController extends Controller implements Initializable {
             grupo.setDescripcion(JsonParser.extraerValor(objetoJson, "descripcion"));
             grupo.setAccesoRapido(JsonParser.extraerValor(objetoJson, "accesoRapido"));
             
-            // Cargar productos del grupo
-            cargarProductosPorGrupo(grupo);
-            
             return grupo;
         } catch (Exception e) {
             System.err.println("Error parseando grupo: " + e.getMessage());
@@ -734,20 +794,19 @@ public class OrderController extends Controller implements Initializable {
     }
     
     /**
-     * Cargar productos de un grupo
+     * Cargar todos los productos activos
      */
-    private void cargarProductosPorGrupo(GrupoProductoDto grupo) {
+    private void cargarTodosLosProductos() {
         javafx.concurrent.Task<Void> task = new javafx.concurrent.Task<Void>() {
             @Override
             protected Void call() throws Exception {
-                Respuesta respuesta = productoService.getProductosPorGrupoActivos(grupo.getIdGrupoProducto());
+                Respuesta respuesta = productoService.getProductosActivos();
                 
                 javafx.application.Platform.runLater(() -> {
                     if (respuesta.getEstado()) {
                         String jsonArray = (String) respuesta.getResultado("Productos");
-                        List<ProductoDto> productos = procesarProductos(jsonArray);
-                        grupo.setProductos(productos);
-                        showProduct(grupo);
+                        todosLosProductos = procesarProductos(jsonArray);
+                        mostrarTodosLosProductos();
                     }
                 });
                 
@@ -759,7 +818,149 @@ public class OrderController extends Controller implements Initializable {
     }
     
     /**
-     * Procesar JSON de productos
+     * Configurar el buscador de productos
+     */
+    private void configurarBuscador() {
+        txfSearch.textProperty().addListener((obs, oldVal, newVal) -> {
+            filtrarProductos(newVal);
+        });
+    }
+    
+    /**
+     * Filtrar productos por texto de búsqueda
+     */
+    private void filtrarProductos(String filtro) {
+        if (filtro == null || filtro.trim().isEmpty()) {
+            // Si no hay filtro, mostrar según grupo seleccionado
+            if (cmbGroups.getSelectedItem() != null) {
+                mostrarProductosPorGrupo(cmbGroups.getSelectedItem());
+            } else {
+                mostrarTodosLosProductos();
+            }
+            return;
+        }
+        
+        String filtroLower = filtro.toLowerCase();
+        List<ProductoDto> productosFiltrados = todosLosProductos.stream()
+            .filter(p -> p.getNombre().toLowerCase().contains(filtroLower) ||
+                        (p.getNombreCorto() != null && p.getNombreCorto().toLowerCase().contains(filtroLower)))
+            .collect(java.util.stream.Collectors.toList());
+        
+        mostrarProductos(productosFiltrados);
+    }
+    
+    /**
+     * Mostrar productos de un grupo específico
+     */
+    private void mostrarProductosPorGrupo(GrupoProductoDto grupo) {
+        List<ProductoDto> productosDelGrupo = todosLosProductos.stream()
+            .filter(p -> p.getIdGrupoProducto().equals(grupo.getIdGrupoProducto()))
+            .collect(java.util.stream.Collectors.toList());
+        
+        // Aplicar filtro de búsqueda si existe
+        String filtro = txfSearch.getText();
+        if (filtro != null && !filtro.trim().isEmpty()) {
+            String filtroLower = filtro.toLowerCase();
+            productosDelGrupo = productosDelGrupo.stream()
+                .filter(p -> p.getNombre().toLowerCase().contains(filtroLower) ||
+                            (p.getNombreCorto() != null && p.getNombreCorto().toLowerCase().contains(filtroLower)))
+                .collect(java.util.stream.Collectors.toList());
+        }
+        
+        mostrarProductos(productosDelGrupo);
+    }
+    
+    /**
+     * Mostrar todos los productos
+     */
+    private void mostrarTodosLosProductos() {
+        String filtro = txfSearch.getText();
+        if (filtro != null && !filtro.trim().isEmpty()) {
+            filtrarProductos(filtro);
+        } else {
+            mostrarProductos(todosLosProductos);
+        }
+    }
+    
+    /**
+     * Mostrar una lista de productos en la tabla
+     */
+    private void mostrarProductos(List<ProductoDto> productos) {
+        javafx.collections.ObservableList<ProductoDto> items = 
+            javafx.collections.FXCollections.observableArrayList(productos);
+        tableProductos.setItems(items);
+    }
+    
+    /**
+     * Formatear precio con moneda actual y conversión usando BillingCalculator
+     */
+    private String formatearPrecio(Double precioCRC) {
+        if (precioCRC == null) {
+            precioCRC = 0.0;
+        }
+        
+        String currency = "CRC - Colón";
+        if (parametrosMap != null && parametrosMap.containsKey("MONEDA")) {
+            currency = parametrosMap.get("MONEDA").getValor();
+        }
+        
+        // Obtener tipo de cambio (multiplicador para convertir CRC a moneda destino)
+        java.math.BigDecimal tipoCambio = obtenerTipoCambio(currency);
+        
+        // Convertir precio
+        java.math.BigDecimal precioBase = java.math.BigDecimal.valueOf(precioCRC);
+        java.math.BigDecimal precioConvertido = precioBase.multiply(tipoCambio)
+            .setScale(2, java.math.RoundingMode.HALF_UP);
+        
+        // Formatear con símbolo de moneda
+        return BillingCalculator.formatCurrency(precioConvertido, currency);
+    }
+    
+    /**
+     * Obtener tipo de cambio según la moneda (devuelve multiplicador)
+     * Para CRC: 1 (sin conversión)
+     * Para USD: 1/520 (convierte CRC a USD)
+     * Para EUR: 1/570 (convierte CRC a EUR)
+     */
+    private java.math.BigDecimal obtenerTipoCambio(String moneda) {
+        if (moneda == null || moneda.startsWith("CRC")) {
+            return java.math.BigDecimal.ONE; // Sin conversión para CRC
+        }
+        
+        if (moneda.startsWith("USD")) {
+            ParametroDto usdParam = parametrosMap.get("TIPO_CAMBIO_USD");
+            if (usdParam != null && usdParam.getValorComoDecimal() != null) {
+                java.math.BigDecimal rate = java.math.BigDecimal.valueOf(usdParam.getValorComoDecimal());
+                return java.math.BigDecimal.ONE.divide(rate, 6, java.math.RoundingMode.HALF_UP);
+            }
+            // Default: 1 USD = 520 CRC, entonces para convertir CRC a USD dividimos entre 520
+            return java.math.BigDecimal.ONE.divide(java.math.BigDecimal.valueOf(520), 6, java.math.RoundingMode.HALF_UP);
+        }
+        
+        if (moneda.startsWith("EUR")) {
+            ParametroDto eurParam = parametrosMap.get("TIPO_CAMBIO_EUR");
+            if (eurParam != null && eurParam.getValorComoDecimal() != null) {
+                java.math.BigDecimal rate = java.math.BigDecimal.valueOf(eurParam.getValorComoDecimal());
+                return java.math.BigDecimal.ONE.divide(rate, 6, java.math.RoundingMode.HALF_UP);
+            }
+            // Default: 1 EUR = 570 CRC, entonces para convertir CRC a EUR dividimos entre 570
+            return java.math.BigDecimal.ONE.divide(java.math.BigDecimal.valueOf(570), 6, java.math.RoundingMode.HALF_UP);
+        }
+        
+        return java.math.BigDecimal.ONE; // Default sin conversión
+    }
+    
+    /**
+     * Actualizar la tabla de productos para reflejar cambios de moneda
+     */
+    private void actualizarTablaProductos() {
+        if (tableProductos != null) {
+            tableProductos.refresh();
+        }
+    }
+    
+    /**
+     * Procesar JSON de productos usando el constructor del DTO
      */
     private List<ProductoDto> procesarProductos(String jsonArray) {
         List<ProductoDto> productos = new ArrayList<>();
@@ -771,35 +972,16 @@ public class OrderController extends Controller implements Initializable {
         List<String> objetosProductos = JsonParser.extraerObjetosDelArray(jsonArray);
         
         for (String objetoJson : objetosProductos) {
-            ProductoDto producto = parsearProducto(objetoJson);
-            if (producto != null) {
-                productos.add(producto);
+            try {
+                ProductoDto producto = new ProductoDto(objetoJson);
+                if (producto.getIdProducto() != null) {
+                    productos.add(producto);
+                }
+            } catch (Exception e) {
+                System.err.println("Error creando ProductoDto: " + e.getMessage());
             }
         }
         
         return productos;
-    }
-    
-    /**
-     * Parsear un producto desde JSON
-     */
-    private ProductoDto parsearProducto(String objetoJson) {
-        try {
-            ProductoDto producto = new ProductoDto();
-            producto.setIdProducto(JsonParser.extraerValorLong(objetoJson, "idProducto"));
-            producto.setIdGrupoProducto(JsonParser.extraerValorLong(objetoJson, "idGrupoProducto"));
-            producto.setNombre(JsonParser.extraerValor(objetoJson, "nombre"));
-            producto.setNombreCorto(JsonParser.extraerValor(objetoJson, "nombreCorto"));
-            
-            String precioStr = JsonParser.extraerValorNumerico(objetoJson, "precio");
-            if (precioStr != null) {
-                producto.setPrecio(Double.parseDouble(precioStr));
-            }
-            
-            return producto;
-        } catch (Exception e) {
-            System.err.println("Error parseando producto: " + e.getMessage());
-            return null;
-        }
     }
 }
