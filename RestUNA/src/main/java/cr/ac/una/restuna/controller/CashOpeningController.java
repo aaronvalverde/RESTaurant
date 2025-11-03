@@ -26,11 +26,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-/**
- * FXML Controller class
- *
- * @author aaron
- */
+
 public class CashOpeningController extends Controller implements Initializable {
 
     @FXML
@@ -91,13 +87,13 @@ public class CashOpeningController extends Controller implements Initializable {
             
             Date fechaApertura = new Date();
             
-            // Crear el objeto de cierre de caja (apertura) - solo en memoria
+            
             activeOpening = new CierreCajaDto();
             activeOpening.setEfectivoInicial((long) initAmount);
             activeOpening.setFechaApertura(fechaApertura);
-            activeOpening.setEstado("A"); // Estado Abierta
+            activeOpening.setEstado("A"); 
             
-            // Guardar en parámetros del sistema
+            
             saveParameters(initAmount, fechaApertura);
             
             showMessage("Caja abierta con éxito.");
@@ -110,10 +106,10 @@ public class CashOpeningController extends Controller implements Initializable {
     private void saveParameters(double initAmount, Date fechaApertura){
         
         try{
-            // Obtener el ID del usuario actual
+            
             Long idUsuario = UserSession.getInstance().getCurrentUser().getIdUsuario();
             
-            // Obtener parámetros existentes del usuario
+            
             Respuesta resp = parametroService.getParametrosPorUsuario(idUsuario);
             List<ParametroDto> parametrosExistentes = new ArrayList<>();
             
@@ -124,7 +120,7 @@ public class CashOpeningController extends Controller implements Initializable {
                 System.err.println("Error al obtener parámetros: " + resp.getMensaje());
             }
             
-            // Buscar o crear parámetro CAJA_ESTADO
+            
             ParametroDto status = buscarParametro(parametrosExistentes, "CAJA_ESTADO");
             if (status == null) {
                 status = new ParametroDto();
@@ -134,7 +130,7 @@ public class CashOpeningController extends Controller implements Initializable {
             }
             status.setValor("A");
             
-            // Buscar o crear parámetro FECHA_APERTURA (guardar como timestamp)
+            
             ParametroDto date = buscarParametro(parametrosExistentes, "FECHA_APERTURA");
             if (date == null) {
                 date = new ParametroDto();
@@ -142,9 +138,9 @@ public class CashOpeningController extends Controller implements Initializable {
                 date.setClave("FECHA_APERTURA");
                 date.setDescripcion("Fecha de apertura de caja");
             }
-            date.setValor(String.valueOf(fechaApertura.getTime())); // Guardar timestamp en milisegundos
+            date.setValor(String.valueOf(fechaApertura.getTime())); 
             
-            // Buscar o crear parámetro MONTO_INICIAL
+            
             ParametroDto amount = buscarParametro(parametrosExistentes, "MONTO_INICIAL");
             if (amount == null) {
                 amount = new ParametroDto();
@@ -154,7 +150,7 @@ public class CashOpeningController extends Controller implements Initializable {
             }
             amount.setValor(String.valueOf(initAmount));
             
-            // Guardar cada parámetro y verificar errores
+            
             Respuesta respStatus = parametroService.guardarParametro(status);
             if (!respStatus.getEstado()) {
                 System.err.println("Error al guardar CAJA_ESTADO: " + respStatus.getMensaje());
@@ -235,7 +231,7 @@ public class CashOpeningController extends Controller implements Initializable {
             return parametros;
         }
 
-        // Extraer cada objeto del array JSON
+        
         Pattern pattern = Pattern.compile("\\{[^{}]*\\}");
         Matcher matcher = pattern.matcher(jsonArray);
 

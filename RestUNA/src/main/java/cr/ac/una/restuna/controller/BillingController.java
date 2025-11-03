@@ -37,14 +37,10 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-/**
- * FXML Controller class
- *
- * @author aaron
- */
+
 public class BillingController extends Controller implements Initializable {
 
-    //métodos de pago
+    
     @FXML
     private MFXButton btnCash;
     @FXML
@@ -60,31 +56,31 @@ public class BillingController extends Controller implements Initializable {
     private MFXButton btnCancel;
 
     @FXML
-    private MFXTextField txfAmount; //se actualiza en cada interacción con los botones de digitación.
+    private MFXTextField txfAmount; 
     @FXML
-    private TreeTableColumn<DetalleFacturaDto, String> tbcProduct; //nombre del producto
+    private TreeTableColumn<DetalleFacturaDto, String> tbcProduct; 
     @FXML
-    private TreeTableColumn<DetalleFacturaDto, Long> tbcQuantity; //cantidad del producto
+    private TreeTableColumn<DetalleFacturaDto, Long> tbcQuantity; 
     @FXML
-    private TreeTableColumn<DetalleFacturaDto, Long> tbcUnitPrice; //precio unitario del producto
+    private TreeTableColumn<DetalleFacturaDto, Long> tbcUnitPrice; 
     @FXML
-    private TreeTableColumn<DetalleFacturaDto, Long> tbcTotal; //total del producto (cantidad * precio unitario)
+    private TreeTableColumn<DetalleFacturaDto, Long> tbcTotal; 
     @FXML
     private JFXTreeTableView<DetalleFacturaDto> tbvPaymentBreakdown;
     @FXML
-    private MFXTextField txfAmountDue; //monto pendiente (se actualiza en base a la resta del monto fijo - monto pagado, si es negativo se debe actualizar el cambio y colocar este en ceros).
+    private MFXTextField txfAmountDue; 
     @FXML
-    private MFXTextField txfAmountTendered; //monto pagado (en base a lo registrado en los distintos métodos de pago).
+    private MFXTextField txfAmountTendered; 
     @FXML
-    private MFXTextField txfChange; //cambio (se actualiza si se excede del monto).
+    private MFXTextField txfChange; 
     @FXML
-    private MFXTextField txfClient; //nombre del cliente (obligatorio).
+    private MFXTextField txfClient; 
     @FXML
-    private MFXTextField txfClientEmail; //correo para enviar factura (opcional).
+    private MFXTextField txfClientEmail; 
     @FXML
-    private MFXTextField txfTotalDue; //monto a pagar (es fijo).
+    private MFXTextField txfTotalDue; 
     @FXML
-    private MFXTextField txfTotalTip; //propina. 
+    private MFXTextField txfTotalTip; 
     @FXML
     private VBox numberKeypadRoot;
     @FXML
@@ -99,12 +95,12 @@ public class BillingController extends Controller implements Initializable {
     private double totalPaid = 0.0;
     private double totalTip = 0.0;
     
-    // Control de pagos por método
-    private double cashPayment = 0.0;      // Efectivo
-    private double cardPayment = 0.0;      // Tarjeta
-    private double paypalPayment = 0.0;    // PayPal
     
-    // Servicios
+    private double cashPayment = 0.0;      
+    private double cardPayment = 0.0;      
+    private double paypalPayment = 0.0;    
+    
+    
     private final MesaService mesaService = new MesaService();
     private final OrdenService ordenService = new OrdenService();
     private final FacturaService facturaService = new FacturaService();
@@ -135,7 +131,7 @@ public class BillingController extends Controller implements Initializable {
 
     }
 
-    //métodos de pago
+    
     @FXML
     void onActionBtnCash(ActionEvent event) {
         try {
@@ -146,14 +142,14 @@ public class BillingController extends Controller implements Initializable {
                 return;
             }
             
-            // Validar si el monto cubre lo pendiente
+            
             double pendiente = totalToPay - totalPaid;
             if (amount < pendiente) {
                 showMessage("Monto insuficiente. Debe: ₡" + String.format("%.2f", pendiente));
                 return;
             }
             
-            // Reemplazar el pago anterior (no sumar)
+            
             cashPayment = amount;
             totalPaid = amount;
             
@@ -178,14 +174,14 @@ public class BillingController extends Controller implements Initializable {
                 return;
             }
             
-            // Validar si el monto cubre lo pendiente
+            
             double pendiente = totalToPay - totalPaid;
             if (amount < pendiente) {
                 showMessage("Monto insuficiente. Debe: ₡" + String.format("%.2f", pendiente));
                 return;
             }
             
-            // Reemplazar el pago anterior (no sumar)
+            
             cardPayment = amount;
             totalPaid = amount;
             
@@ -210,14 +206,14 @@ public class BillingController extends Controller implements Initializable {
                 return;
             }
             
-            // Validar si el monto cubre lo pendiente
+            
             double pendiente = totalToPay - totalPaid;
             if (amount < pendiente) {
                 showMessage("Monto insuficiente. Debe: ₡" + String.format("%.2f", pendiente));
                 return;
             }
             
-            // Reemplazar el pago anterior (no sumar)
+            
             paypalPayment = amount;
             totalPaid = amount;
             
@@ -242,7 +238,7 @@ public class BillingController extends Controller implements Initializable {
                 return;
             }
             
-            // La propina NO se suma al total a pagar, es dinero adicional que se recibe
+            
             totalTip = amount;
             
             txfTotalTip.setText(String.format("%.2f", totalTip));
@@ -255,7 +251,7 @@ public class BillingController extends Controller implements Initializable {
         }
     }
 
-    //facturar
+    
     @FXML
     void onActionBtnOk(ActionEvent event) {
 
@@ -269,17 +265,17 @@ public class BillingController extends Controller implements Initializable {
             return;
         }
         
-        // Calcular cambio
+        
         double cambio = (totalPaid > totalToPay) ? (totalPaid - totalToPay) : 0.0;
         
         currentBill = new FacturaDto();
         currentBill.setIdFactura(System.currentTimeMillis());
         
-        // Calcular subtotal e impuestos (23% total: 13% IVA + 10% servicio)
+        
         long totalLong = (long) totalToPay;
         long subtotalCalc = Math.round(totalLong / 1.23);
-        long impuestoVentaCalc = Math.round(subtotalCalc * 0.13);  // IVA 13%
-        long impuestoServicioCalc = Math.round(subtotalCalc * 0.10);  // Servicio 10%
+        long impuestoVentaCalc = Math.round(subtotalCalc * 0.13);  
+        long impuestoServicioCalc = Math.round(subtotalCalc * 0.10);  
         
         currentBill.setSubtotal(subtotalCalc);
         currentBill.setImpuestoVenta(impuestoVentaCalc);
@@ -290,18 +286,18 @@ public class BillingController extends Controller implements Initializable {
         currentBill.setVuelto((long) cambio);
         currentBill.setFechaFactura(new Date());
         
-        // Asignar el cajero actual
+        
         if (UserSession.getInstance().getCurrentUser() != null) {
             currentBill.setIdUsuarioCajero(UserSession.getInstance().getCurrentUser().getIdUsuario());
         }
         
-        // Si hay una orden asociada, vincularla a la factura
+        
         if (ordenActual != null) {
             currentBill.setIdOrden(ordenActual.getIdOrden());
             currentBill.setIdCliente(ordenActual.getIdCliente());
         }
         
-        // Imprimir resumen de pago para logs/reportes
+        
         System.out.println("=== RESUMEN DE FACTURA ===");
         System.out.println("Total a pagar: ₡" + String.format("%.2f", totalToPay));
         System.out.println("Efectivo: ₡" + String.format("%.2f", cashPayment));
@@ -313,23 +309,23 @@ public class BillingController extends Controller implements Initializable {
         System.out.println("Propina recibida: ₡" + String.format("%.2f", totalTip));
         System.out.println("==========================");
         
-        // Guardar factura en background
+        
         javafx.concurrent.Task<Void> task = new javafx.concurrent.Task<Void>() {
             @Override
             protected Void call() throws Exception {
-                // Actualizar correo del cliente si se proporcionó
+                
                 String correoCliente = txfClientEmail.getText().trim();
                 if (!correoCliente.isEmpty() && currentBill.getIdCliente() != null) {
-                    // Obtener el cliente actual
+                    
                     Respuesta respCliente = clienteService.getCliente(currentBill.getIdCliente());
                     if (respCliente.getEstado()) {
                         String clienteJson = (String) respCliente.getResultado("Cliente");
                         if (clienteJson != null && !clienteJson.trim().isEmpty()) {
-                            // Parsear cliente y actualizar correo
+                            
                             ClienteDto cliente = parsearCliente(clienteJson);
                             cliente.setCorreo(correoCliente);
                             
-                            // Guardar cliente actualizado
+                            
                             Respuesta respGuardar = clienteService.guardarCliente(cliente);
                             if (!respGuardar.getEstado()) {
                                 System.err.println("Error al guardar correo del cliente: " + respGuardar.getMensaje());
@@ -340,13 +336,13 @@ public class BillingController extends Controller implements Initializable {
                     }
                 }
                 
-                // Guardar factura
+                
                 Respuesta respFactura = facturaService.guardarFactura(currentBill);
                 if (!respFactura.getEstado()) {
                     throw new Exception("Error al guardar factura: " + respFactura.getMensaje());
                 }
                 
-                // Liberar mesa si existe
+                
                 if (mesaActual != null && mesaActual.getIdMesa() != null) {
                     mesaActual.setEstado("LIBRE");
                     Respuesta respMesa = mesaService.actualizarEstadoMesa(mesaActual.getIdMesa(), "LIBRE");
@@ -355,11 +351,11 @@ public class BillingController extends Controller implements Initializable {
                     }
                 }
                 
-                // Actualizar estado de orden a FACTURADA
+                
                 if (ordenActual != null && ordenActual.getIdOrden() != null) {
                     ordenActual.setEstado("FACTURADA");
                     
-                    // Asegurar que idSalonero esté presente (requerido por backend)
+                    
                     if (ordenActual.getIdSalonero() == null) {
                         ordenActual.setIdSalonero(UserSession.getInstance().getCurrentUser().getIdUsuario());
                     }
@@ -391,7 +387,7 @@ public class BillingController extends Controller implements Initializable {
 
     @FXML
     void onActionBtnCancel(ActionEvent event) {
-        // Limpiar datos y volver a la vista de secciones
+        
         clear();
         FlowController.getInstance().goView(AppKeys.SECTIONS);
     }
@@ -459,26 +455,24 @@ public class BillingController extends Controller implements Initializable {
         totalToPay = 0.0;
         totalTip = 0.0;
         
-        // Limpiar pagos por método
+        
         cashPayment = 0.0;
         cardPayment = 0.0;
         paypalPayment = 0.0;
         
         detailBill.clear();
         
-        // Limpiar la tabla de productos
+        
         if (tbvPaymentBreakdown != null && tbvPaymentBreakdown.getRoot() != null) {
             tbvPaymentBreakdown.getRoot().getChildren().clear();
         }
     }
     
-    /**
-     * Cargar mesa para facturación (llamado desde SectionsController al arrastrar mesa)
-     */
+    
     public void cargarMesa(MesaDto mesa) {
         this.mesaActual = mesa;
         
-        // Cargar orden asociada a la mesa
+        
         if (mesa != null && mesa.getIdMesa() != null) {
             javafx.concurrent.Task<Void> task = new javafx.concurrent.Task<Void>() {
                 @Override
@@ -488,7 +482,7 @@ public class BillingController extends Controller implements Initializable {
                     if (respuesta.getEstado()) {
                         String contenido = (String) respuesta.getResultado("Ordenes");
                         if (contenido != null && !contenido.trim().isEmpty()) {
-                            // Si es un array, extraer el primer objeto
+                            
                             if (contenido.trim().startsWith("[")) {
                                 List<String> ordenes = JsonParser.extraerObjetosDelArray(contenido);
                                 if (!ordenes.isEmpty()) {
@@ -519,13 +513,11 @@ public class BillingController extends Controller implements Initializable {
         }
     }
     
-    /**
-     * Cargar orden directamente para facturación
-     */
+    
     public void cargarOrden(OrdenDto orden) {
         this.ordenActual = orden;
         
-        // Si la orden tiene mesa asociada, cargarla
+        
         if (orden != null && orden.getIdMesa() != null) {
             javafx.concurrent.Task<Void> task = new javafx.concurrent.Task<Void>() {
                 @Override
@@ -545,13 +537,11 @@ public class BillingController extends Controller implements Initializable {
             new Thread(task).start();
         }
         
-        // Cargar detalles de la orden
+        
         cargarDatosOrden();
     }
     
-    /**
-     * Parsear JSON de orden a OrdenDto
-     */
+    
     private OrdenDto parsearOrden(String json) {
         OrdenDto orden = new OrdenDto();
         
@@ -568,7 +558,7 @@ public class BillingController extends Controller implements Initializable {
             orden.setSubtotal(Double.parseDouble(subtotalStr));
         }
         
-        // Extraer detalles de la orden
+        
         String detallesJson = JsonParser.extraerArray(json, "detalles");
         if (detallesJson != null) {
             List<String> detallesList = JsonParser.extraerObjetosDelArray(detallesJson);
@@ -581,9 +571,7 @@ public class BillingController extends Controller implements Initializable {
         return orden;
     }
     
-    /**
-     * Parsear JSON de detalle de orden a DetalleOrdenDto
-     */
+    
     private DetalleOrdenDto parsearDetalleOrden(String json) {
         DetalleOrdenDto detalle = new DetalleOrdenDto();
         
@@ -607,9 +595,7 @@ public class BillingController extends Controller implements Initializable {
         return detalle;
     }
     
-    /**
-     * Parsear JSON de mesa a MesaDto
-     */
+    
     private MesaDto parsearMesa(String json) {
         MesaDto mesa = new MesaDto();
         
@@ -625,7 +611,7 @@ public class BillingController extends Controller implements Initializable {
             try {
                 mesa.setCapacidad(Integer.parseInt(capacidadStr));
             } catch (NumberFormatException e) {
-                // Ignorar si no se puede convertir
+                
             }
         }
         
@@ -635,9 +621,7 @@ public class BillingController extends Controller implements Initializable {
         return mesa;
     }
     
-    /**
-     * Parsear JSON de cliente a ClienteDto
-     */
+    
     private cr.ac.una.restuna.model.ClienteDto parsearCliente(String json) {
         cr.ac.una.restuna.model.ClienteDto cliente = new cr.ac.una.restuna.model.ClienteDto();
         
@@ -648,26 +632,24 @@ public class BillingController extends Controller implements Initializable {
         return cliente;
     }
     
-    /**
-     * Cargar todos los datos de la orden en la vista de facturación
-     */
+    
     private void cargarDatosOrden() {
         if (ordenActual == null) {
             return;
         }
         
-        // Limpiar datos previos
+        
         clear();
         
-        // Cargar nombre del cliente si está disponible en el JSON
+        
         if (ordenActual.getNombreCliente() != null && !ordenActual.getNombreCliente().trim().isEmpty()) {
             txfClient.setText(ordenActual.getNombreCliente());
         } else if (ordenActual.getIdCliente() != null) {
-            // Si no está en el JSON, intentar cargar desde el servicio
+            
             cargarNombreCliente(ordenActual.getIdCliente());
         }
         
-        // Calcular el total de la orden desde los detalles y mostrarlos en la tabla
+        
         totalToPay = 0.0;
         
         if (ordenActual.getDetalles() != null && !ordenActual.getDetalles().isEmpty()) {
@@ -679,7 +661,7 @@ public class BillingController extends Controller implements Initializable {
                 
                 totalToPay += subtotal;
                 
-                // Crear item para la tabla con todos los datos del producto
+                
                 DetalleFacturaDto itemParaTabla = new DetalleFacturaDto();
                 itemParaTabla.setIdDetalleFactura(detalleOrden.getIdDetalleOrden());
                 itemParaTabla.setNombreProducto(nombreProducto);
@@ -687,26 +669,24 @@ public class BillingController extends Controller implements Initializable {
                 itemParaTabla.setPrecioUnitario((long) precioUnitario);
                 itemParaTabla.setSubtotal((long) subtotal);
                 
-                // Agregar a la tabla
+                
                 TreeItem<DetalleFacturaDto> item = new TreeItem<>(itemParaTabla);
                 tbvPaymentBreakdown.getRoot().getChildren().add(item);
             }
         }
         
-        // Actualizar campos de totales
+        
         txfTotalDue.setText(String.format("%.2f", totalToPay));
         txfAmountDue.setText(String.format("%.2f", totalToPay));
         txfAmountTendered.setText("0.00");
         txfChange.setText("0.00");
         txfTotalTip.setText("0.00");
         
-        // Enfocar el campo de monto para comenzar a recibir pagos
+        
         txfAmount.requestFocus();
     }
     
-    /**
-     * Cargar el nombre del cliente desde el servicio
-     */
+    
     private void cargarNombreCliente(Long idCliente) {
         javafx.concurrent.Task<String> task = new javafx.concurrent.Task<String>() {
             @Override
@@ -732,7 +712,7 @@ public class BillingController extends Controller implements Initializable {
             
             @Override
             protected void failed() {
-                // No mostrar error, el usuario puede ingresar el nombre manualmente
+                
             }
         };
         
