@@ -6,6 +6,7 @@ package cr.ac.una.restuna.service;
 
 import cr.ac.una.restuna.util.Request;
 import cr.ac.una.restuna.util.Respuesta;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +21,7 @@ public class ReporteService {
 
     private static final Logger LOG = Logger.getLogger(ReporteService.class.getName());
 
-    public Respuesta reporteProductoVendido(Date fechaInicio, Date fechaFin) {
+    public Respuesta reporteProductosVendidos(Date fechaInicio, Date fechaFin) {
 
         try {
             if (fechaInicio == null || fechaFin == null) {
@@ -28,12 +29,12 @@ public class ReporteService {
                 return new Respuesta(false, "Debe colocar las fechas", "Fechas invalidas");
 
             }
-
+            SimpleDateFormat formatDate = new SimpleDateFormat("yyyy-MM-dd");
             Map<String, Object> parametros = new HashMap<>();
-            parametros.put("fechaInicio", fechaInicio);
-            parametros.put("fechaFin", fechaFin);
+            parametros.put("fechaInicio", formatDate.format(fechaInicio));
+            parametros.put("fechaFin", formatDate.format(fechaFin));
 
-            Request request = new Request("ReporteController/reporte/productos-vendidos", "", parametros);
+            Request request = new Request("ReporteController/reporte/productos-vendidos","",parametros);
             request.get();
 
             if (request.isError()) {
@@ -59,7 +60,7 @@ public class ReporteService {
 
     }
 
-    public Respuesta reporteFactura(Date fechaInicio, Date fechaFin) {
+    public Respuesta reporteFacturas(Date fechaInicio, Date fechaFin) {
 
         try {
             if (fechaInicio == null || fechaFin == null) {
@@ -67,10 +68,10 @@ public class ReporteService {
                 return new Respuesta(false, "Debe colocar las fechas", "Fechas invalidas");
 
             }
-
+            SimpleDateFormat formatDate = new SimpleDateFormat("yyyy-MM-dd");
             Map<String, Object> parametros = new HashMap<>();
-            parametros.put("fechaInicio", fechaInicio);
-            parametros.put("fechaFin", fechaFin);
+            parametros.put("fechaInicio", formatDate.format(fechaInicio));
+            parametros.put("fechaFin", formatDate.format(fechaFin));
 
             Request request = new Request("ReporteController/reporte/facturas", "", parametros);
             request.get();

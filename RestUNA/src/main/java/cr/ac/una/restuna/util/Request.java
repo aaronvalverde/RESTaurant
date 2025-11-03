@@ -843,16 +843,55 @@ public class Request {
         return null;
     }
 
-    private String buildUrl() {
+  private String buildUrl() {
         String url = BASE_URL + endpoint;
-        if (pathTemplate != null && parametros != null) {
+
+        // PRIMERO: Manejar path parameters (como {id})
+        if (pathTemplate != null && !pathTemplate.isEmpty() && parametros != null) {
             String path = pathTemplate;
             for (Map.Entry<String, Object> entry : parametros.entrySet()) {
-                path = path.replace("{" + entry.getKey() + "}",
-                        entry.getValue() != null ? entry.getValue().toString() : "");
+                String placeholder = "{" + entry.getKey() + "}";
+                if (path.contains(placeholder)) {
+                    path = path.replace(placeholder,
+                            entry.getValue() != null ? entry.getValue().toString() : "");
+                }
             }
             url += path;
         }
+
+       
+        if (parametros != null && !parametros.isEmpty()) {
+            StringBuilder queryString = new StringBuilder();
+            boolean isFirstParam = true;
+
+            for (Map.Entry<String, Object> entry : parametros.entrySet()) {
+                // Saltar parámetros que ya fueron usados como path parameters
+                if (pathTemplate != null && pathTemplate.contains("{" + entry.getKey() + "}")) {
+                    continue;
+                }
+
+                if (isFirstParam) {
+                    queryString.append("?");
+                    isFirstParam = false;
+                } else {
+                    queryString.append("&");
+                }
+
+                try {
+                    String encodedValue = URLEncoder.encode(
+                            entry.getValue() != null ? entry.getValue().toString() : "",
+                            StandardCharsets.UTF_8.toString()
+                    );
+                    queryString.append(entry.getKey()).append("=").append(encodedValue);
+                } catch (UnsupportedEncodingException e) {
+                    queryString.append(entry.getKey()).append("=").append(entry.getValue());
+                }
+            }
+
+            url += queryString.toString();
+        }
+
+        System.out.println("URL construida: " + url);
         return url;
     }
 

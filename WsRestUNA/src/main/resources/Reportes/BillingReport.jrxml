@@ -58,7 +58,7 @@
 	</style>
 	<dataset name="Empty Dataset1" uuid="939e252e-9c8a-4149-905f-c8e0ffec1f1e"/>
 	<parameter name="FACTURA" class="java.lang.Long"/>
-	<parameter name="FECHA" class="java.util.Date"/>
+	<parameter name="FECHAI" class="java.util.Date"/>
 	<parameter name="CLIENTE" class="java.lang.String"/>
 	<parameter name="ADMINISTRADOR" class="java.lang.String"/>
 	<parameter name="FECHAF" class="java.sql.Date"/>
@@ -84,8 +84,9 @@ FROM FACTURA f
     LEFT JOIN CLIENTE c ON f.ID_CLIENTE = c.ID_CLIENTE
     INNER JOIN DETALLE_FACTURA df ON f.ID_FACTURA = df.ID_FACTURA
     INNER JOIN PRODUCTO p ON df.ID_PRODUCTO = p.ID_PRODUCTO
-WHERE f.ID_FACTURA = $P{FACTURA}
-AND f.ESTADO = 'ACTIVA']]></query>
+WHERE TRUNC(f.FECHA_FACTURA) BETWEEN $P{FECHAI} AND $P{FECHAF}
+AND f.ESTADO = 'ACTIVA'
+ORDER BY f.FECHA_FACTURA, f.ID_FACTURA]]></query>
 	<field name="RESTUNA" class="java.lang.String"/>
 	<field name="FACTURA" class="java.lang.Long"/>
 	<field name="CLIENTE" class="java.lang.String"/>
@@ -125,7 +126,7 @@ AND f.ESTADO = 'ACTIVA']]></query>
 			<expression><![CDATA[$F{ADMINISTRADOR}]]></expression>
 		</element>
 		<element kind="textField" uuid="c6cb34ec-511e-4cda-80b1-84a674268994" x="430" y="10" width="150" height="30" fontSize="16.0">
-			<expression><![CDATA[$P{FECHA}]]></expression>
+			<expression><![CDATA[$P{FECHAI}]]></expression>
 		</element>
 		<element kind="staticText" uuid="648b5f06-76d3-4520-a403-37532c268ad1" x="0" y="15" width="100" height="30" fontSize="16.0">
 			<text><![CDATA[FACTURA]]></text>

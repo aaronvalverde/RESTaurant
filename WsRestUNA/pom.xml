@@ -53,12 +53,43 @@
             <version>0.10.7</version>
             <scope>runtime</scope>
         </dependency>
-         <dependency>
-            <groupId>net.sf.jasperreports</groupId>
-            <artifactId>jasperreports</artifactId>
-            <version>7.0.3</version>
-        </dependency>
-    </dependencies>
+        
+    <!-- JasperReports core -->
+    <dependency>
+        <groupId>net.sf.jasperreports</groupId>
+        <artifactId>jasperreports</artifactId>
+        <version>7.0.3</version>
+    </dependency>
+
+    <!-- JasperReports JDT Compiler (necesario para compilar los .jrxml en tiempo de ejecución) -->
+    <dependency>
+        <groupId>net.sf.jasperreports</groupId>
+        <artifactId>jasperreports-jdt</artifactId>
+        <version>7.0.3</version>
+    </dependency>
+
+    <!-- JasperReports PDF export -->
+    <dependency>
+        <groupId>net.sf.jasperreports</groupId>
+        <artifactId>jasperreports-pdf</artifactId>
+        <version>7.0.3</version>
+    </dependency>
+
+    <!-- iText (para exportar PDFs con Jasper) -->
+    <dependency>
+        <groupId>com.lowagie</groupId>
+        <artifactId>itext</artifactId>
+        <version>4.2.2</version>
+    </dependency>
+
+    <!-- JFreeChart (para gráficos en reportes Jasper) -->
+    <dependency>
+        <groupId>org.jfree</groupId>
+        <artifactId>jfreechart</artifactId>
+        <version>1.5.4</version>
+    </dependency>
+</dependencies>
+    
     
     <build>
         <plugins>
