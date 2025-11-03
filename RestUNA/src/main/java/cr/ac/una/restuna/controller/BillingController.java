@@ -364,7 +364,8 @@ public class BillingController extends Controller implements Initializable {
             @Override
             protected void succeeded() {
                 showMessage("Factura generada correctamente. Mesa liberada.");
-                closeWindow();
+                clear();
+                FlowController.getInstance().goView(AppKeys.SECTIONS);
             }
             
             @Override
@@ -391,23 +392,6 @@ public class BillingController extends Controller implements Initializable {
             totalToPay += amount;
             txfTotalDue.setText(String.format("%.2f", totalToPay));
             updateTotal();
-        } catch (NumberFormatException e) {
-            showMessage("Ingrese un monto válido.");
-        }
-    }
-
-    private void addPay(String method) {
-        try {
-            double amount = Double.parseDouble(txfAmount.getText().trim());
-            
-            if (amount <= 0) {
-                showMessage("El monto debe ser mayor a cero.");
-                return;
-            }
-            
-            // Este método ya no se usa, los botones de pago ahora
-            // registran directamente en cashPayment, cardPayment, paypalPayment
-            
         } catch (NumberFormatException e) {
             showMessage("Ingrese un monto válido.");
         }
@@ -440,11 +424,6 @@ public class BillingController extends Controller implements Initializable {
             System.getLogger(BillingController.class.getName())
                     .log(System.Logger.Level.ERROR, (String) null, ex);
         }
-    }
-
-    private void closeWindow() {
-        Stage stage = (Stage) btnCancel.getScene().getWindow();
-        stage.close();
     }
 
     private void showMessage(String msg) {
@@ -566,7 +545,9 @@ public class BillingController extends Controller implements Initializable {
         
         orden.setIdOrden(JsonParser.extraerValorLong(json, "idOrden"));
         orden.setIdMesa(JsonParser.extraerValorLong(json, "idMesa"));
+        orden.setIdSeccion(JsonParser.extraerValorLong(json, "idSeccion"));
         orden.setIdCliente(JsonParser.extraerValorLong(json, "idCliente"));
+        orden.setIdSalonero(JsonParser.extraerValorLong(json, "idUsuarioSalonero"));
         orden.setEstado(JsonParser.extraerValorString(json, "estado"));
         orden.setNombreCliente(JsonParser.extraerValorString(json, "nombreCliente"));
         
