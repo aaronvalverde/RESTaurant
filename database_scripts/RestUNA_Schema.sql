@@ -224,7 +224,7 @@ CREATE TABLE CIERRE_CAJA(
   CONSTRAINT CHK_CIERRE_ESTADO        CHECK (ESTADO IN ('ABIERTO','CERRADO'))
 );
 
--- TURNO (Control de turnos por empleado)
+-- TURNO (Control de turnos por empleado, Primefaces)
 CREATE TABLE TURNO(
   ID_TURNO             NUMBER         NOT NULL,
   ID_USUARIO           NUMBER         NOT NULL,
