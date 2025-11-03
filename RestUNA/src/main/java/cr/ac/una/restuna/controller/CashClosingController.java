@@ -5,10 +5,7 @@ import java.util.ResourceBundle;
 
 import javafx.fxml.Initializable;
 import com.jfoenix.controls.JFXTreeTableView;
-import com.jfoenix.controls.RecursiveTreeItem;
-import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
 import cr.ac.una.restuna.model.CierreCajaDto;
-import cr.ac.una.restuna.model.DetalleFacturaDto;
 import cr.ac.una.restuna.model.ParametroDto;
 import cr.ac.una.restuna.service.ParametroService;
 import io.github.palexdev.materialfx.controls.MFXButton;
@@ -20,8 +17,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -31,7 +26,6 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;

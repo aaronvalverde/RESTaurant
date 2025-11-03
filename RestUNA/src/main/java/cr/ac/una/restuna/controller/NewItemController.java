@@ -2,15 +2,11 @@ package cr.ac.una.restuna.controller;
 
 import cr.ac.una.restuna.model.ProductoDto;
 import cr.ac.una.restuna.model.GrupoProductoDto;
-import cr.ac.una.restuna.model.SeccionDto;
 import cr.ac.una.restuna.service.GrupoProductoService;
 import cr.ac.una.restuna.service.ProductoService;
-import cr.ac.una.restuna.util.AppKeys;
-import cr.ac.una.restuna.util.FlowController;
 import cr.ac.una.restuna.util.Respuesta;
 import cr.ac.una.restuna.util.TextFieldValidator;
 import cr.ac.una.restuna.util.JsonParser;
-import java.math.BigDecimal;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXCheckbox;
 import io.github.palexdev.materialfx.controls.MFXComboBox;

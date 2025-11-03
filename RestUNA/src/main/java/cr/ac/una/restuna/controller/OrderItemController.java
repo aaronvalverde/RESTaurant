@@ -2,7 +2,6 @@ package cr.ac.una.restuna.controller;
 
 import cr.ac.una.restuna.model.DetalleOrdenDto;
 import cr.ac.una.restuna.model.ProductoDto;
-import cr.ac.una.restuna.util.BillingCalculator;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -12,7 +11,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
-import javafx.stage.Stage;
 
 /**
  * FXML Controller class
