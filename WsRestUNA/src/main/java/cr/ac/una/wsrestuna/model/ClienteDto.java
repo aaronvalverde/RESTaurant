@@ -24,30 +24,13 @@ public class ClienteDto implements Serializable {
 
     @NotBlank(message = "El nombre es obligatorio")
     @Size(min = 1, max = 100, message = "El nombre debe tener entre 1 y 100 caracteres")
-    @Schema(description = "Nombre del cliente", example = "Juan", required = true)
+    @Schema(description = "Nombre completo del cliente", example = "Juan Pérez", required = true)
     @JsonbProperty("nombre")
     private String nombre;
 
-    @NotBlank(message = "Los apellidos son obligatorios")
-    @Size(min = 1, max = 100, message = "Los apellidos deben tener entre 1 y 100 caracteres")
-    @Schema(description = "Apellidos del cliente", example = "Pérez Rodríguez", required = true)
-    @JsonbProperty("apellidos")
-    private String apellidos;
-
-    @NotBlank(message = "La cédula es obligatoria")
-    @Size(min = 9, max = 20, message = "La cédula debe tener entre 9 y 20 caracteres")
-    @Schema(description = "Cédula o identificación del cliente", example = "1-1234-5678", required = true)
-    @JsonbProperty("cedula")
-    private String cedula;
-
-    @Size(max = 20, message = "El teléfono no puede exceder 20 caracteres")
-    @Schema(description = "Teléfono del cliente", example = "8888-8888")
-    @JsonbProperty("telefono")
-    private String telefono;
-
     @Email(message = "El correo debe ser válido")
-    @Size(max = 100, message = "El correo no puede exceder 100 caracteres")
-    @Schema(description = "Correo electrónico del cliente", example = "juan.perez@email.com")
+    @Size(max = 120, message = "El correo no puede exceder 120 caracteres")
+    @Schema(description = "Correo electrónico del cliente para envío de facturas", example = "juan.perez@email.com")
     @JsonbProperty("correo")
     private String correo;
 
@@ -77,17 +60,9 @@ public class ClienteDto implements Serializable {
         if (cliente != null) {
             this.idCliente = cliente.getIdCliente();
             this.nombre = cliente.getNombre();
-            this.apellidos = cliente.getApellidos();
-            this.cedula = cliente.getCedula();
-            this.telefono = cliente.getTelefono();
             this.correo = cliente.getCorreo();
             this.fechaCreacion = cliente.getFechaCreacion();
         }
-    }
-
-    // Métodos de conveniencia
-    public String getNombreCompleto() {
-        return nombre + " " + apellidos;
     }
 
     // Getters y Setters
@@ -105,30 +80,6 @@ public class ClienteDto implements Serializable {
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
-    }
-
-    public String getApellidos() {
-        return apellidos;
-    }
-
-    public void setApellidos(String apellidos) {
-        this.apellidos = apellidos;
-    }
-
-    public String getCedula() {
-        return cedula;
-    }
-
-    public void setCedula(String cedula) {
-        this.cedula = cedula;
-    }
-
-    public String getTelefono() {
-        return telefono;
-    }
-
-    public void setTelefono(String telefono) {
-        this.telefono = telefono;
     }
 
     public String getCorreo() {
@@ -168,9 +119,6 @@ public class ClienteDto implements Serializable {
         return "ClienteDto{" +
                 "idCliente=" + idCliente +
                 ", nombre='" + nombre + '\'' +
-                ", apellidos='" + apellidos + '\'' +
-                ", cedula='" + cedula + '\'' +
-                ", telefono='" + telefono + '\'' +
                 ", correo='" + correo + '\'' +
                 '}';
     }

@@ -17,9 +17,6 @@ public class ClienteDto extends RecursiveTreeObject<ClienteDto> implements Seria
 
     private LongProperty idCliente;
     private StringProperty nombre;
-    private StringProperty apellidos;
-    private StringProperty cedula;
-    private StringProperty telefono;
     private StringProperty correo;
     private ObjectProperty<LocalDateTime> fechaCreacion;
     private ObjectProperty<LocalDateTime> fecha;
@@ -28,9 +25,6 @@ public class ClienteDto extends RecursiveTreeObject<ClienteDto> implements Seria
     public ClienteDto() {
         this.idCliente = new SimpleLongProperty();
         this.nombre = new SimpleStringProperty();
-        this.apellidos = new SimpleStringProperty();
-        this.cedula = new SimpleStringProperty();
-        this.telefono = new SimpleStringProperty();
         this.correo = new SimpleStringProperty();
         this.fechaCreacion = new SimpleObjectProperty<>();
         this.fecha = new SimpleObjectProperty<>();
@@ -44,18 +38,6 @@ public class ClienteDto extends RecursiveTreeObject<ClienteDto> implements Seria
 
     public StringProperty nombreProperty() {
         return nombre;
-    }
-
-    public StringProperty apellidosProperty() {
-        return apellidos;
-    }
-
-    public StringProperty cedulaProperty() {
-        return cedula;
-    }
-
-    public StringProperty telefonoProperty() {
-        return telefono;
     }
 
     public StringProperty correoProperty() {
@@ -83,18 +65,6 @@ public class ClienteDto extends RecursiveTreeObject<ClienteDto> implements Seria
         return nombre.get();
     }
 
-    public String getApellidos() {
-        return apellidos.get();
-    }
-
-    public String getCedula() {
-        return cedula.get();
-    }
-
-    public String getTelefono() {
-        return telefono.get();
-    }
-
     public String getCorreo() {
         return correo.get();
     }
@@ -120,18 +90,6 @@ public class ClienteDto extends RecursiveTreeObject<ClienteDto> implements Seria
         this.nombre.set(nombre);
     }
 
-    public void setApellidos(String apellidos) {
-        this.apellidos.set(apellidos);
-    }
-
-    public void setCedula(String cedula) {
-        this.cedula.set(cedula);
-    }
-
-    public void setTelefono(String telefono) {
-        this.telefono.set(telefono);
-    }
-
     public void setCorreo(String correo) {
         this.correo.set(correo);
     }
@@ -148,22 +106,12 @@ public class ClienteDto extends RecursiveTreeObject<ClienteDto> implements Seria
         this.modificado.set(String.valueOf(modificado));
     }
 
-    /**
-     * Obtiene el nombre completo
-     */
-    public String getNombreCompleto() {
-        String n = nombre.get() != null ? nombre.get() : "";
-        String a = apellidos.get() != null ? apellidos.get() : "";
-        return (n + " " + a).trim();
-    }
-
     @Override
     public String toString() {
         return "ClienteDto{" +
                 "idCliente=" + getIdCliente() +
                 ", nombre='" + getNombre() + '\'' +
-                ", apellidos='" + getApellidos() + '\'' +
-                ", cedula='" + getCedula() + '\'' +
+                ", correo='" + getCorreo() + '\'' +
                 '}';
     }
 }

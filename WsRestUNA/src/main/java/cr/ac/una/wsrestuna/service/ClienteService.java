@@ -77,33 +77,6 @@ public class ClienteService {
     }
 
     /**
-     * Obtiene un cliente por cédula
-     */
-    public Respuesta obtenerPorCedula(String cedula) {
-        try {
-            if (cedula == null || cedula.trim().isEmpty()) {
-                return new Respuesta(false, CodigoRespuesta.ERROR_CLIENTE, 
-                        "La cédula es requerida", "Cédula vacía");
-            }
-            
-            TypedQuery<Cliente> query = em.createNamedQuery("Cliente.findByCedula", Cliente.class);
-            query.setParameter("cedula", cedula);
-            Cliente cliente = query.getSingleResult();
-            
-            ClienteDto clienteDto = new ClienteDto(cliente);
-            return new Respuesta(true, CodigoRespuesta.CORRECTO, 
-                    "Cliente obtenido correctamente", "", "Cliente", clienteDto);
-        } catch (NoResultException e) {
-            return new Respuesta(false, CodigoRespuesta.ERROR_NOENCONTRADO, 
-                    "Cliente no encontrado", "No existe cliente con cédula: " + cedula);
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error al obtener cliente por cédula: " + cedula, e);
-            return new Respuesta(false, CodigoRespuesta.ERROR_INTERNO, 
-                    "Error al obtener cliente", e.getMessage());
-        }
-    }
-
-    /**
      * Obtiene un cliente por correo
      */
     public Respuesta obtenerPorCorreo(String correo) {
@@ -140,15 +113,17 @@ public class ClienteService {
                         "Los datos del cliente son requeridos", "ClienteDto nulo");
             }
 
-            // Validar cédula única
-            try {
-                TypedQuery<Cliente> query = em.createNamedQuery("Cliente.findByCedula", Cliente.class);
-                query.setParameter("cedula", clienteDto.getCedula());
-                query.getSingleResult();
-                return new Respuesta(false, CodigoRespuesta.ERROR_CLIENTE, 
-                        "Ya existe un cliente con esta cédula", "Cédula duplicada: " + clienteDto.getCedula());
-            } catch (NoResultException e) {
-                // No existe, podemos continuar
+            // Validar correo único solo si se proporciona
+            if (clienteDto.getCorreo() != null && !clienteDto.getCorreo().trim().isEmpty()) {
+                try {
+                    TypedQuery<Cliente> query = em.createNamedQuery("Cliente.findByCorreo", Cliente.class);
+                    query.setParameter("correo", clienteDto.getCorreo());
+                    query.getSingleResult();
+                    return new Respuesta(false, CodigoRespuesta.ERROR_CLIENTE, 
+                            "Ya existe un cliente con este correo", "Correo duplicado: " + clienteDto.getCorreo());
+                } catch (NoResultException e) {
+                    // No existe, podemos continuar
+                }
             }
 
             Cliente cliente = new Cliente(clienteDto);
@@ -181,18 +156,20 @@ public class ClienteService {
                         "Cliente no encontrado", "No existe cliente con ID: " + clienteDto.getIdCliente());
             }
 
-            // Validar cédula única si cambió
-            if (!cliente.getCedula().equals(clienteDto.getCedula())) {
-                try {
-                    TypedQuery<Cliente> query = em.createNamedQuery("Cliente.findByCedula", Cliente.class);
-                    query.setParameter("cedula", clienteDto.getCedula());
-                    Cliente existente = query.getSingleResult();
-                    if (!existente.getIdCliente().equals(cliente.getIdCliente())) {
-                        return new Respuesta(false, CodigoRespuesta.ERROR_CLIENTE, 
-                                "Ya existe otro cliente con esta cédula", "Cédula duplicada: " + clienteDto.getCedula());
+            // Validar correo único si cambió y no es nulo
+            if (clienteDto.getCorreo() != null && !clienteDto.getCorreo().trim().isEmpty()) {
+                if (cliente.getCorreo() == null || !cliente.getCorreo().equals(clienteDto.getCorreo())) {
+                    try {
+                        TypedQuery<Cliente> query = em.createNamedQuery("Cliente.findByCorreo", Cliente.class);
+                        query.setParameter("correo", clienteDto.getCorreo());
+                        Cliente existente = query.getSingleResult();
+                        if (!existente.getIdCliente().equals(cliente.getIdCliente())) {
+                            return new Respuesta(false, CodigoRespuesta.ERROR_CLIENTE, 
+                                    "Ya existe otro cliente con este correo", "Correo duplicado: " + clienteDto.getCorreo());
+                        }
+                    } catch (NoResultException e) {
+                        // No existe, podemos continuar
                     }
-                } catch (NoResultException e) {
-                    // No existe, podemos continuar
                 }
             }
 

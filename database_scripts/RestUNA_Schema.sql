@@ -117,14 +117,10 @@ CREATE TABLE PRODUCTO(
 -- CLIENTE (Información de clientes)
 CREATE TABLE CLIENTE(
   ID_CLIENTE           NUMBER         NOT NULL,
-  NOMBRE               VARCHAR2(100),
-  APELLIDOS            VARCHAR2(120),
-  CEDULA               VARCHAR2(20),
-  TELEFONO             VARCHAR2(20),
+  NOMBRE               VARCHAR2(100)  NOT NULL,
   CORREO               VARCHAR2(120),
   FECHA_CREACION       DATE           DEFAULT SYSDATE NOT NULL,
   CONSTRAINT PK_CLIENTE           PRIMARY KEY (ID_CLIENTE),
-  CONSTRAINT UQ_CLIENTE_CEDULA    UNIQUE (CEDULA),
   CONSTRAINT UQ_CLIENTE_CORREO    UNIQUE (CORREO)
 );
 
@@ -727,14 +723,11 @@ COMMENT ON COLUMN PRODUCTO.ESTADO               IS 'Estado del producto: A=Activ
 COMMENT ON COLUMN PRODUCTO.FECHA_CREACION       IS 'Fecha de creación del registro.';
 
 -- CLIENTE
-COMMENT ON TABLE  CLIENTE IS 'Información de clientes para facturación y envío de correos.';
-COMMENT ON COLUMN CLIENTE.ID_CLIENTE           IS 'Identificador único del cliente (asignado por secuencia).';
-COMMENT ON COLUMN CLIENTE.NOMBRE               IS 'Nombre del cliente (opcional).';
-COMMENT ON COLUMN CLIENTE.APELLIDOS            IS 'Apellidos del cliente (opcional).';
-COMMENT ON COLUMN CLIENTE.CEDULA               IS 'Número de cédula del cliente (único, opcional).';
-COMMENT ON COLUMN CLIENTE.TELEFONO             IS 'Teléfono del cliente.';
-COMMENT ON COLUMN CLIENTE.CORREO               IS 'Correo electrónico para envío de facturas (único, opcional).';
-COMMENT ON COLUMN CLIENTE.FECHA_CREACION       IS 'Fecha de registro del cliente.';
+COMMENT ON TABLE  CLIENTE IS 'Información básica de clientes para identificación en órdenes y facturas.';
+COMMENT ON COLUMN CLIENTE.ID_CLIENTE     IS 'Identificador único del cliente (asignado por secuencia).';
+COMMENT ON COLUMN CLIENTE.NOMBRE         IS 'Nombre completo del cliente (requerido para órdenes).';
+COMMENT ON COLUMN CLIENTE.CORREO         IS 'Correo electrónico para envío de facturas (único, opcional).';
+COMMENT ON COLUMN CLIENTE.FECHA_CREACION IS 'Fecha de registro del cliente.';
 
 -- ORDEN
 COMMENT ON TABLE  ORDEN IS 'Órdenes de clientes tomadas por saloneros en mesas o secciones del restaurante.';

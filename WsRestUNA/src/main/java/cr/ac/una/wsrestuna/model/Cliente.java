@@ -15,9 +15,7 @@ import java.time.LocalDateTime;
 @Table(name = "CLIENTE", schema = "RESTUNA")
 @NamedQueries({
     @NamedQuery(name = "Cliente.findAll", query = "SELECT c FROM Cliente c ORDER BY c.nombre"),
-    @NamedQuery(name = "Cliente.findByCedula", query = "SELECT c FROM Cliente c WHERE c.cedula = :cedula"),
-    @NamedQuery(name = "Cliente.findByCorreo", query = "SELECT c FROM Cliente c WHERE c.correo = :correo"),
-    @NamedQuery(name = "Cliente.findByTelefono", query = "SELECT c FROM Cliente c WHERE c.telefono = :telefono")
+    @NamedQuery(name = "Cliente.findByCorreo", query = "SELECT c FROM Cliente c WHERE c.correo = :correo")
 })
 public class Cliente implements Serializable {
 
@@ -30,25 +28,14 @@ public class Cliente implements Serializable {
     @Column(name = "ID_CLIENTE")
     private Long idCliente;
 
+    @NotBlank(message = "El nombre es obligatorio")
     @Size(max = 100, message = "El nombre no puede exceder 100 caracteres")
-    @Column(name = "NOMBRE", length = 100)
+    @Column(name = "NOMBRE", length = 100, nullable = false)
     private String nombre;
 
-    @Size(max = 100, message = "Los apellidos no pueden exceder 100 caracteres")
-    @Column(name = "APELLIDOS", length = 100)
-    private String apellidos;
-
-    @Size(max = 20, message = "La cédula no puede exceder 20 caracteres")
-    @Column(name = "CEDULA", length = 20, unique = true)
-    private String cedula;
-
-    @Size(max = 20, message = "El teléfono no puede exceder 20 caracteres")
-    @Column(name = "TELEFONO", length = 20)
-    private String telefono;
-
     @Email(message = "Debe proporcionar un correo electrónico válido")
-    @Size(max = 100, message = "El correo no puede exceder 100 caracteres")
-    @Column(name = "CORREO", length = 100, unique = true)
+    @Size(max = 120, message = "El correo no puede exceder 120 caracteres")
+    @Column(name = "CORREO", length = 120, unique = true)
     private String correo;
 
     @Basic(optional = false)
@@ -71,9 +58,6 @@ public class Cliente implements Serializable {
             this.idCliente = dto.getIdCliente();
         }
         this.nombre = dto.getNombre();
-        this.apellidos = dto.getApellidos();
-        this.cedula = dto.getCedula();
-        this.telefono = dto.getTelefono();
         this.correo = dto.getCorreo();
     }
 
@@ -92,30 +76,6 @@ public class Cliente implements Serializable {
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
-    }
-
-    public String getApellidos() {
-        return apellidos;
-    }
-
-    public void setApellidos(String apellidos) {
-        this.apellidos = apellidos;
-    }
-
-    public String getCedula() {
-        return cedula;
-    }
-
-    public void setCedula(String cedula) {
-        this.cedula = cedula;
-    }
-
-    public String getTelefono() {
-        return telefono;
-    }
-
-    public void setTelefono(String telefono) {
-        this.telefono = telefono;
     }
 
     public String getCorreo() {
@@ -156,9 +116,6 @@ public class Cliente implements Serializable {
         return "Cliente{" +
                 "idCliente=" + idCliente +
                 ", nombre='" + nombre + '\'' +
-                ", apellidos='" + apellidos + '\'' +
-                ", cedula='" + cedula + '\'' +
-                ", telefono='" + telefono + '\'' +
                 ", correo='" + correo + '\'' +
                 ", fechaCreacion=" + fechaCreacion +
                 '}';
