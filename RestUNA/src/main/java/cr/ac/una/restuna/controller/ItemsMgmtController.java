@@ -40,7 +40,11 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
-
+/**
+ * FXML Controller class
+ *
+ * @author aaron
+ */
 public class ItemsMgmtController extends Controller implements Initializable {
 
     @FXML
@@ -79,14 +83,16 @@ public class ItemsMgmtController extends Controller implements Initializable {
     private final ParametroService parametroService = new ParametroService();
     private java.util.Map<String, ParametroDto> parametrosMap = new java.util.HashMap<>();
 
-    
+    /**
+     * Initializes the controller class.
+     */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         tbvMenuItems.prefHeightProperty().bind(tableRoot.heightProperty());
         tbvMenuItems.prefWidthProperty().bind(tableRoot.widthProperty());
 
         cmbStatus.getItems().setAll("Activo", "Inactivo");
-        loadGruposAsync(); 
+        loadGruposAsync(); // Cargar grupos desde el servidor
         configurarFiltros();
 
         tbcID.setCellValueFactory(new TreeItemPropertyValueFactory<>("idProducto"));
@@ -94,7 +100,7 @@ public class ItemsMgmtController extends Controller implements Initializable {
         tbcGroup.setCellValueFactory(new TreeItemPropertyValueFactory<>("nombreGrupo"));
         tbcPrice.setCellValueFactory(new TreeItemPropertyValueFactory<>("precio"));
         
-        
+        // Configurar columna de precio con formato de moneda
         tbcPrice.setCellFactory(col -> new TreeTableCell<ProductoDto, Double>() {
             @Override
             protected void updateItem(Double precio, boolean empty) {
@@ -116,8 +122,8 @@ public class ItemsMgmtController extends Controller implements Initializable {
 
         confEvent();
         setActionsColumn();
-        cargarParametros(); 
-        loadProductsAsync(); 
+        cargarParametros(); // Cargar parámetros de moneda
+        loadProductsAsync(); // Cargar productos desde el servidor
     }
 
     private void confEvent() {
@@ -162,7 +168,7 @@ public class ItemsMgmtController extends Controller implements Initializable {
 
     }
 
-    
+    // este onAction no se esta usando por el momento 
     private void onEditItem(ProductoDto productoDto) {
         NewItemController controller = (NewItemController) FlowController.getInstance()
                 .getController(AppKeys.NEW_MENU_ITEM);
@@ -191,7 +197,7 @@ public class ItemsMgmtController extends Controller implements Initializable {
 
                     if (respuesta.getEstado()) {
                         showMessage("Producto eliminado correctamente");
-                        loadProductsFromServer(); 
+                        loadProductsFromServer(); // Recargar la tabla
                     } else {
                         showMessage("Error al eliminar el producto: " + respuesta.getMensaje());
                     }
@@ -294,12 +300,16 @@ public class ItemsMgmtController extends Controller implements Initializable {
         alert.showAndWait();
     }
     
-    
+    /**
+     * Carga productos desde el servidor
+     */
     public void loadProductsFromServer() {
         loadProductsAsync();
     }
     
-    
+    /**
+     * Recargar parámetros y refrescar precios (llamar cuando cambie MONEDA)
+     */
     public void refrescarPrecios() {
         cargarParametros();
     }
@@ -342,7 +352,7 @@ public class ItemsMgmtController extends Controller implements Initializable {
         
         product.clear();
         
-        
+        // Extraer objetos JSON del array
         List<String> objetosProductos = JsonParser.extraerObjetosDelArray(contenido);
         System.out.println("DEBUG: Se encontraron " + objetosProductos.size() + " productos");
         
@@ -352,7 +362,7 @@ public class ItemsMgmtController extends Controller implements Initializable {
             product.add(producto);
         }
         
-        
+        // Refrescar la tabla con el workaround de JFXTreeTableView
         TreeItem<ProductoDto> root = new RecursiveTreeItem<>(product, RecursiveTreeObject::getChildren);
         tbvMenuItems.setRoot(null);
         tbvMenuItems.setRoot(root);
@@ -360,7 +370,9 @@ public class ItemsMgmtController extends Controller implements Initializable {
         System.out.println("DEBUG: Total productos: " + product.size());
     }
     
-    
+    /**
+     * Carga grupos desde el servidor para el combo box de filtro
+     */
     private void loadGruposAsync() {
         Task<Respuesta> loadTask = new Task<Respuesta>() {
             @Override
@@ -380,7 +392,7 @@ public class ItemsMgmtController extends Controller implements Initializable {
                     List<String> objetosGrupos = JsonParser.extraerObjetosDelArray(contenido);
                     System.out.println("DEBUG: Se encontraron " + objetosGrupos.size() + " grupos");
                     
-                    cmbGroups.getItems().clear(); 
+                    cmbGroups.getItems().clear(); // Limpiar antes de agregar
                     
                     for (String objetoJson : objetosGrupos) {
                         GrupoProductoDto grupo = parsearGrupo(objetoJson);
@@ -442,25 +454,29 @@ public class ItemsMgmtController extends Controller implements Initializable {
         }
     }
     
-    
+    /**
+     * Configura los listeners para los filtros
+     */
     private void configurarFiltros() {
-        
+        // Filtro de búsqueda por texto
         txfSearch.textProperty().addListener((observable, oldValue, newValue) -> {
             aplicarFiltros();
         });
         
-        
+        // Filtro por grupo
         cmbGroups.selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             aplicarFiltros();
         });
         
-        
+        // Filtro por estado
         cmbStatus.selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             aplicarFiltros();
         });
     }
     
-    
+    /**
+     * Aplica los filtros seleccionados a la lista de productos
+     */
     private void aplicarFiltros() {
         filteredProducts.clear();
         
@@ -471,7 +487,7 @@ public class ItemsMgmtController extends Controller implements Initializable {
         for (ProductoDto producto : product) {
             boolean matches = true;
             
-            
+            // Filtro de búsqueda de texto (nombre o nombre corto)
             if (!searchText.isEmpty()) {
                 boolean matchesName = producto.getNombre() != null && 
                                      producto.getNombre().toLowerCase().contains(searchText);
@@ -480,15 +496,15 @@ public class ItemsMgmtController extends Controller implements Initializable {
                 matches = matchesName || matchesShortName;
             }
             
-            
+            // Filtro por grupo
             if (matches && selectedGroup != null && !selectedGroup.isEmpty()) {
                 matches = producto.getNombreGrupo() != null && 
                          producto.getNombreGrupo().equals(selectedGroup);
             }
             
-            
+            // Filtro por estado
             if (matches && selectedStatus != null && !selectedStatus.isEmpty()) {
-                
+                // Convertir texto amigable a código
                 String statusCode = selectedStatus.equals("Activo") ? "A" : "I";
                 matches = producto.getEstado() != null && 
                          producto.getEstado().equals(statusCode);
@@ -499,46 +515,52 @@ public class ItemsMgmtController extends Controller implements Initializable {
             }
         }
         
-        
+        // Actualizar la tabla con los productos filtrados
         TreeItem<ProductoDto> root = new RecursiveTreeItem<>(filteredProducts, RecursiveTreeObject::getChildren);
         tbvMenuItems.setRoot(null);
         tbvMenuItems.setRoot(root);
     }
     
-    
+    /**
+     * Formatear precio con conversión de moneda
+     */
     private String formatearPrecio(Double precioCRC) {
         if (precioCRC == null) {
             return "₡ 0.00";
         }
         
-        
+        // Obtener moneda configurada
         String moneda = obtenerMoneda();
         
-        
+        // Obtener tipo de cambio
         java.math.BigDecimal tipoCambio = obtenerTipoCambio(moneda);
         
-        
+        // Convertir precio
         java.math.BigDecimal precioBase = java.math.BigDecimal.valueOf(precioCRC);
         java.math.BigDecimal precioConvertido = precioBase.multiply(tipoCambio)
             .setScale(2, java.math.RoundingMode.HALF_UP);
         
-        
+        // Formatear con símbolo de moneda
         return BillingCalculator.formatCurrency(precioConvertido, moneda);
     }
     
-    
+    /**
+     * Obtener moneda configurada
+     */
     private String obtenerMoneda() {
         ParametroDto monedaParam = parametrosMap.get("MONEDA");
         if (monedaParam != null && monedaParam.getValor() != null) {
             return monedaParam.getValor();
         }
-        return "CRC - Colón"; 
+        return "CRC - Colón"; // Por defecto
     }
     
-    
+    /**
+     * Obtener tipo de cambio según la moneda
+     */
     private java.math.BigDecimal obtenerTipoCambio(String moneda) {
         if (moneda == null || moneda.startsWith("CRC")) {
-            return java.math.BigDecimal.ONE; 
+            return java.math.BigDecimal.ONE; // Sin conversión para CRC
         }
         
         if (moneda.startsWith("USD")) {
@@ -547,7 +569,7 @@ public class ItemsMgmtController extends Controller implements Initializable {
                 java.math.BigDecimal rate = java.math.BigDecimal.valueOf(usdParam.getValorComoDecimal());
                 return java.math.BigDecimal.ONE.divide(rate, 6, java.math.RoundingMode.HALF_UP);
             }
-            
+            // Default: 1 USD = 520 CRC
             return java.math.BigDecimal.ONE.divide(java.math.BigDecimal.valueOf(520), 6, java.math.RoundingMode.HALF_UP);
         }
         
@@ -557,14 +579,16 @@ public class ItemsMgmtController extends Controller implements Initializable {
                 java.math.BigDecimal rate = java.math.BigDecimal.valueOf(eurParam.getValorComoDecimal());
                 return java.math.BigDecimal.ONE.divide(rate, 6, java.math.RoundingMode.HALF_UP);
             }
-            
+            // Default: 1 EUR = 570 CRC
             return java.math.BigDecimal.ONE.divide(java.math.BigDecimal.valueOf(570), 6, java.math.RoundingMode.HALF_UP);
         }
         
-        return java.math.BigDecimal.ONE; 
+        return java.math.BigDecimal.ONE; // Sin conversión
     }
     
-    
+    /**
+     * Cargar parámetros del sistema (moneda y tipos de cambio)
+     */
     private void cargarParametros() {
         if (!UserSession.getInstance().isAuthenticated()) {
             System.err.println("No hay usuario autenticado para cargar parámetros");
@@ -605,7 +629,9 @@ public class ItemsMgmtController extends Controller implements Initializable {
         new Thread(task).start();
     }
     
-    
+    /**
+     * Procesar JSON de parámetros
+     */
     private void procesarParametros(String jsonArray) {
         parametrosMap.clear();
         
@@ -613,7 +639,7 @@ public class ItemsMgmtController extends Controller implements Initializable {
             return;
         }
         
-        
+        // Extraer cada objeto del array JSON
         java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("\\{[^{}]*\\}");
         java.util.regex.Matcher matcher = pattern.matcher(jsonArray);
         
@@ -625,7 +651,7 @@ public class ItemsMgmtController extends Controller implements Initializable {
             }
         }
         
-        
+        // Refrescar la tabla para actualizar formato de precios
         javafx.application.Platform.runLater(() -> {
             if (!product.isEmpty()) {
                 TreeItem<ProductoDto> root = new RecursiveTreeItem<>(product, RecursiveTreeObject::getChildren);
@@ -635,7 +661,9 @@ public class ItemsMgmtController extends Controller implements Initializable {
         });
     }
     
-    
+    /**
+     * Parsear un parámetro desde JSON
+     */
     private ParametroDto parsearParametro(String objetoJson) {
         try {
             ParametroDto parametro = new ParametroDto();

@@ -1,4 +1,7 @@
-
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/javafx/FXMLController.java to edit this template
+ */
 package cr.ac.una.restuna.controller;
 
 import cr.ac.una.restuna.util.AppKeys;
@@ -18,7 +21,11 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 
-
+/**
+ * FXML Controller class
+ *
+ * @author aaron
+ */
 public class MainController extends Controller implements Initializable {
 
     @FXML
@@ -49,23 +56,25 @@ public class MainController extends Controller implements Initializable {
     @FXML
     private MFXButton btnManagement;
 
-    
+    // Guardar el contenido inicial del contentArea para restaurarlo
     private javafx.scene.Node initialCenterContent;
 
-    
+    /**
+     * Initializes the controller class.
+     */
     @Override
     public void initialize() {
     }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        
+        // Registrar este controller en FlowController para poder restaurar el contenido inicial
         FlowController.getInstance().setMainController(this);
 
-        
+        // Configurar el contentArea directamente, no su padre
         FlowController.getInstance().setContentArea(contentArea);
 
-        
+        // Configurar WebView del logo si está disponible
         if (wvLogo != null) {
             try {
                 WebEngine webEngine = wvLogo.getEngine();
@@ -86,43 +95,48 @@ public class MainController extends Controller implements Initializable {
             }
         }
 
-        
+        // Aplicar permisos basados en rol del usuario
         aplicarPermisosDeRol();
 
-        
-        
+        // Guardar el contenido inicial DESPUÉS de aplicar permisos
+        // Así respeta si los botones están visibles o no según el rol
         initialCenterContent = contentArea.getCenter();
     }
 
-    
+    /**
+     * Aplica permisos basados en el rol del usuario autenticado Oculta/muestra
+     * botones según los permisos del rol
+     */
     private void aplicarPermisosDeRol() {
         UserSession session = UserSession.getInstance();
 
         if (!session.isAuthenticated()) {
-            
+            // Si no hay usuario autenticado, ocultar todo
             ocultarTodosLosBotones();
             return;
         }
 
-        
-        configurarVisibilidadBoton(btnHome, true); 
+        // Mostrar/ocultar botones según permisos
+        configurarVisibilidadBoton(btnHome, true); // Home siempre visible
         configurarVisibilidadBoton(btnSections, session.canAccessSalones());
         configurarVisibilidadBoton(btnOrders, session.canAccessOrdenes());
         configurarVisibilidadBoton(btnBilling, session.canAccessFacturacion());
         configurarVisibilidadBoton(btnCashClosing, session.canAccessCierreCaja());
 
-        
+        // Botones de mantenimiento (solo administradores)
         configurarVisibilidadBoton(btnManagement, session.canAccessMantenimientos());
 
-        
+        // Botones del sistema (solo administradores)
         configurarVisibilidadBoton(btnReports, session.canAccessReportes());
         configurarVisibilidadBoton(btnSettings, session.canAccessConfiguracion());
 
-        
+        // El botón de logout siempre debe estar visible
         configurarVisibilidadBoton(btnLogout, true);
     }
 
-    
+    /**
+     * Configura la visibilidad y habilitación de un botón
+     */
     private void configurarVisibilidadBoton(MFXButton boton, boolean permitido) {
         if (boton != null) {
             boton.setVisible(permitido);
@@ -131,9 +145,11 @@ public class MainController extends Controller implements Initializable {
         }
     }
 
-    
+    /**
+     * Oculta todos los botones del menú
+     */
     private void ocultarTodosLosBotones() {
-        configurarVisibilidadBoton(btnHome, true); 
+        configurarVisibilidadBoton(btnHome, true); // Home siempre visible
         configurarVisibilidadBoton(btnSections, false);
         configurarVisibilidadBoton(btnOrders, false);
         configurarVisibilidadBoton(btnBilling, false);
@@ -141,12 +157,12 @@ public class MainController extends Controller implements Initializable {
         configurarVisibilidadBoton(btnManagement, false);
         configurarVisibilidadBoton(btnReports, false);
         configurarVisibilidadBoton(btnSettings, false);
-        configurarVisibilidadBoton(btnLogout, true); 
+        configurarVisibilidadBoton(btnLogout, true); // Logout siempre visible
     }
 
     @FXML
     private void onActionBtnSignOut(ActionEvent event) {
-        
+        // Limpiar sesión del usuario
         UserSession.getInstance().clearSession();
 
         FlowController.getInstance().goMain(AppKeys.LOGIN);
@@ -157,7 +173,10 @@ public class MainController extends Controller implements Initializable {
         restoreInitialContent();
     }
 
-    
+    /**
+     * Restaura el contenido inicial del contentArea Este método puede ser
+     * llamado desde otras vistas para volver al home
+     */
     public void restoreInitialContent() {
         if (contentArea != null && initialCenterContent != null) {
             contentArea.setCenter(initialCenterContent);

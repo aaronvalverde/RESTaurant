@@ -30,7 +30,10 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-
+/**
+ * Controlador encargado de ejecutar el cierre de caja en la aplicación cliente.
+ * Muestra los montos calculados por el sistema y permite declarar los valores finales.
+ */
 public class CashClosingController extends Controller implements Initializable {
 
     @FXML
@@ -63,13 +66,13 @@ public class CashClosingController extends Controller implements Initializable {
     private MFXButton activeButton;
     private final CierreCajaDto currentClosing = new CierreCajaDto();
 
-    
+    // Totales que calcula el sistema
     private long dineroSistema = 0;
     private long efectivoFacturas = 0;
     private long tarjetaFacturas = 0;
     private int totalFacturas = 0;
 
-    
+    // Montos que declara el cajero (se inicializan con los totales del sistema)
     private long efectivoDeclarado = 0;
     private long tarjetaDeclarada = 0;
 
@@ -93,7 +96,7 @@ public class CashClosingController extends Controller implements Initializable {
 
     @Override
     public void initialize() {
-        
+        // Método requerido por Controller, no utilizado.
     }
 
     @FXML
@@ -127,7 +130,7 @@ public class CashClosingController extends Controller implements Initializable {
             return;
         }
 
-        
+        // Actualizar los montos del sistema, conservando los declarados ingresados manualmente.
         cargarTotalesSistema(false);
 
         if (efectivoDeclarado == 0 && tarjetaDeclarada == 0) {
@@ -185,7 +188,7 @@ public class CashClosingController extends Controller implements Initializable {
 
     @FXML
     private void onActionTxfInput(ActionEvent event) {
-        
+        // No se requiere lógica adicional.
     }
 
     private void closeWindow() {
@@ -232,7 +235,10 @@ public class CashClosingController extends Controller implements Initializable {
         root.getChildren().add(new TreeItem<>(row));
     }
 
-    
+    /**
+     * Carga los totales del sistema. Cuando resetDeclarados es true, también
+     * inicializa los montos declarados con los totales de las facturas.
+     */
     private void cargarTotalesSistema(boolean resetDeclarados) {
         if (CashOpeningController.activeOpening == null) {
             if (!cargarAperturaDesdeParametros()) {
@@ -413,7 +419,9 @@ public class CashClosingController extends Controller implements Initializable {
         activeButton = button;
     }
 
-    
+    /**
+     * Valida que exista una apertura de caja activa.
+     */
     private boolean validarApertura() {
         if (CashOpeningController.activeOpening == null) {
             if (!cargarAperturaDesdeParametros()) {

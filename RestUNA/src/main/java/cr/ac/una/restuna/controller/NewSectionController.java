@@ -67,11 +67,11 @@ public class NewSectionController extends Controller implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        
+        // Use AppKeys constant for the view name/title so FlowController can set window title
         setNombreVista(AppKeys.NEW_SECTION);
         cmbType.getItems().addAll("SALON", "BARRA", "TERRAZA");
         
-        
+        // Agregar validaciones
         TextFieldValidator.addTextOnlyValidation(txfName);
         
         initButtons();
@@ -79,8 +79,8 @@ public class NewSectionController extends Controller implements Initializable {
 
     @Override
     public void initialize() {
-        
-        
+        // Establecer modo por defecto si no se ha configurado
+        // Los métodos limpiarCampos() y loadSection() establecerán el modo correcto
         initButtons();
     }
     
@@ -100,12 +100,12 @@ public class NewSectionController extends Controller implements Initializable {
         imvTableGraphic.setImage(null);
         imvTableGraphic.setUserData(null);
         
-        
+        // Rehabilitar botones
         btnAdd.setDisable(false);
         btnSaveChanges.setDisable(false);
         btnCancel.setDisable(false);
         
-        
+        // Forzar actualización de botones en el siguiente ciclo de UI
         Platform.runLater(this::initButtons);
     }
 
@@ -119,13 +119,13 @@ public class NewSectionController extends Controller implements Initializable {
         );
         File file = fileChooser.showOpenDialog(getStage());
         if (file != null) {
-            
+            // Validar que sea imagen
             if (!ImagenUtil.esImagen(file)) {
                 showMessage("Por favor seleccione un archivo de imagen válido (PNG, JPG, GIF, BMP)");
                 return;
             }
             
-            
+            // Validar tamaño (máximo 5MB)
             if (!ImagenUtil.validarTamanio(file)) {
                 showMessage("La imagen es demasiado grande. Tamaño máximo: 5MB\nTamaño actual: " + 
                            ImagenUtil.formatearTamanio(file.length()));
@@ -194,7 +194,7 @@ public class NewSectionController extends Controller implements Initializable {
     }
     
     private void guardarSeccion(boolean esEdicion) {
-        
+        // Deshabilitar botones mientras se guarda
         btnAdd.setDisable(true);
         btnSaveChanges.setDisable(true);
         btnCancel.setDisable(true);
@@ -202,21 +202,21 @@ public class NewSectionController extends Controller implements Initializable {
         Task<Void> saveTask = new Task<>() {
             @Override
             protected Void call() throws Exception {
-                
+                // Crear o actualizar DTO
                 SeccionDto dto = esEdicion ? section : new SeccionDto();
                 dto.setNombre(txfName.getText().trim());
                 dto.setTipo(cmbType.getValue());
                 dto.setCobraImpuesto(cbSalesTax.isSelected() ? "S" : "N");
                 dto.setEstado("A");
                 
-                
+                // Si hay una imagen nueva seleccionada, subirla primero
                 if (selectedImageFile != null) {
                     System.out.println("Subiendo imagen: " + selectedImageFile.getName());
                     ArchivoDto archivoDto = ImagenUtil.fileToArchivoDto(selectedImageFile);
                     Respuesta resArchivo = archivoService.guardarArchivo(archivoDto);
                     
                     if (resArchivo.getEstado()) {
-                        
+                        // Extraer ID del archivo guardado
                         String archivoJson = (String) resArchivo.getResultado("Archivo");
                         Long idArchivo = extraerIdArchivo(archivoJson);
                         if (idArchivo != null) {
@@ -227,11 +227,11 @@ public class NewSectionController extends Controller implements Initializable {
                         throw new Exception("Error guardando imagen: " + resArchivo.getMensaje());
                     }
                 } else if (currentImageId != null && currentImageId > 0) {
-                    
+                    // Mantener la imagen existente
                     dto.setIdArchivoImagen(currentImageId);
                 }
                 
-                
+                // Guardar la sección
                 System.out.println("Guardando sección: " + dto.getNombre());
                 Respuesta resSeccion = seccionService.guardarSeccion(dto);
                 
@@ -248,12 +248,12 @@ public class NewSectionController extends Controller implements Initializable {
             Platform.runLater(() -> {
                 showMessage(esEdicion ? "Sección actualizada correctamente" : "Sección creada correctamente");
                 
-                
+                // Recargar la lista en el controlador padre
                 if (parentController != null) {
                     parentController.cargarSecciones();
                 }
                 
-                
+                // Cerrar ventana
                 getStage().close();
             });
         });
@@ -265,7 +265,7 @@ public class NewSectionController extends Controller implements Initializable {
                 ex.printStackTrace();
                 showMessage("Error: " + ex.getMessage());
                 
-                
+                // Rehabilitar botones
                 btnAdd.setDisable(false);
                 btnSaveChanges.setDisable(false);
                 btnCancel.setDisable(false);
@@ -345,7 +345,7 @@ public class NewSectionController extends Controller implements Initializable {
         cmbType.getSelectionModel().selectItem(sectionLoad.getTipo());
         cbSalesTax.setSelected("S".equals(sectionLoad.getCobraImpuesto()));
         
-        
+        // Cargar imagen si existe
         currentImageId = sectionLoad.getIdArchivoImagen();
         if (currentImageId != null && currentImageId > 0) {
             cargarImagenDesdeServidor(currentImageId);
@@ -353,12 +353,12 @@ public class NewSectionController extends Controller implements Initializable {
             imvTableGraphic.setImage(null);
         }
 
-        
+        // Rehabilitar botones
         btnAdd.setDisable(false);
         btnSaveChanges.setDisable(false);
         btnCancel.setDisable(false);
 
-        
+        // Forzar actualización de botones en el siguiente ciclo de UI
         Platform.runLater(this::initButtons);
     }
     
@@ -444,13 +444,13 @@ public class NewSectionController extends Controller implements Initializable {
 
     private void initButtons() {
         if (editMode) {
-            
+            // Modo edición: mostrar "Guardar cambios", ocultar "Agregar"
             btnAdd.setVisible(false);
             btnAdd.setManaged(false);
             btnSaveChanges.setVisible(true);
             btnSaveChanges.setManaged(true);
         } else {
-            
+            // Modo creación: mostrar "Agregar", ocultar "Guardar cambios"
             btnSaveChanges.setVisible(false);
             btnSaveChanges.setManaged(false);
             btnAdd.setVisible(true);

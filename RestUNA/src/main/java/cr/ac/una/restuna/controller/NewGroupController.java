@@ -16,7 +16,11 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
 
-
+/**
+ * FXML Controller class
+ *
+ * @author aaron
+ */
 public class NewGroupController extends Controller implements Initializable {
 
     @FXML
@@ -39,10 +43,12 @@ public class NewGroupController extends Controller implements Initializable {
     private GroupsMgmtController parentController;
     private final GrupoProductoService grupoProductoService = new GrupoProductoService();
 
-    
+    /**
+     * Initializes the controller class.
+     */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        
+        // Agregar validaciones
         TextFieldValidator.addTextOnlyValidation(txfName);
         
         initButtons();
@@ -78,13 +84,19 @@ public class NewGroupController extends Controller implements Initializable {
         closeWindow();
     }
 
-    public void loadSection() {
+    public void loadSection(/*SectionDto section*/) {
         editMode = true;
-        
-        
-        
-        
- 
+        //cargar todas los items correspondientes.
+        //txfName.setText(section.getName());
+        //cmbType.getSelectionModel().selectItem(section.getType());
+        /*if (section.isTaxed()) {
+            rdbYes.setSelected(true);
+        } else {
+            rdbNo.setSelected(true);
+        }*/
+ /*if (section.getImagePath() != null) {
+            imvTableGraphic.setImage(new Image(new File(section.getImagePath()).toURI().toString()));
+        }*/
         initButtons();
     }
 
@@ -165,7 +177,7 @@ public class NewGroupController extends Controller implements Initializable {
 
     private void saveGroup() {
         try {
-            
+            // Validar campos
             Respuesta validacion = format();
             if (!validacion.getEstado()) {
                 showMessage(validacion);
@@ -177,10 +189,10 @@ public class NewGroupController extends Controller implements Initializable {
             String shortcut = cbShortcut.isSelected() ? "S" : "N";
             String status = cbStatus.isSelected() ? "A" : "I";
 
-            
+            // Crear DTO con los datos del formulario
             GrupoProductoDto dto = new GrupoProductoDto();
             
-            
+            // Si estamos editando, incluir el ID
             if (editMode && groupId != null) {
                 dto.setIdGrupoProducto(Long.parseLong(groupId));
             }
@@ -189,17 +201,17 @@ public class NewGroupController extends Controller implements Initializable {
             dto.setDescripcion(description);
             dto.setAccesoRapido(shortcut);
             dto.setEstado(status);
-            dto.setOrdenVisualizacion(1); 
+            dto.setOrdenVisualizacion(1); // Valor por defecto, el servidor lo ajustará si es necesario
 
             System.out.println("Guardando grupo: " + name + (editMode ? " (editando ID: " + groupId + ")" : " (nuevo)"));
 
-            
+            // Llamar al servicio para guardar/actualizar
             Respuesta respuesta = grupoProductoService.guardarGrupoProducto(dto);
 
             if (respuesta.getEstado()) {
                 System.out.println("Grupo guardado exitosamente en el servidor");
                 
-                
+                // Recargar la tabla en el controlador padre
                 if (parentController != null) {
                     parentController.loadGroupsFromServer();
                 }
@@ -256,7 +268,7 @@ public class NewGroupController extends Controller implements Initializable {
         txfName.setStyle("");
         txaDescription.setStyle("");
         
-        
+        // Resetear modo de edición
         this.editMode = false;
         this.groupId = null;
         initButtons();
@@ -269,10 +281,10 @@ public class NewGroupController extends Controller implements Initializable {
     public void loadSection(GrupoProductoDto gpDto) {
         editMode = true;
 
-        
+        // Set the group ID for saving changes later
         this.groupId = gpDto.getIdGrupoProducto()!= null ? gpDto.getIdGrupoProducto().toString() : null;
 
-        
+        // Load the group data into the form fields
         txfName.setText(gpDto.getNombre());
         txaDescription.setText(gpDto.getDescripcion());
         cbShortcut.setSelected("S".equals(gpDto.getAccesoRapido()));
