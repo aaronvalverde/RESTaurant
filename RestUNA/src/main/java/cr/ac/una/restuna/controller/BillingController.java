@@ -312,9 +312,16 @@ public class BillingController extends Controller implements Initializable {
         txfAmountTendered.setText("0.00");
         txfChange.setText("0.00");
         txfTotalTip.setText("0.00");
+        txfClient.setText("");
+        txfClientEmail.setText("");
         totalPaid = 0.0;
         totalToPay = 0.0;
         detailBill.clear();
+        
+        // Limpiar la tabla de productos
+        if (tbvPaymentBreakdown != null && tbvPaymentBreakdown.getRoot() != null) {
+            tbvPaymentBreakdown.getRoot().getChildren().clear();
+        }
     }
     
     /**
