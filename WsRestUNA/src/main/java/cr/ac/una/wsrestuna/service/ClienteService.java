@@ -15,7 +15,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-
+/**
+ * Servicio EJB para la gestión de clientes
+ * 
+ * @author Kendall Fonseca
+ * @author Kaleb Alfaro
+ */
 @Stateless
 @LocalBean
 public class ClienteService {
@@ -25,7 +30,9 @@ public class ClienteService {
     @PersistenceContext(unitName = "RestUNA_PU")
     private EntityManager em;
 
-    
+    /**
+     * Obtiene todos los clientes
+     */
     public Respuesta obtenerTodos() {
         try {
             TypedQuery<Cliente> query = em.createNamedQuery("Cliente.findAll", Cliente.class);
@@ -43,7 +50,9 @@ public class ClienteService {
         }
     }
 
-    
+    /**
+     * Obtiene un cliente por ID
+     */
     public Respuesta obtenerPorId(Long id) {
         try {
             if (id == null) {
@@ -67,7 +76,9 @@ public class ClienteService {
         }
     }
 
-    
+    /**
+     * Obtiene un cliente por correo
+     */
     public Respuesta obtenerPorCorreo(String correo) {
         try {
             if (correo == null || correo.trim().isEmpty()) {
@@ -92,7 +103,9 @@ public class ClienteService {
         }
     }
 
-    
+    /**
+     * Crea un nuevo cliente
+     */
     public Respuesta crear(ClienteDto clienteDto) {
         try {
             if (clienteDto == null) {
@@ -100,7 +113,7 @@ public class ClienteService {
                         "Los datos del cliente son requeridos", "ClienteDto nulo");
             }
 
-            
+            // Validar correo único solo si se proporciona
             if (clienteDto.getCorreo() != null && !clienteDto.getCorreo().trim().isEmpty()) {
                 try {
                     TypedQuery<Cliente> query = em.createNamedQuery("Cliente.findByCorreo", Cliente.class);
@@ -109,7 +122,7 @@ public class ClienteService {
                     return new Respuesta(false, CodigoRespuesta.ERROR_CLIENTE, 
                             "Ya existe un cliente con este correo", "Correo duplicado: " + clienteDto.getCorreo());
                 } catch (NoResultException e) {
-                    
+                    // No existe, podemos continuar
                 }
             }
 
@@ -127,7 +140,9 @@ public class ClienteService {
         }
     }
 
-    
+    /**
+     * Actualiza un cliente existente
+     */
     public Respuesta actualizar(ClienteDto clienteDto) {
         try {
             if (clienteDto == null || clienteDto.getIdCliente() == null) {
@@ -141,7 +156,7 @@ public class ClienteService {
                         "Cliente no encontrado", "No existe cliente con ID: " + clienteDto.getIdCliente());
             }
 
-            
+            // Validar correo único si cambió y no es nulo
             if (clienteDto.getCorreo() != null && !clienteDto.getCorreo().trim().isEmpty()) {
                 if (cliente.getCorreo() == null || !cliente.getCorreo().equals(clienteDto.getCorreo())) {
                     try {
@@ -153,7 +168,7 @@ public class ClienteService {
                                     "Ya existe otro cliente con este correo", "Correo duplicado: " + clienteDto.getCorreo());
                         }
                     } catch (NoResultException e) {
-                        
+                        // No existe, podemos continuar
                     }
                 }
             }
@@ -172,7 +187,9 @@ public class ClienteService {
         }
     }
 
-    
+    /**
+     * Elimina un cliente por ID
+     */
     public Respuesta eliminar(Long id) {
         try {
             if (id == null) {

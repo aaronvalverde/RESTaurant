@@ -8,7 +8,12 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
+/**
+ * Servicio para gestión de cierres de caja
+ * 
+ * @author Kendall Fonseca
+ * @author Kaleb Alfaro
+ */
 public class CierreCajaService {
 
     private static final Logger LOGGER = Logger.getLogger(CierreCajaService.class.getName());

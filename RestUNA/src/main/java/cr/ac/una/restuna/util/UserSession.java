@@ -2,14 +2,17 @@ package cr.ac.una.restuna.util;
 
 import cr.ac.una.restuna.model.UsuarioDto;
 
-
+/**
+ * Clase para manejar la sesión del usuario actual
+ * Singleton para mantener información del usuario autenticado
+ */
 public class UserSession {
     
     private static UserSession instance;
     private UsuarioDto currentUser;
     
     private UserSession() {
-        
+        // Constructor privado para patrón Singleton
     }
     
     public static UserSession getInstance() {
@@ -43,7 +46,7 @@ public class UserSession {
         return currentUser != null ? currentUser.getRol() : null;
     }
     
-    
+    // Métodos de conveniencia para verificar roles
     public boolean isAdministrador() {
         return currentUser != null && "ADMINISTRADOR".equals(currentUser.getRol());
     }
@@ -56,32 +59,32 @@ public class UserSession {
         return currentUser != null && "SALONERO".equals(currentUser.getRol());
     }
     
-    
+    // Métodos para verificar permisos específicos
     public boolean canAccessSalones() {
-        return isAuthenticated(); 
+        return isAuthenticated(); // Todos los roles pueden acceder
     }
     
     public boolean canAccessOrdenes() {
-        return isCajero() || isAdministrador(); 
+        return isCajero() || isAdministrador(); // Solo cajeros y admins
     }
     
     public boolean canAccessFacturacion() {
-        return isCajero() || isAdministrador(); 
+        return isCajero() || isAdministrador(); // Solo cajeros y admins
     }
     
     public boolean canAccessCierreCaja() {
-        return isCajero() || isAdministrador(); 
+        return isCajero() || isAdministrador(); // Solo cajeros y admins
     }
     
     public boolean canAccessMantenimientos() {
-        return isAdministrador(); 
+        return isAdministrador(); // Solo administradores
     }
     
     public boolean canAccessReportes() {
-        return isAdministrador(); 
+        return isAdministrador(); // Solo administradores
     }
     
     public boolean canAccessConfiguracion() {
-        return isAdministrador(); 
+        return isAdministrador(); // Solo administradores
     }
 }

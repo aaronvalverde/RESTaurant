@@ -3,7 +3,10 @@ package cr.ac.una.restuna.model;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-
+/**
+ * DTO para transferencia de datos de Usuario
+ * Replica la estructura del DTO del servidor
+ */
 public class UsuarioDto implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -17,17 +20,17 @@ public class UsuarioDto implements Serializable {
     private LocalDateTime fechaUltimoAcceso;
     private String nuevaContrasena;
 
-    
+    // Constructores
     public UsuarioDto() {
     }
 
     public UsuarioDto(String usuario, String rol) {
         this.usuario = usuario;
         this.rol = rol;
-        this.estado = "A"; 
+        this.estado = "A"; // Activo por defecto
     }
 
-    
+    // Métodos de conveniencia
     public boolean isActivo() {
         return "A".equals(estado);
     }
@@ -52,7 +55,7 @@ public class UsuarioDto implements Serializable {
         return tieneRol("SALONERO");
     }
 
-    
+    // Getters y Setters
     public Long getIdUsuario() {
         return idUsuario;
     }

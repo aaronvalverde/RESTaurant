@@ -3,7 +3,10 @@ package cr.ac.una.restuna.model;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-
+/**
+ * DTO para transferencia de archivos/imágenes
+ * Usa Base64 para transferir contenido binario
+ */
 public class ArchivoDto implements Serializable {
     
     private static final long serialVersionUID = 1L;
@@ -25,7 +28,7 @@ public class ArchivoDto implements Serializable {
         this.tamanio = contenidoBase64 != null ? (long) contenidoBase64.length() : 0L;
     }
     
-    
+    // Métodos de utilidad
     public boolean esImagen() {
         return tipoMime != null && tipoMime.startsWith("image/");
     }
@@ -42,7 +45,7 @@ public class ArchivoDto implements Serializable {
         return String.format("%.2f MB", tamanio / (1024.0 * 1024.0));
     }
     
-    
+    // Getters y Setters
     public Long getIdArchivo() {
         return idArchivo;
     }

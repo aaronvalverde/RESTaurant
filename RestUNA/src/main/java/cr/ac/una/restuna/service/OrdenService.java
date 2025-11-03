@@ -8,12 +8,16 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
+/**
+ * Servicio cliente para operaciones con órdenes
+ */
 public class OrdenService {
     
     private static final Logger LOG = Logger.getLogger(OrdenService.class.getName());
     
-    
+    /**
+     * Obtiene una orden por ID
+     */
     public Respuesta getOrden(Long id) {
         try {
             if (id == null || id <= 0) {
@@ -39,7 +43,9 @@ public class OrdenService {
         }
     }
     
-    
+    /**
+     * Obtiene todas las órdenes
+     */
     public Respuesta getOrdenes() {
         try {
             Request request = new Request("OrdenController/ordenes");
@@ -58,7 +64,9 @@ public class OrdenService {
         }
     }
     
-    
+    /**
+     * Obtiene órdenes por estado
+     */
     public Respuesta getOrdenesPorEstado(String estado) {
         try {
             if (estado == null || estado.trim().isEmpty()) {
@@ -84,7 +92,9 @@ public class OrdenService {
         }
     }
     
-    
+    /**
+     * Obtiene órdenes por mesa
+     */
     public Respuesta getOrdenesPorMesa(Long idMesa) {
         try {
             if (idMesa == null || idMesa <= 0) {
@@ -110,14 +120,16 @@ public class OrdenService {
         }
     }
     
-    
+    /**
+     * Guarda una orden (crear o actualizar)
+     */
     public Respuesta guardarOrden(OrdenDto ordenDto) {
         try {
             if (ordenDto == null) {
                 return new Respuesta(false, "Los datos de la orden son requeridos", "ordenDto es null");
             }
             
-            
+            // Validaciones
             if (ordenDto.getDetalles() == null || ordenDto.getDetalles().isEmpty()) {
                 return new Respuesta(false, "La orden debe tener al menos un producto", "detalles vacíos");
             }
@@ -138,7 +150,9 @@ public class OrdenService {
         }
     }
     
-    
+    /**
+     * Cambia el estado de una orden
+     */
     public Respuesta cambiarEstadoOrden(Long id, String estado) {
         try {
             if (id == null || id <= 0) {
@@ -169,7 +183,9 @@ public class OrdenService {
         }
     }
     
-    
+    /**
+     * Elimina una orden
+     */
     public Respuesta eliminarOrden(Long id) {
         try {
             if (id == null || id <= 0) {

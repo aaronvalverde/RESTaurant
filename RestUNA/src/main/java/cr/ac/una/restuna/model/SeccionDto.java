@@ -1,4 +1,7 @@
-
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package cr.ac.una.restuna.model;
 
 import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
@@ -11,7 +14,10 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
-
+/**
+ * DTO para gestión de secciones/salones del restaurante
+ * Compatible con JFXTreeTableView
+ */
 public class SeccionDto extends RecursiveTreeObject<SeccionDto> implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -142,7 +148,7 @@ public class SeccionDto extends RecursiveTreeObject<SeccionDto> implements Seria
         this.modificado = modificado;
     }
     
-    
+    // Métodos de utilidad
     public boolean isActiva() {
         return "A".equals(getEstado());
     }

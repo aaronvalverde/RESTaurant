@@ -10,7 +10,11 @@ import javafx.fxml.Initializable;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 
-
+/**
+ * FXML Controller class
+ *
+ * @author aaron
+ */
 public class NumberKeypadController extends Controller implements Initializable {
     
     @FXML
@@ -39,16 +43,16 @@ public class NumberKeypadController extends Controller implements Initializable 
     private MFXButton btnZero;
     @FXML
     private MFXButton btnErase;
-    
+    //no forma parte de la vista, pero se recibe para actualizar su contenido en la vista padre.
     private MFXTextField txfInput;
-    
+    //raíz en la vista a la cual es invocado.
     private VBox newRoot;
 
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-
-
+//        root.prefHeightProperty().bind(newRoot.heightProperty());
+//        root.prefWidthProperty().bind(newRoot.widthProperty());
     }
 
     @Override

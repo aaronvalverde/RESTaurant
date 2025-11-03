@@ -4,7 +4,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
 import java.util.Date;
 
-
+/**
+ * DTO para transferir datos de archivos entre cliente y servidor
+ * Utiliza Base64 para el contenido binario
+ */
 @Schema(description = "Archivo almacenado en el sistema")
 public class ArchivoDto implements Serializable {
     
@@ -19,7 +22,7 @@ public class ArchivoDto implements Serializable {
     @Schema(description = "Tamaño del archivo en bytes", example = "102400")
     private Long tamanio;
     @Schema(description = "Contenido codificado en Base64")
-    private String contenidoBase64; 
+    private String contenidoBase64; // Contenido en Base64 para JSON
     @Schema(description = "Fecha de subida", example = "2024-05-30T00:00:00Z")
     private Date fechaSubida;
     
@@ -33,13 +36,15 @@ public class ArchivoDto implements Serializable {
         this.tamanio = archivo.getTamanio();
         this.fechaSubida = archivo.getFechaSubida();
         
-        
+        // Convertir bytes a Base64 solo si se solicita
         if (archivo.getContenido() != null) {
             this.contenidoBase64 = java.util.Base64.getEncoder().encodeToString(archivo.getContenido());
         }
     }
     
-    
+    /**
+     * Constructor sin contenido (para listados donde no se necesita la imagen completa)
+     */
     public ArchivoDto(Archivo archivo, boolean incluirContenido) {
         this.idArchivo = archivo.getIdArchivo();
         this.nombreArchivo = archivo.getNombreArchivo();
@@ -52,7 +57,7 @@ public class ArchivoDto implements Serializable {
         }
     }
 
-    
+    // Getters y Setters
     public Long getIdArchivo() {
         return idArchivo;
     }

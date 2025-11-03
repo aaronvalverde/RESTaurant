@@ -20,7 +20,9 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
+/**
+ * Controlador REST para gestión de productos del menú
+ */
 @Path("/producto")
 @Tag(name = "Productos", description = "Operaciones sobre productos del menú del restaurante")
 public class ProductoController {
@@ -30,7 +32,9 @@ public class ProductoController {
     @EJB
     ProductoService productoService;
 
-    
+    /**
+     * Obtiene un producto por ID
+     */
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -63,7 +67,9 @@ public class ProductoController {
         }
     }
 
-    
+    /**
+     * Obtiene todos los productos
+     */
     @GET
     @Path("/productos")
     @Produces(MediaType.APPLICATION_JSON)
@@ -94,7 +100,9 @@ public class ProductoController {
         }
     }
 
-    
+    /**
+     * Obtiene productos activos
+     */
     @GET
     @Path("/productos/activos")
     @Produces(MediaType.APPLICATION_JSON)
@@ -125,7 +133,9 @@ public class ProductoController {
         }
     }
 
-    
+    /**
+     * Obtiene productos por grupo
+     */
     @GET
     @Path("/productos/grupo/{idGrupo}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -158,7 +168,9 @@ public class ProductoController {
         }
     }
 
-    
+    /**
+     * Obtiene productos activos por grupo
+     */
     @GET
     @Path("/productos/grupo/{idGrupo}/activos")
     @Produces(MediaType.APPLICATION_JSON)
@@ -191,7 +203,9 @@ public class ProductoController {
         }
     }
 
-    
+    /**
+     * Obtiene productos con acceso rápido
+     */
     @GET
     @Path("/productos/accesorapido")
     @Produces(MediaType.APPLICATION_JSON)
@@ -222,7 +236,9 @@ public class ProductoController {
         }
     }
 
-    
+    /**
+     * Obtiene productos más vendidos
+     */
     @GET
     @Path("/productos/masvendidos")
     @Produces(MediaType.APPLICATION_JSON)
@@ -253,7 +269,9 @@ public class ProductoController {
         }
     }
 
-    
+    /**
+     * Guarda un producto (crear o actualizar)
+     */
     @POST
     @Path("/producto")
     @Produces(MediaType.APPLICATION_JSON)
@@ -287,7 +305,9 @@ public class ProductoController {
         }
     }
 
-    
+    /**
+     * Elimina un producto (marca como inactivo)
+     */
     @DELETE
     @Path("/producto/{id}")
     @Produces(MediaType.APPLICATION_JSON)

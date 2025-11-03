@@ -10,7 +10,9 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
-
+/**
+ * DTO para Cliente del sistema RESTaurant
+ */
 public class ClienteDto extends RecursiveTreeObject<ClienteDto> implements Serializable {
 
     private LongProperty idCliente;
@@ -29,7 +31,7 @@ public class ClienteDto extends RecursiveTreeObject<ClienteDto> implements Seria
         this.modificado = new SimpleStringProperty("false");
     }
 
-    
+    // Properties
     public LongProperty idClienteProperty() {
         return idCliente;
     }
@@ -54,7 +56,7 @@ public class ClienteDto extends RecursiveTreeObject<ClienteDto> implements Seria
         return modificado;
     }
 
-    
+    // Getters
     public Long getIdCliente() {
         return idCliente.get();
     }
@@ -79,7 +81,7 @@ public class ClienteDto extends RecursiveTreeObject<ClienteDto> implements Seria
         return Boolean.parseBoolean(modificado.get());
     }
 
-    
+    // Setters
     public void setIdCliente(Long idCliente) {
         this.idCliente.set(idCliente);
     }

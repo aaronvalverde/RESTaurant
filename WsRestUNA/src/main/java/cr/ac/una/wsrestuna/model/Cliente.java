@@ -5,7 +5,12 @@ import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-
+/**
+ * Entidad JPA para la tabla CLIENTE
+ * Representa información de clientes para facturación y envío de correos
+ * 
+ * @author gambo
+ */
 @Entity
 @Table(name = "CLIENTE", schema = "RESTUNA")
 @NamedQueries({
@@ -37,7 +42,7 @@ public class Cliente implements Serializable {
     @Column(name = "FECHA_CREACION", nullable = false)
     private LocalDateTime fechaCreacion;
 
-    
+    // Constructores
     public Cliente() {
         this.fechaCreacion = LocalDateTime.now();
     }
@@ -47,7 +52,7 @@ public class Cliente implements Serializable {
         actualizarDesdeDto(clienteDto);
     }
 
-    
+    // Método para actualizar desde DTO
     public void actualizarDesdeDto(ClienteDto dto) {
         if (dto.getIdCliente() != null) {
             this.idCliente = dto.getIdCliente();
@@ -56,7 +61,7 @@ public class Cliente implements Serializable {
         this.correo = dto.getCorreo();
     }
 
-    
+    // Getters y Setters
     public Long getIdCliente() {
         return idCliente;
     }

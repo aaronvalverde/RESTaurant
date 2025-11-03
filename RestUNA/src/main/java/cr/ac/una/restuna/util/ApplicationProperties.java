@@ -9,7 +9,9 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
+/**
+ * Utility class for reading application level configuration from config/properties.ini.
+ */
 public final class ApplicationProperties {
 
     private static final Logger LOGGER = Logger.getLogger(ApplicationProperties.class.getName());
@@ -18,7 +20,7 @@ public final class ApplicationProperties {
     private static final Properties PROPERTIES = loadProperties();
 
     private ApplicationProperties() {
-        
+        // Utility class
     }
 
     private static Properties loadProperties() {
@@ -61,7 +63,7 @@ public final class ApplicationProperties {
             return Files.newInputStream(configPath);
         }
 
-        
+        // Fallback: try to read it from the classpath (useful if bundled with resources)
         InputStream classpathStream = ApplicationProperties.class
                 .getClassLoader()
                 .getResourceAsStream(CONFIG_FILE.replace("\\", "/"));

@@ -5,7 +5,10 @@ import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.time.LocalDate;
 
-
+/**
+ * Entidad JPA para la tabla PARAMETRO
+ * Representa parámetros de configuración del sistema por usuario
+ */
 @Entity
 @Table(name = "PARAMETRO", schema = "RESTUNA")
 @NamedQueries({
@@ -55,10 +58,10 @@ public class Parametro implements Serializable {
     @Column(name = "FECHA_MODIFICACION", nullable = false)
     private LocalDate fechaModificacion;
 
-    
+    // Constructores
     public Parametro() {
         this.fechaModificacion = LocalDate.now();
-        this.tipoDato = "STRING"; 
+        this.tipoDato = "STRING"; // Por defecto
     }
 
     public Parametro(Long id) {
@@ -79,7 +82,7 @@ public class Parametro implements Serializable {
         this.tipoDato = parametroDto.getTipoDato() != null ? parametroDto.getTipoDato() : "STRING";
         this.fechaModificacion = LocalDate.now();
         
-        
+        // La relación con Usuario se establece desde el service
         if (parametroDto.getIdUsuario() != null && this.usuario == null) {
             this.usuario = new Usuario(parametroDto.getIdUsuario());
         }
@@ -94,7 +97,7 @@ public class Parametro implements Serializable {
         }
     }
 
-    
+    // Getters y Setters
     public Long getIdParametro() {
         return idParametro;
     }

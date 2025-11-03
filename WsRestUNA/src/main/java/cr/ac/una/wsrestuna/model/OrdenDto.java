@@ -10,7 +10,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * DTO para transferencia de datos de Orden
+ * 
+ * @author Kendall Fonseca
+ * @author Kaleb Alfaro
+ */
 @Schema(description = "Orden del sistema RESTaurant")
 public class OrdenDto implements Serializable {
 
@@ -41,7 +46,7 @@ public class OrdenDto implements Serializable {
     @JsonbProperty("observaciones")
     private String observaciones;
 
-    
+    // IDs de relaciones
     @Schema(description = "ID de la mesa", example = "5")
     @JsonbProperty("idMesa")
     private Long idMesa;
@@ -60,7 +65,7 @@ public class OrdenDto implements Serializable {
     @JsonbProperty("idSalonero")
     private Long idSalonero;
 
-    
+    // Nombres para mostrar
     @Schema(description = "Número de la mesa", example = "5")
     @JsonbProperty("numeroMesa")
     private String numeroMesa;
@@ -77,12 +82,12 @@ public class OrdenDto implements Serializable {
     @JsonbProperty("nombreSalonero")
     private String nombreSalonero;
 
-    
+    // Detalles de la orden
     @Schema(description = "Lista de productos en la orden")
     @JsonbProperty("detalles")
     private List<DetalleOrdenDto> detalles;
 
-    
+    // Campos de control
     @Schema(description = "Indica si el registro fue modificado", example = "false")
     @JsonbProperty("modificado")
     private Boolean modificado;
@@ -92,7 +97,7 @@ public class OrdenDto implements Serializable {
     @JsonbDateFormat("yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime fecha;
 
-    
+    // Constructores
     public OrdenDto() {
         this.modificado = false;
         this.fecha = LocalDateTime.now();
@@ -111,7 +116,7 @@ public class OrdenDto implements Serializable {
             this.subtotal = orden.getSubtotal();
             this.observaciones = orden.getObservaciones();
 
-            
+            // IDs
             if (orden.getMesa() != null) {
                 this.idMesa = orden.getMesa().getIdMesa();
                 this.numeroMesa = orden.getMesa().getNumeroMesa();
@@ -129,7 +134,7 @@ public class OrdenDto implements Serializable {
                 this.nombreSalonero = orden.getSalonero().getNombre();
             }
 
-            
+            // Detalles
             if (orden.getDetalles() != null) {
                 this.detalles = new ArrayList<>();
                 for (DetalleOrden detalle : orden.getDetalles()) {
@@ -139,7 +144,7 @@ public class OrdenDto implements Serializable {
         }
     }
 
-    
+    // Getters y Setters
     public Long getIdOrden() {
         return idOrden;
     }

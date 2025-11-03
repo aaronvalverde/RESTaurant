@@ -8,7 +8,13 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-
+/**
+ * Entidad que representa un cierre de caja en el sistema.
+ * Registra los montos de efectivo y tarjeta al cerrar turno del cajero.
+ * 
+ * @author Kendall Fonseca
+ * @author Kaleb Alfaro
+ */
 @Entity
 @Table(name = "CIERRE_CAJA", schema = "RESTUNA")
 @NamedQueries({
@@ -66,13 +72,13 @@ public class CierreCaja implements Serializable {
     @Column(name = "OBSERVACIONES", length = 500)
     private String observaciones;
 
-    
+    // Relaciones
     @NotNull
     @ManyToOne
     @JoinColumn(name = "ID_CAJERO", referencedColumnName = "ID_USUARIO", nullable = false)
     private Usuario cajero;
 
-    
+    // Constructores
     public CierreCaja() {
         this.fechaHora = LocalDateTime.now();
         this.efectivoInicial = BigDecimal.ZERO;
@@ -85,13 +91,13 @@ public class CierreCaja implements Serializable {
         this.totalFacturas = 0;
     }
 
-    
+    // Métodos de negocio
     public void calcularDiferencias() {
-        
+        // Diferencia efectivo = declarado - (inicial + sistema)
         BigDecimal efectivoEsperado = this.efectivoInicial.add(this.efectivoSistema);
         this.efectivoDiferencia = this.efectivoDeclarado.subtract(efectivoEsperado);
         
-        
+        // Diferencia tarjeta = declarado - sistema
         this.tarjetaDiferencia = this.tarjetaDeclarado.subtract(this.tarjetaSistema);
     }
 
@@ -112,7 +118,7 @@ public class CierreCaja implements Serializable {
                this.tarjetaDiferencia.compareTo(BigDecimal.ZERO) != 0;
     }
 
-    
+    // Getters y Setters
     public Long getIdCierreCaja() {
         return idCierreCaja;
     }

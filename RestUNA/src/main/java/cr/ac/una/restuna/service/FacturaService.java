@@ -1,4 +1,7 @@
-
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package cr.ac.una.restuna.service;
 
 import cr.ac.una.restuna.model.FacturaDto;
@@ -16,7 +19,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.nio.charset.StandardCharsets;
 
-
+/**
+ *
+ * @author fonse
+ */
 public class FacturaService {
      private static final Logger LOG = Logger.getLogger(FacturaService.class.getName());
      
@@ -171,14 +177,14 @@ public class FacturaService {
 
     public Respuesta obtenerFacturasPorPeriodo(Date fechaInicio, Date fechaFin) {
         try {
-            
+            // Formato ISO LocalDateTime: 2024-05-01T00:00:00
             SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
             
             Map<String, Object> parametros = new HashMap<>();
             parametros.put("fechaInicio", formato.format(fechaInicio));
             parametros.put("fechaFin", formato.format(fechaFin));
             
-            
+            // Usar path params según el endpoint del backend
             Request request = new Request("FacturaController/facturas/fecha", "/{fechaInicio}/{fechaFin}", parametros);
             request.get();
             
@@ -186,7 +192,7 @@ public class FacturaService {
                 return new Respuesta(false, request.getError(), "");
             }
             
-            
+            // El backend retorna JSON string de facturas
             String facturasJson = request.getResponseBody();
             return new Respuesta(true, "", "", "Facturas", facturasJson);
             

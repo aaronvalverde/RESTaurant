@@ -10,7 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-
+/**
+ * Entidad que representa una orden en el sistema.
+ * 
+ * @author gambo
+ */
 @Entity
 @Table(name = "ORDEN", schema = "RESTUNA")
 @NamedQueries({
@@ -39,7 +43,7 @@ public class Orden implements Serializable {
     @NotNull
     @Size(min = 1, max = 20)
     @Column(name = "ESTADO", nullable = false, length = 20)
-    private String estado; 
+    private String estado; // PENDIENTE, EN_PREPARACION, LISTA, ENTREGADA, CANCELADA
 
     @Column(name = "SUBTOTAL", precision = 10, scale = 2)
     private BigDecimal subtotal;
@@ -48,7 +52,7 @@ public class Orden implements Serializable {
     @Column(name = "OBSERVACIONES", length = 500)
     private String observaciones;
 
-    
+    // Relaciones
     @ManyToOne
     @JoinColumn(name = "ID_MESA", referencedColumnName = "ID_MESA")
     private Mesa mesa;
@@ -70,7 +74,7 @@ public class Orden implements Serializable {
     @OneToMany(mappedBy = "orden", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DetalleOrden> detalles;
 
-    
+    // Constructores
     public Orden() {
         this.fechaHora = LocalDateTime.now();
         this.estado = "PENDIENTE";
@@ -78,7 +82,7 @@ public class Orden implements Serializable {
         this.detalles = new ArrayList<>();
     }
 
-    
+    // Métodos de negocio
     public void calcularSubtotal() {
         this.subtotal = detalles.stream()
                 .map(DetalleOrden::getSubtotal)
@@ -97,7 +101,7 @@ public class Orden implements Serializable {
         calcularSubtotal();
     }
 
-    
+    // Getters y Setters
     public Long getIdOrden() {
         return idOrden;
     }

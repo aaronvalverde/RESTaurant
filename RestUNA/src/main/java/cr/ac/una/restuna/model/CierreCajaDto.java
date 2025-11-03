@@ -1,4 +1,7 @@
-
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package cr.ac.una.restuna.model;
 
 import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
@@ -13,7 +16,10 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
-
+/**
+ *
+ * @author fonse
+ */
 public class CierreCajaDto extends RecursiveTreeObject<CierreCajaDto> implements Serializable {
 
     private LongProperty idCierreCaja;
@@ -160,7 +166,7 @@ public class CierreCajaDto extends RecursiveTreeObject<CierreCajaDto> implements
         this.observaciones.set(observaciones);
     }
 
-    
+    // Property methods for JavaFX binding
     public LongProperty idCierreCajaProperty() {
         return idCierreCaja;
     }

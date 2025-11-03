@@ -8,12 +8,16 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
+/**
+ * Servicio cliente para operaciones con grupos/categorías de productos
+ */
 public class GrupoProductoService {
     
     private static final Logger LOG = Logger.getLogger(GrupoProductoService.class.getName());
     
-    
+    /**
+     * Obtiene un grupo de productos por ID
+     */
     public Respuesta getGrupoProducto(Long id) {
         try {
             Map<String, Object> parametros = new HashMap<>();
@@ -34,7 +38,9 @@ public class GrupoProductoService {
         }
     }
     
-    
+    /**
+     * Obtiene todos los grupos de productos ordenados por orden de visualización
+     */
     public Respuesta getGrupoProductos() {
         try {
             System.out.println("Iniciando solicitud para obtener todos los grupos de productos");
@@ -55,7 +61,7 @@ public class GrupoProductoService {
                 return new Respuesta(false, "Respuesta vacía del servidor", "No se recibieron datos");
             }
             
-            
+            // Verificar que sea un array válido
             if (!responseJson.trim().startsWith("[")) {
                 System.err.println("Formato de respuesta inesperado: " + responseJson);
                 return new Respuesta(false, "Formato de respuesta no válido", "Esperaba un array de grupos");
@@ -70,7 +76,9 @@ public class GrupoProductoService {
         }
     }
     
-    
+    /**
+     * Obtiene solo los grupos activos ordenados por orden de visualización
+     */
     public Respuesta getGrupoProductosActivos() {
         try {
             System.out.println("Iniciando solicitud para obtener grupos activos");
@@ -97,7 +105,9 @@ public class GrupoProductoService {
         }
     }
     
-    
+    /**
+     * Obtiene los grupos marcados para acceso rápido (para menú POS)
+     */
     public Respuesta getGrupoProductosAccesoRapido() {
         try {
             Request request = new Request("GrupoProductoController/grupos/accesorapido");
@@ -116,7 +126,9 @@ public class GrupoProductoService {
         }
     }
     
-    
+    /**
+     * Obtiene los grupos más vendidos
+     */
     public Respuesta getGrupoProductosMasVendidos() {
         try {
             Request request = new Request("GrupoProductoController/grupos/masvendidos");
@@ -135,7 +147,9 @@ public class GrupoProductoService {
         }
     }
     
-    
+    /**
+     * Guarda un nuevo grupo o actualiza uno existente
+     */
     public Respuesta guardarGrupoProducto(cr.ac.una.restuna.model.GrupoProductoDto grupo) {
         try {
             System.out.println("Guardando grupo: " + grupo.getNombre());
@@ -159,7 +173,9 @@ public class GrupoProductoService {
         }
     }
     
-    
+    /**
+     * Elimina un grupo de productos por ID
+     */
     public Respuesta eliminarGrupoProducto(Long id) {
         try {
             System.out.println("Eliminando grupo con ID: " + id);

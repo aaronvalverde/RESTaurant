@@ -14,7 +14,9 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
+/**
+ * Servicio para gestión de secciones/salones del restaurante
+ */
 @Stateless
 @LocalBean
 public class SeccionService {
@@ -24,7 +26,9 @@ public class SeccionService {
     @PersistenceContext(unitName = "RestUNA_PU")
     private EntityManager em;
     
-    
+    /**
+     * Obtiene una sección por ID con su imagen (sin contenido de imagen)
+     */
     public Respuesta getSeccion(Long id) {
         try {
             Seccion seccion = em.find(Seccion.class, id);
@@ -44,7 +48,9 @@ public class SeccionService {
         }
     }
     
-    
+    /**
+     * Obtiene una sección por ID con el contenido completo de su imagen
+     */
     public Respuesta getSeccionConImagen(Long id) {
         try {
             Seccion seccion = em.find(Seccion.class, id);
@@ -53,7 +59,7 @@ public class SeccionService {
                     "No se encontró la sección con ID: " + id, "getSeccionConImagen");
             }
             
-            
+            // Forzar carga del BLOB si existe imagen
             if (seccion.getArchivoImagen() != null) {
                 seccion.getArchivoImagen().getContenido();
             }
@@ -69,7 +75,9 @@ public class SeccionService {
         }
     }
     
-    
+    /**
+     * Obtiene todas las secciones sin contenido de imágenes
+     */
     public Respuesta getSecciones() {
         try {
             List<Seccion> secciones = em.createNamedQuery("Seccion.findAll", Seccion.class)
@@ -90,7 +98,9 @@ public class SeccionService {
         }
     }
     
-    
+    /**
+     * Obtiene solo las secciones activas
+     */
     public Respuesta getSeccionesActivas() {
         try {
             List<Seccion> secciones = em.createNamedQuery("Seccion.findActivas", Seccion.class)
@@ -111,13 +121,15 @@ public class SeccionService {
         }
     }
     
-    
+    /**
+     * Guarda una nueva sección o actualiza una existente
+     */
     public Respuesta guardarSeccion(SeccionDto dto) {
         try {
             Seccion seccion;
             
             if (dto.getIdSeccion() != null && dto.getIdSeccion() > 0) {
-                
+                // Actualizar existente
                 seccion = em.find(Seccion.class, dto.getIdSeccion());
                 if (seccion == null) {
                     return new Respuesta(false, CodigoRespuesta.ERROR_NOENCONTRADO,
@@ -125,7 +137,7 @@ public class SeccionService {
                 }
                 seccion.actualizar(dto);
                 
-                
+                // Actualizar imagen si cambió
                 if (dto.getIdArchivoImagen() != null) {
                     Archivo archivo = em.find(Archivo.class, dto.getIdArchivoImagen());
                     seccion.setArchivoImagen(archivo);
@@ -135,10 +147,10 @@ public class SeccionService {
                 
                 seccion = em.merge(seccion);
             } else {
-                
+                // Crear nueva
                 seccion = new Seccion(dto);
                 
-                
+                // Asignar imagen si existe
                 if (dto.getIdArchivoImagen() != null) {
                     Archivo archivo = em.find(Archivo.class, dto.getIdArchivoImagen());
                     if (archivo != null) {
@@ -162,7 +174,9 @@ public class SeccionService {
         }
     }
     
-    
+    /**
+     * Elimina una sección por ID
+     */
     public Respuesta eliminarSeccion(Long id) {
         try {
             Seccion seccion = em.find(Seccion.class, id);
@@ -171,8 +185,8 @@ public class SeccionService {
                     "No se encontró la sección a eliminar", "eliminarSeccion");
             }
             
-            
-            
+            // Verificar si tiene mesas asociadas (cuando se implemente Mesa)
+            // Por ahora solo eliminar
             
             em.remove(seccion);
             em.flush();

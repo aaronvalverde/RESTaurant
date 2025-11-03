@@ -19,7 +19,12 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
+/**
+ * Controlador REST para gestión de cierres de caja
+ * 
+ * @author Kendall Fonseca
+ * @author Kaleb Alfaro
+ */
 @Path("/CierreCajaController")
 @Tag(name = "Cierres de Caja", description = "Operaciones sobre cierres de caja del restaurante")
 public class CierreCajaController {

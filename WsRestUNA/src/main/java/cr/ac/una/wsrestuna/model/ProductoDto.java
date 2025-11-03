@@ -7,7 +7,9 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-
+/**
+ * DTO para transferencia de datos de Producto
+ */
 @Schema(description = "Producto del menú del restaurante")
 public class ProductoDto implements Serializable {
 
@@ -65,12 +67,12 @@ public class ProductoDto implements Serializable {
     @JsonbProperty("fechaCreacion")
     private LocalDateTime fechaCreacion;
 
-    
+    // Campos adicionales para mostrar información del grupo (opcional)
     @Schema(description = "Nombre del grupo al que pertenece", example = "Bebidas Calientes")
     @JsonbProperty("nombreGrupo")
     private String nombreGrupo;
 
-    
+    // Constructores
     public ProductoDto() {
         this.cantidadVendida = 0L;
         this.estado = "A";
@@ -90,7 +92,7 @@ public class ProductoDto implements Serializable {
             this.estado = producto.getEstado();
             this.fechaCreacion = producto.getFechaCreacion();
             
-            
+            // Incluir información del grupo
             if (producto.getIdGrupoProducto() != null) {
                 this.idGrupoProducto = producto.getIdGrupoProducto().getIdGrupoProducto();
                 this.nombreGrupo = producto.getIdGrupoProducto().getNombre();
@@ -98,7 +100,7 @@ public class ProductoDto implements Serializable {
         }
     }
 
-    
+    // Getters y Setters
     public Long getIdProducto() {
         return idProducto;
     }

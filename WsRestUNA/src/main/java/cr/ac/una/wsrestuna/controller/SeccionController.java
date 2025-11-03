@@ -24,7 +24,9 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
+/**
+ * Controlador REST para gestión de secciones/salones del restaurante
+ */
 @Path("/SeccionController")
 @Tag(name = "Secciones", description = "Operaciones sobre salones y secciones del restaurante")
 public class SeccionController {
@@ -34,7 +36,10 @@ public class SeccionController {
     @EJB
     SeccionService seccionService;
     
-    
+    /**
+     * Obtiene una sección por ID (sin contenido de imagen)
+     * GET /SeccionController/seccion/{id}
+     */
     @GET
     @Path("/seccion/{id}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -65,7 +70,10 @@ public class SeccionController {
         }
     }
     
-    
+    /**
+     * Obtiene una sección por ID con el contenido completo de su imagen
+     * GET /SeccionController/seccion/{id}/conimagen
+     */
     @GET
     @Path("/seccion/{id}/conimagen")
     @Produces(MediaType.APPLICATION_JSON)
@@ -96,7 +104,10 @@ public class SeccionController {
         }
     }
     
-    
+    /**
+     * Obtiene todas las secciones
+     * GET /SeccionController/secciones
+     */
     @GET
     @Path("/secciones")
     @Produces(MediaType.APPLICATION_JSON)
@@ -127,7 +138,10 @@ public class SeccionController {
         }
     }
     
-    
+    /**
+     * Obtiene todas las secciones activas
+     * GET /SeccionController/secciones/activas
+     */
     @GET
     @Path("/secciones/activas")
     @Produces(MediaType.APPLICATION_JSON)
@@ -158,7 +172,10 @@ public class SeccionController {
         }
     }
     
-    
+    /**
+     * Guarda una sección (crear o actualizar)
+     * POST /SeccionController/seccion
+     */
     @POST
     @Path("/seccion")
     @Produces(MediaType.APPLICATION_JSON)
@@ -188,7 +205,10 @@ public class SeccionController {
         }
     }
     
-    
+    /**
+     * Elimina una sección por ID
+     * DELETE /SeccionController/seccion/{id}
+     */
     @DELETE
     @Path("/seccion/{id}")
     @Produces(MediaType.APPLICATION_JSON)

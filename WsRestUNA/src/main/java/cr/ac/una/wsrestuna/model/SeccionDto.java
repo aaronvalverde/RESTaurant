@@ -4,7 +4,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
 import java.util.Date;
 
-
+/**
+ * DTO para transferir datos de secciones/salones
+ * Incluye la imagen asociada opcionalmente
+ */
 @Schema(description = "Sección o salón del restaurante")
 public class SeccionDto implements Serializable {
     
@@ -32,7 +35,11 @@ public class SeccionDto implements Serializable {
     public SeccionDto() {
     }
     
-    
+    /**
+     * Constructor desde entidad Seccion
+     * @param seccion Entidad Seccion
+     * @param incluirImagen Si se debe incluir los datos de la imagen
+     */
     public SeccionDto(Seccion seccion, boolean incluirImagen) {
         this.idSeccion = seccion.getIdSeccion();
         this.nombre = seccion.getNombre();
@@ -45,22 +52,24 @@ public class SeccionDto implements Serializable {
         if (seccion.getArchivoImagen() != null) {
             this.idArchivoImagen = seccion.getArchivoImagen().getIdArchivo();
             
-            
+            // Solo incluir los datos completos de la imagen si se solicita
             if (incluirImagen) {
                 this.imagen = new ArchivoDto(seccion.getArchivoImagen(), true);
             } else {
-                
+                // Solo incluir metadata sin el contenido para optimizar
                 this.imagen = new ArchivoDto(seccion.getArchivoImagen(), false);
             }
         }
     }
     
-    
+    /**
+     * Constructor para listados (sin contenido de imagen)
+     */
     public SeccionDto(Seccion seccion) {
         this(seccion, false);
     }
 
-    
+    // Getters y Setters
     public Long getIdSeccion() {
         return idSeccion;
     }

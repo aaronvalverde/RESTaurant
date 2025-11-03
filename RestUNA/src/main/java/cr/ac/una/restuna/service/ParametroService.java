@@ -9,12 +9,20 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
+/**
+ * Servicio para operaciones con parámetros de configuración
+ * Maneja llamadas HTTP al servidor para gestionar parámetros por usuario
+ */
 public class ParametroService {
 
     private static final Logger LOGGER = Logger.getLogger(ParametroService.class.getName());
 
-    
+    /**
+     * Obtiene todos los parámetros de un usuario
+     * 
+     * @param idUsuario ID del usuario
+     * @return Respuesta con la lista de parámetros en JSON
+     */
     public Respuesta getParametrosPorUsuario(Long idUsuario) {
         try {
             if (idUsuario == null) {
@@ -41,7 +49,13 @@ public class ParametroService {
         }
     }
 
-    
+    /**
+     * Obtiene un parámetro específico por clave y usuario
+     * 
+     * @param idUsuario ID del usuario
+     * @param clave Clave del parámetro
+     * @return Respuesta con el parámetro en JSON
+     */
     public Respuesta getParametroPorUsuarioYClave(Long idUsuario, String clave) {
         try {
             if (idUsuario == null) {
@@ -74,7 +88,12 @@ public class ParametroService {
         }
     }
 
-    
+    /**
+     * Guarda un parámetro (crear o actualizar)
+     * 
+     * @param parametroDto DTO con los datos del parámetro
+     * @return Respuesta con el parámetro guardado en JSON
+     */
     public Respuesta guardarParametro(ParametroDto parametroDto) {
         try {
             if (parametroDto == null) {
@@ -119,7 +138,12 @@ public class ParametroService {
         }
     }
 
-    
+    /**
+     * Guarda múltiples parámetros (batch save)
+     * 
+     * @param parametrosDto Lista de DTOs con los datos de los parámetros
+     * @return Respuesta con los parámetros guardados en JSON
+     */
     public Respuesta guardarParametros(List<ParametroDto> parametrosDto) {
         try {
             if (parametrosDto == null || parametrosDto.isEmpty()) {
@@ -156,7 +180,12 @@ public class ParametroService {
         }
     }
 
-    
+    /**
+     * Elimina un parámetro
+     * 
+     * @param id ID del parámetro a eliminar
+     * @return Respuesta indicando si se eliminó correctamente
+     */
     public Respuesta eliminarParametro(Long id) {
         try {
             if (id == null || id <= 0) {

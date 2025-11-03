@@ -1,4 +1,7 @@
-
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package cr.ac.una.wsrestuna.controller;
 
 import cr.ac.una.wsrestuna.service.ReporteService;
@@ -25,7 +28,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.text.ParseException;
 
-
+/**
+ *
+ * @author fonse
+ */
 @Path("/ReporteController")
 @Tag(name = "Reporte", description = "Operaciones sobre reportes del restaurante")
 public class ReporteController {

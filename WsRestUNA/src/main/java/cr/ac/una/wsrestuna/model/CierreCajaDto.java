@@ -8,7 +8,12 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-
+/**
+ * DTO para transferencia de datos de CierreCaja
+ * 
+ * @author Kendall Fonseca
+ * @author Kaleb Alfaro
+ */
 @Schema(description = "Cierre de caja del sistema RESTaurant")
 public class CierreCajaDto implements Serializable {
 
@@ -68,18 +73,18 @@ public class CierreCajaDto implements Serializable {
     @JsonbProperty("observaciones")
     private String observaciones;
 
-    
+    // IDs de relaciones
     @NotNull(message = "El cajero es obligatorio")
     @Schema(description = "ID del cajero que cierra", example = "2", required = true)
     @JsonbProperty("idCajero")
     private Long idCajero;
 
-    
+    // Nombres para mostrar
     @Schema(description = "Nombre del cajero", example = "María García")
     @JsonbProperty("nombreCajero")
     private String nombreCajero;
 
-    
+    // Totales calculados
     @Schema(description = "Total del sistema (efectivo + tarjeta)", example = "75000.00")
     @JsonbProperty("totalSistema")
     private BigDecimal totalSistema;
@@ -96,7 +101,7 @@ public class CierreCajaDto implements Serializable {
     @JsonbProperty("tieneDiferencias")
     private Boolean tieneDiferencias;
 
-    
+    // Campos de control
     @Schema(description = "Indica si el registro fue modificado", example = "false")
     @JsonbProperty("modificado")
     private Boolean modificado;
@@ -106,7 +111,7 @@ public class CierreCajaDto implements Serializable {
     @JsonbDateFormat("yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime fecha;
 
-    
+    // Constructores
     public CierreCajaDto() {
         this.modificado = false;
         this.fecha = LocalDateTime.now();
@@ -145,7 +150,7 @@ public class CierreCajaDto implements Serializable {
                 this.nombreCajero = cierre.getCajero().getNombre();
             }
 
-            
+            // Calcular totales
             this.totalSistema = cierre.getTotalSistema();
             this.totalDeclarado = cierre.getTotalDeclarado();
             this.totalDiferencia = cierre.getTotalDiferencia();
@@ -153,7 +158,7 @@ public class CierreCajaDto implements Serializable {
         }
     }
 
-    
+    // Getters y Setters
     public Long getIdCierreCaja() {
         return idCierreCaja;
     }

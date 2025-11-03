@@ -8,12 +8,16 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
+/**
+ * Servicio cliente para operaciones con clientes
+ */
 public class ClienteService {
     
     private static final Logger LOG = Logger.getLogger(ClienteService.class.getName());
     
-    
+    /**
+     * Obtiene un cliente por ID
+     */
     public Respuesta getCliente(Long id) {
         try {
             if (id == null || id <= 0) {
@@ -39,7 +43,9 @@ public class ClienteService {
         }
     }
     
-    
+    /**
+     * Obtiene todos los clientes
+     */
     public Respuesta getClientes() {
         try {
             Request request = new Request("ClienteController/clientes");
@@ -58,7 +64,9 @@ public class ClienteService {
         }
     }
     
-    
+    /**
+     * Busca un cliente por cédula
+     */
     public Respuesta getClientePorCedula(String cedula) {
         try {
             if (cedula == null || cedula.trim().isEmpty()) {
@@ -84,14 +92,16 @@ public class ClienteService {
         }
     }
     
-    
+    /**
+     * Guarda un cliente (crear o actualizar)
+     */
     public Respuesta guardarCliente(ClienteDto clienteDto) {
         try {
             if (clienteDto == null) {
                 return new Respuesta(false, "Los datos del cliente son requeridos", "clienteDto es null");
             }
             
-            
+            // Validaciones básicas
             if (clienteDto.getNombre() == null || clienteDto.getNombre().trim().isEmpty()) {
                 return new Respuesta(false, "El nombre del cliente es requerido", "nombre vacío");
             }
@@ -112,7 +122,9 @@ public class ClienteService {
         }
     }
     
-    
+    /**
+     * Elimina un cliente
+     */
     public Respuesta eliminarCliente(Long id) {
         try {
             if (id == null || id <= 0) {

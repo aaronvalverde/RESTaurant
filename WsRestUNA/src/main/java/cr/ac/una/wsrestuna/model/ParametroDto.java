@@ -6,7 +6,10 @@ import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.time.LocalDate;
 
-
+/**
+ * DTO para transferencia de datos de Parametro
+ * Representa parámetros de configuración del sistema por usuario
+ */
 @Schema(description = "Parámetro de configuración asociado a un usuario")
 public class ParametroDto implements Serializable {
 
@@ -47,14 +50,14 @@ public class ParametroDto implements Serializable {
     @JsonbProperty("fechaModificacion")
     private LocalDate fechaModificacion;
 
-    
+    // Campos de control de modificación
     @Schema(description = "Indica si el registro fue modificado", example = "false")
     private Boolean modificado;
 
-    
+    // Constructores
     public ParametroDto() {
         this.modificado = false;
-        this.tipoDato = "STRING"; 
+        this.tipoDato = "STRING"; // Por defecto
     }
 
     public ParametroDto(Parametro parametro) {
@@ -70,7 +73,7 @@ public class ParametroDto implements Serializable {
         }
     }
 
-    
+    // Métodos de utilidad para conversión de tipos
     public Integer getValorComoEntero() {
         if (valor == null || valor.isEmpty()) {
             return null;
@@ -100,7 +103,7 @@ public class ParametroDto implements Serializable {
         return "S".equalsIgnoreCase(valor) || "true".equalsIgnoreCase(valor) || "1".equals(valor);
     }
 
-    
+    // Getters y Setters
     public Long getIdParametro() {
         return idParametro;
     }

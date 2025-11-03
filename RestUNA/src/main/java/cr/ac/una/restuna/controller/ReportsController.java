@@ -25,7 +25,11 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 
-
+/**
+ * FXML Controller class
+ *
+ * @author aaron
+ */
 public class ReportsController extends Controller implements Initializable {
 
     @FXML
@@ -217,7 +221,7 @@ public class ReportsController extends Controller implements Initializable {
     }
 
     private void loadCashierOptions() {
-        
+        // TODO: Implementar carga de cajeros desde el servicio
         cmbCashier.getItems().clear();
     }
 

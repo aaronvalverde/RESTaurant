@@ -26,7 +26,10 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
+/**
+ * Controlador REST para la gestión de usuarios
+ * Siguiendo el patrón de UNA Planilla con endpoints específicos
+ */
 @Path("UsuarioController")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -38,7 +41,9 @@ public class UsuarioController {
     @EJB
     private UsuarioService usuarioService;
 
-    
+    /**
+     * GET /UsuarioController/usuario/{usuario}/{contrasena} - Autenticación siguiendo patrón UNA Planilla
+     */
     @GET
     @Path("usuario/{usuario}/{contrasena}")
     @Operation(summary = "Autentica un usuario", description = "Valida las credenciales proporcionadas y retorna el usuario.")
@@ -71,7 +76,9 @@ public class UsuarioController {
         }
     }
 
-    
+    /**
+     * GET /UsuarioController/usuario/{id} - Obtiene un usuario por ID
+     */
     @GET
     @Path("usuario/{id}")
     @Operation(summary = "Obtiene un usuario por ID")
@@ -102,7 +109,9 @@ public class UsuarioController {
         }
     }
 
-    
+    /**
+     * GET /UsuarioController/usuarios/{nombre}/{usuario}/{rol}/{estado} - Búsqueda con filtros
+     */
     @GET
     @Path("usuarios/{nombre}/{usuario}/{rol}/{estado}")
     @Operation(summary = "Busca usuarios con filtros", description = "Permite filtrar por nombre, usuario, rol y estado.")
@@ -137,7 +146,9 @@ public class UsuarioController {
         }
     }
 
-    
+    /**
+     * POST /UsuarioController/usuario - Crea o actualiza un usuario
+     */
     @POST
     @Path("usuario")
     @Operation(summary = "Crea o actualiza un usuario")
@@ -166,7 +177,9 @@ public class UsuarioController {
         }
     }
 
-    
+    /**
+     * GET /UsuarioController/usuarios - Obtiene todos los usuarios sin filtros
+     */
     @GET
     @Path("usuarios")
     @Operation(summary = "Obtiene todos los usuarios", description = "Retorna la lista completa de usuarios sin filtros.")
@@ -193,7 +206,9 @@ public class UsuarioController {
         }
     }
 
-    
+    /**
+     * DELETE /UsuarioController/usuario/{id} - Elimina (desactiva) un usuario
+     */
     @DELETE
     @Path("usuario/{id}")
     @Operation(summary = "Elimina un usuario (inactiva)")

@@ -1,6 +1,8 @@
 package cr.ac.una.wsrestuna.util;
 
-
+/**
+ * Códigos de respuesta estandarizados para el sistema
+ */
 public enum CodigoRespuesta {
     
     CORRECTO(200),

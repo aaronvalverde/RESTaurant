@@ -17,7 +17,9 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
+/**
+ * Servicio para gestión de productos del menú
+ */
 @Stateless
 @LocalBean
 public class ProductoService {
@@ -27,7 +29,9 @@ public class ProductoService {
     @PersistenceContext(unitName = "RestUNA_PU")
     private EntityManager em;
 
-    
+    /**
+     * Obtiene un producto por ID
+     */
     public Respuesta getProducto(Long id) {
         try {
             Query query = em.createNamedQuery("Producto.findById", Producto.class);
@@ -52,7 +56,9 @@ public class ProductoService {
         }
     }
 
-    
+    /**
+     * Obtiene todos los productos
+     */
     public Respuesta getProductos() {
         try {
             Query query = em.createNamedQuery("Producto.findAll", Producto.class);
@@ -72,7 +78,9 @@ public class ProductoService {
         }
     }
 
-    
+    /**
+     * Obtiene todos los productos activos
+     */
     public Respuesta getProductosActivos() {
         try {
             Query query = em.createNamedQuery("Producto.findActivos", Producto.class);
@@ -92,7 +100,9 @@ public class ProductoService {
         }
     }
 
-    
+    /**
+     * Obtiene productos por grupo
+     */
     public Respuesta getProductosPorGrupo(Long idGrupo) {
         try {
             Query query = em.createNamedQuery("Producto.findByGrupo", Producto.class);
@@ -113,7 +123,9 @@ public class ProductoService {
         }
     }
 
-    
+    /**
+     * Obtiene productos activos por grupo
+     */
     public Respuesta getProductosPorGrupoActivos(Long idGrupo) {
         try {
             Query query = em.createNamedQuery("Producto.findByGrupoActivos", Producto.class);
@@ -134,7 +146,9 @@ public class ProductoService {
         }
     }
 
-    
+    /**
+     * Obtiene productos con acceso rápido
+     */
     public Respuesta getProductosAccesoRapido() {
         try {
             Query query = em.createNamedQuery("Producto.findAccesoRapido", Producto.class);
@@ -154,11 +168,13 @@ public class ProductoService {
         }
     }
 
-    
+    /**
+     * Obtiene productos más vendidos
+     */
     public Respuesta getProductosMasVendidos() {
         try {
             Query query = em.createNamedQuery("Producto.findMasVendidos", Producto.class);
-            query.setMaxResults(20); 
+            query.setMaxResults(20); // Top 20 más vendidos
             List<Producto> productos = query.getResultList();
 
             List<ProductoDto> productosDto = new ArrayList<>();
@@ -175,20 +191,22 @@ public class ProductoService {
         }
     }
 
-    
+    /**
+     * Guarda un producto (crear o actualizar)
+     */
     public Respuesta guardarProducto(ProductoDto productoDto) {
         try {
             Producto producto;
 
             if (productoDto.getIdProducto() != null && productoDto.getIdProducto() > 0) {
-                
+                // Actualizar existente
                 producto = em.find(Producto.class, productoDto.getIdProducto());
                 if (producto == null) {
                     return new Respuesta(false, CodigoRespuesta.ERROR_NOENCONTRADO,
                             "No se encontró el producto a actualizar", "guardarProducto");
                 }
 
-                
+                // Verificar si cambió el nombre y si ya existe
                 if (!producto.getNombre().equalsIgnoreCase(productoDto.getNombre())) {
                     Query queryNombre = em.createNamedQuery("Producto.findByNombre", Producto.class);
                     queryNombre.setParameter("nombre", productoDto.getNombre());
@@ -199,11 +217,11 @@ public class ProductoService {
                                     "Ya existe un producto con ese nombre", "guardarProducto");
                         }
                     } catch (NoResultException e) {
-                        
+                        // No existe, puede continuar
                     }
                 }
 
-                
+                // Verificar si cambió el nombre corto y si ya existe
                 if (!producto.getNombreCorto().equalsIgnoreCase(productoDto.getNombreCorto())) {
                     Query queryCorto = em.createNamedQuery("Producto.findByNombreCorto", Producto.class);
                     queryCorto.setParameter("nombreCorto", productoDto.getNombreCorto());
@@ -214,7 +232,7 @@ public class ProductoService {
                                     "Ya existe un producto con ese nombre corto", "guardarProducto");
                         }
                     } catch (NoResultException e) {
-                        
+                        // No existe, puede continuar
                     }
                 }
 
@@ -222,8 +240,8 @@ public class ProductoService {
                 producto = em.merge(producto);
 
             } else {
-                
-                
+                // Crear nuevo
+                // Verificar si ya existe el nombre
                 Query queryNombre = em.createNamedQuery("Producto.findByNombre", Producto.class);
                 queryNombre.setParameter("nombre", productoDto.getNombre());
                 try {
@@ -231,10 +249,10 @@ public class ProductoService {
                     return new Respuesta(false, CodigoRespuesta.ERROR_INTERNO,
                             "Ya existe un producto con ese nombre", "guardarProducto");
                 } catch (NoResultException e) {
-                    
+                    // No existe, puede continuar
                 }
 
-                
+                // Verificar si ya existe el nombre corto
                 Query queryCorto = em.createNamedQuery("Producto.findByNombreCorto", Producto.class);
                 queryCorto.setParameter("nombreCorto", productoDto.getNombreCorto());
                 try {
@@ -242,12 +260,12 @@ public class ProductoService {
                     return new Respuesta(false, CodigoRespuesta.ERROR_INTERNO,
                             "Ya existe un producto con ese nombre corto", "guardarProducto");
                 } catch (NoResultException e) {
-                    
+                    // No existe, puede continuar
                 }
 
                 producto = new Producto(productoDto);
 
-                
+                // Asociar el grupo
                 if (productoDto.getIdGrupoProducto() != null) {
                     GrupoProducto grupo = em.find(GrupoProducto.class, productoDto.getIdGrupoProducto());
                     if (grupo == null) {
@@ -275,7 +293,9 @@ public class ProductoService {
         }
     }
 
-    
+    /**
+     * Elimina un producto
+     */
     public Respuesta eliminarProducto(Long id) {
         try {
             Producto producto = em.find(Producto.class, id);
@@ -285,8 +305,8 @@ public class ProductoService {
                         "No se encontró el producto a eliminar", "eliminarProducto");
             }
 
-            
-            
+            // Verificar si tiene órdenes asociadas (esto requeriría una consulta adicional)
+            // Por ahora solo marcamos como inactivo en lugar de eliminar físicamente
             producto.setEstado("I");
             em.merge(producto);
             em.flush();

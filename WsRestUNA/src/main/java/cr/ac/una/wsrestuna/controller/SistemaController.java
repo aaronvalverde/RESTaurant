@@ -12,7 +12,9 @@ import java.time.LocalDateTime;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
+/**
+ * Controlador para inicialización y utilidades del sistema
+ */
 @Path("SistemaController")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -23,30 +25,32 @@ public class SistemaController {
     @EJB
     private UsuarioService usuarioService;
 
-    
+    /**
+     * GET /SistemaController/inicializar - Inicializa datos básicos del sistema
+     */
     @GET
     @Path("inicializar")
     public Response inicializarSistema() {
         try {
-            
+            // Verificar si ya existe un administrador
             Respuesta respuestaTodos = usuarioService.obtenerTodos();
             if (respuestaTodos.getEstado() && respuestaTodos.getResultado("Usuarios") != null) {
                 return Response.ok(new Respuesta(true, CodigoRespuesta.CORRECTO, 
                         "El sistema ya tiene usuarios registrados", "")).build();
             }
 
-            
+            // Crear usuario administrador por defecto
             Usuario adminUser = new Usuario();
             adminUser.setUsuario("admin");
             adminUser.setRol("ADMINISTRADOR");
             adminUser.setEstado("A");
             adminUser.setFechaCreacion(LocalDateTime.now());
             
-            
+            // Contraseña en texto plano temporalmente
             adminUser.setContrasena("admin123");
 
-            
-            
+            // Guardar en base de datos usando el servicio
+            // (Aquí necesitarías acceso directo al EntityManager o usar el servicio)
             
             return Response.ok(new Respuesta(true, CodigoRespuesta.CORRECTO, 
                     "Sistema inicializado correctamente. Usuario admin creado con contraseña: admin123", 
@@ -61,7 +65,9 @@ public class SistemaController {
         }
     }
 
-    
+    /**
+     * GET /SistemaController/verificar - Verifica el estado del sistema
+     */
     @GET
     @Path("verificar")
     public Response verificarSistema() {

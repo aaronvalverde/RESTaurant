@@ -18,7 +18,12 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
+/**
+ * Controlador REST para gestión de órdenes
+ * 
+ * @author Kendall Fonseca
+ * @author Kaleb Alfaro
+ */
 @Path("/OrdenController")
 @Tag(name = "Órdenes", description = "Operaciones sobre órdenes del restaurante")
 public class OrdenController {
@@ -134,7 +139,7 @@ public class OrdenController {
     public Response getAllOrdenesPorMesa(@Parameter(description = "ID de la mesa", example = "5")
                                       @PathParam("idMesa") Long idMesa) {
         try {
-            
+            // Obtener todas las órdenes de la mesa (sin filtro de estado)
             Respuesta res = ordenService.obtenerPorMesa(idMesa, null);
             if (!res.getEstado()) {
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(res).build();

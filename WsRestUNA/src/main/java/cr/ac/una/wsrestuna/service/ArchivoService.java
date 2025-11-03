@@ -13,7 +13,9 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
+/**
+ * Servicio para gestión de archivos (imágenes)
+ */
 @Stateless
 @LocalBean
 public class ArchivoService {
@@ -23,7 +25,9 @@ public class ArchivoService {
     @PersistenceContext(unitName = "RestUNA_PU")
     private EntityManager em;
     
-    
+    /**
+     * Obtiene un archivo por ID incluyendo su contenido
+     */
     public Respuesta getArchivo(Long id) {
         try {
             Archivo archivo = em.find(Archivo.class, id);
@@ -32,7 +36,7 @@ public class ArchivoService {
                     "No se encontró el archivo con ID: " + id, "getArchivo", null);
             }
             
-            
+            // Forzar la carga del BLOB antes de devolver
             archivo.getContenido();
             
             ArchivoDto dto = new ArchivoDto(archivo, true);
@@ -46,7 +50,9 @@ public class ArchivoService {
         }
     }
     
-    
+    /**
+     * Obtiene todos los archivos sin su contenido (solo metadata)
+     */
     public Respuesta getArchivos() {
         try {
             List<Archivo> archivos = em.createNamedQuery("Archivo.findAll", Archivo.class)
@@ -67,13 +73,15 @@ public class ArchivoService {
         }
     }
     
-    
+    /**
+     * Guarda un nuevo archivo o actualiza uno existente
+     */
     public Respuesta guardarArchivo(ArchivoDto dto) {
         try {
             Archivo archivo;
             
             if (dto.getIdArchivo() != null && dto.getIdArchivo() > 0) {
-                
+                // Actualizar existente
                 archivo = em.find(Archivo.class, dto.getIdArchivo());
                 if (archivo == null) {
                     return new Respuesta(false, CodigoRespuesta.ERROR_NOENCONTRADO,
@@ -82,14 +90,14 @@ public class ArchivoService {
                 archivo.actualizar(dto);
                 archivo = em.merge(archivo);
             } else {
-                
+                // Crear nuevo
                 archivo = new Archivo(dto);
                 em.persist(archivo);
             }
             
             em.flush();
             
-            
+            // Retornar sin contenido para optimizar
             ArchivoDto resultado = new ArchivoDto(archivo, false);
             return new Respuesta(true, CodigoRespuesta.CORRECTO,
                 "", "guardarArchivo", "Archivo", resultado);
@@ -101,7 +109,9 @@ public class ArchivoService {
         }
     }
     
-    
+    /**
+     * Elimina un archivo por ID
+     */
     public Respuesta eliminarArchivo(Long id) {
         try {
             Archivo archivo = em.find(Archivo.class, id);
@@ -110,7 +120,7 @@ public class ArchivoService {
                     "No se encontró el archivo a eliminar", "eliminarArchivo", null);
             }
             
-            
+            // Verificar si está siendo usado por alguna sección
             Long count = em.createQuery(
                 "SELECT COUNT(s) FROM Seccion s WHERE s.archivoImagen.idArchivo = :idArchivo", Long.class)
                 .setParameter("idArchivo", id)

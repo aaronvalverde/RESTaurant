@@ -60,7 +60,7 @@ public class SectionsMgmtController extends Controller implements Initializable 
     @FXML
     private TreeTableColumn<SeccionDto, String> tbcTableGraphic;
     
-    
+    // Cache de imágenes para evitar recargas
     private final Map<Long, Image> imageCache = new HashMap<>();
     private final ArchivoService archivoService = new ArchivoService();
     @FXML
@@ -90,7 +90,7 @@ public class SectionsMgmtController extends Controller implements Initializable 
                 x.getValue().getValue().cobraImpuesto() ? "Sí" : "No"));
         tbcType.setCellValueFactory(x -> x.getValue().getValue().tipoProperty());
         
-        
+        // Configurar columna de imagen con celda personalizada
         tbcTableGraphic.setCellValueFactory(x -> new ReadOnlyStringWrapper(""));
         tbcTableGraphic.setCellFactory(column -> new TreeTableCell<SeccionDto, String>() {
             private final ImageView imageView = new ImageView();
@@ -136,14 +136,14 @@ public class SectionsMgmtController extends Controller implements Initializable 
         txfSearch.textProperty().addListener((obs, oldVal, newVal) -> filters());
         cmbType.valueProperty().addListener((obs, oldVal, newVal) -> filters());
 
-        
+        // Cargar secciones al inicializar
         cargarSecciones();
         setActionsColumn();
     }
 
     @Override
     public void initialize() {
-        
+        // Recargar al mostrar la vista nuevamente
         if (!cargando) {
             cargarSecciones();
         }
@@ -165,14 +165,14 @@ public class SectionsMgmtController extends Controller implements Initializable 
     
     @FXML
     void onActionBtnClearFilters(ActionEvent event) {
-        
+        // Limpiar campo de búsqueda
         txfSearch.clear();
         
-        
+        // Limpiar combo de tipo
         cmbType.clearSelection();
         cmbType.setValue(null);
         
-        
+        // Aplicar filtros vacíos para mostrar todos los elementos
         filters();
     }
 
@@ -246,7 +246,7 @@ public class SectionsMgmtController extends Controller implements Initializable 
     private void procesarSeccionesDesdeJson(String seccionesJson) {
         try {
             listSections.clear();
-            
+            // Limpiar cache de imágenes al recargar secciones
             imageCache.clear();
             System.out.println("Procesando JSON de secciones...");
 
@@ -255,7 +255,7 @@ public class SectionsMgmtController extends Controller implements Initializable 
                 procesarArrayDeSecciones(seccionesJson);
             }
 
-            
+            // Workaround para JFXTreeTableView
             TreeItem<SeccionDto> newRoot = new RecursiveTreeItem<>(listSections, RecursiveTreeObject::getChildren);
             tbvSections.setRoot(null);
             tbvSections.setRoot(newRoot);
@@ -308,13 +308,13 @@ public class SectionsMgmtController extends Controller implements Initializable 
         try {
             SeccionDto seccion = new SeccionDto();
 
-            
+            // Extraer ID
             String idStr = extraerValorNumerico(objetoJson, "idSeccion");
             if (idStr != null) {
                 seccion.setIdSeccion(Long.parseLong(idStr));
             }
 
-            
+            // Extraer campos string
             String nombre = extraerValor(objetoJson, "nombre");
             String tipo = extraerValor(objetoJson, "tipo");
             String cobraImpuesto = extraerValor(objetoJson, "cobraImpuesto");
@@ -333,26 +333,26 @@ public class SectionsMgmtController extends Controller implements Initializable 
                 seccion.setEstado(estado);
             }
 
-            
+            // Extraer ID de imagen
             String idImagenStr = extraerValorNumerico(objetoJson, "idArchivoImagen");
             if (idImagenStr != null) {
                 seccion.setIdArchivoImagen(Long.parseLong(idImagenStr));
             }
 
-            
+            // Extraer fecha
             String fechaStr = extraerValor(objetoJson, "fechaCreacion");
             if (fechaStr != null) {
                 try {
-                    
+                    // Parsear como ZonedDateTime y extraer solo la fecha
                     ZonedDateTime zonedDateTime = ZonedDateTime.parse(fechaStr, DateTimeFormatter.ISO_ZONED_DATE_TIME);
                     seccion.setFechaCreacion(zonedDateTime.toLocalDate());
                 } catch (Exception ex) {
                     System.err.println("Error parseando fecha: " + ex.getMessage());
-                    
+                    // Intentar como LocalDate si falla
                     try {
                         seccion.setFechaCreacion(LocalDate.parse(fechaStr.substring(0, 10)));
                     } catch (Exception ex2) {
-                        
+                        // Ignorar fecha si no se puede parsear
                     }
                 }
             }
@@ -386,13 +386,13 @@ public class SectionsMgmtController extends Controller implements Initializable 
     }
     
     private void cargarImagenMiniatura(Long idArchivo, ImageView imageView) {
-        
+        // Verificar si la imagen ya está en cache
         if (imageCache.containsKey(idArchivo)) {
             imageView.setImage(imageCache.get(idArchivo));
             return;
         }
         
-        
+        // Cargar imagen de forma asíncrona
         Task<Image> loadImageTask = new Task<>() {
             @Override
             protected Image call() throws Exception {
@@ -484,9 +484,9 @@ public class SectionsMgmtController extends Controller implements Initializable 
             MFXButton btnDelete = new MFXButton("🗑️ Eliminar");
 
             {
-                
-                
-                
+                // Iconos comentados temporalmente - agregar archivos de imagen más tarde
+                // btnEdit.setGraphic(new ImageView(new Image("../resources/icons/icons8-edit-50.png")));
+                // btnDelete.setGraphic(new ImageView(new Image("../resources/icons/icons8-delete-50.png")));
                 
                 btnEdit.setOnAction(e -> {
                     SeccionDto seccionDto = getTreeTableRow().getItem();
@@ -514,7 +514,7 @@ public class SectionsMgmtController extends Controller implements Initializable 
     }
 
     private void onDeleteSection(SeccionDto seccion) {
-        
+        // Mostrar confirmación
         Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
         confirmacion.setTitle("Confirmar eliminación");
         confirmacion.setHeaderText("¿Está seguro que desea eliminar esta sección?");
@@ -528,7 +528,7 @@ public class SectionsMgmtController extends Controller implements Initializable 
     }
     
     private void eliminarSeccion(SeccionDto seccion) {
-        
+        // Validar que tenga ID
         if (seccion.getIdSeccion() == null || seccion.getIdSeccion() <= 0) {
             mostrarError("Error", "No se puede eliminar la sección", "La sección no tiene un ID válido.");
             return;
@@ -545,15 +545,15 @@ public class SectionsMgmtController extends Controller implements Initializable 
             Respuesta respuesta = deleteTask.getValue();
             
             if (respuesta.getEstado()) {
-                
+                // Eliminar de la lista local
                 listSections.remove(seccion);
                 
-                
+                // Limpiar caché de imagen si tenía
                 if (seccion.getIdArchivoImagen() != null && seccion.getIdArchivoImagen() > 0) {
                     imageCache.remove(seccion.getIdArchivoImagen());
                 }
                 
-                
+                // Mostrar mensaje de éxito
                 Alert alerta = new Alert(Alert.AlertType.INFORMATION);
                 alerta.setTitle("Éxito");
                 alerta.setHeaderText("Sección eliminada");

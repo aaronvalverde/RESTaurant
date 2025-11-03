@@ -13,7 +13,9 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
+/**
+ * Servicio para gestión de grupos/categorías de productos
+ */
 @Stateless
 @LocalBean
 public class GrupoProductoService {
@@ -23,7 +25,9 @@ public class GrupoProductoService {
     @PersistenceContext(unitName = "RestUNA_PU")
     private EntityManager em;
     
-    
+    /**
+     * Obtiene un grupo de productos por ID
+     */
     public Respuesta getGrupoProducto(Long id) {
         try {
             GrupoProducto grupo = em.find(GrupoProducto.class, id);
@@ -43,7 +47,9 @@ public class GrupoProductoService {
         }
     }
     
-    
+    /**
+     * Obtiene todos los grupos de productos ordenados por orden de visualización
+     */
     public Respuesta getGrupoProductos() {
         try {
             List<GrupoProducto> grupos = em.createNamedQuery("GrupoProducto.findAll", GrupoProducto.class)
@@ -64,7 +70,9 @@ public class GrupoProductoService {
         }
     }
     
-    
+    /**
+     * Obtiene solo los grupos activos ordenados por orden de visualización
+     */
     public Respuesta getGrupoProductosActivos() {
         try {
             List<GrupoProducto> grupos = em.createNamedQuery("GrupoProducto.findActivos", GrupoProducto.class)
@@ -85,7 +93,9 @@ public class GrupoProductoService {
         }
     }
     
-    
+    /**
+     * Obtiene los grupos marcados para acceso rápido (para menú POS)
+     */
     public Respuesta getGrupoProductosAccesoRapido() {
         try {
             List<GrupoProducto> grupos = em.createNamedQuery("GrupoProducto.findAccesoRapido", GrupoProducto.class)
@@ -106,11 +116,13 @@ public class GrupoProductoService {
         }
     }
     
-    
+    /**
+     * Obtiene los grupos más vendidos
+     */
     public Respuesta getGrupoProductosMasVendidos() {
         try {
             List<GrupoProducto> grupos = em.createNamedQuery("GrupoProducto.findMasVendidos", GrupoProducto.class)
-                .setMaxResults(10) 
+                .setMaxResults(10) // Top 10
                 .getResultList();
             
             List<GrupoProductoDto> dtos = new ArrayList<>();
@@ -128,13 +140,15 @@ public class GrupoProductoService {
         }
     }
     
-    
+    /**
+     * Guarda un nuevo grupo o actualiza uno existente
+     */
     public Respuesta guardarGrupoProducto(GrupoProductoDto dto) {
         try {
             GrupoProducto grupo;
             
             if (dto.getIdGrupoProducto() != null && dto.getIdGrupoProducto() > 0) {
-                
+                // Actualizar existente
                 grupo = em.find(GrupoProducto.class, dto.getIdGrupoProducto());
                 if (grupo == null) {
                     return new Respuesta(false, CodigoRespuesta.ERROR_NOENCONTRADO,
@@ -143,10 +157,10 @@ public class GrupoProductoService {
                 grupo.actualizar(dto);
                 grupo = em.merge(grupo);
             } else {
-                
+                // Crear nuevo
                 grupo = new GrupoProducto(dto);
                 
-                
+                // Si no se especificó orden de visualización, asignar el siguiente disponible
                 if (grupo.getOrdenVisualizacion() == null || grupo.getOrdenVisualizacion() == 0) {
                     Long maxOrden = em.createQuery(
                         "SELECT COALESCE(MAX(g.ordenVisualizacion), 0) FROM GrupoProducto g", Long.class)
@@ -170,7 +184,9 @@ public class GrupoProductoService {
         }
     }
     
-    
+    /**
+     * Elimina un grupo de productos por ID
+     */
     public Respuesta eliminarGrupoProducto(Long id) {
         try {
             GrupoProducto grupo = em.find(GrupoProducto.class, id);
@@ -179,7 +195,7 @@ public class GrupoProductoService {
                     "No se encontró el grupo a eliminar", "eliminarGrupoProducto");
             }
             
-            
+            // Verificar si tiene productos asociados
             Number cantProductos = (Number) em.createNativeQuery(
                 "SELECT COUNT(*) FROM PRODUCTO WHERE ID_GRUPO_PRODUCTO = ?")
                 .setParameter(1, id)

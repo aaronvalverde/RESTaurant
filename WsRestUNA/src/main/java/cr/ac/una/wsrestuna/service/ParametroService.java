@@ -16,7 +16,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-
+/**
+ * Servicio EJB para la gestión de parámetros de configuración
+ * Maneja operaciones CRUD y lógica de negocio para parámetros por usuario
+ */
 @Stateless
 @LocalBean
 public class ParametroService {
@@ -26,7 +29,9 @@ public class ParametroService {
     @PersistenceContext(unitName = "RestUNA_PU")
     private EntityManager em;
 
-    
+    /**
+     * Obtiene todos los parámetros de un usuario
+     */
     public Respuesta getParametrosPorUsuario(Long idUsuario) {
         try {
             if (idUsuario == null) {
@@ -53,7 +58,9 @@ public class ParametroService {
         }
     }
 
-    
+    /**
+     * Obtiene un parámetro específico de un usuario por clave
+     */
     public Respuesta getParametroPorUsuarioYClave(Long idUsuario, String clave) {
         try {
             if (idUsuario == null) {
@@ -88,7 +95,9 @@ public class ParametroService {
         }
     }
 
-    
+    /**
+     * Guarda un parámetro (crear o actualizar)
+     */
     public Respuesta guardarParametro(ParametroDto parametroDto) {
         try {
             if (parametroDto == null) {
@@ -106,7 +115,7 @@ public class ParametroService {
                         "La clave del parámetro es requerida", "guardarParametro: Clave vacía");
             }
 
-            
+            // Verificar que el usuario existe
             Usuario usuario = em.find(Usuario.class, parametroDto.getIdUsuario());
             if (usuario == null) {
                 return new Respuesta(false, CodigoRespuesta.ERROR_NOENCONTRADO, 
@@ -116,7 +125,7 @@ public class ParametroService {
             Parametro parametro;
             
             if (parametroDto.getIdParametro() != null && parametroDto.getIdParametro() > 0) {
-                
+                // Actualizar parámetro existente
                 parametro = em.find(Parametro.class, parametroDto.getIdParametro());
                 if (parametro == null) {
                     return new Respuesta(false, CodigoRespuesta.ERROR_NOENCONTRADO, 
@@ -126,7 +135,7 @@ public class ParametroService {
                 parametro.actualizar(parametroDto);
                 parametro = em.merge(parametro);
             } else {
-                
+                // Crear nuevo parámetro
                 parametro = new Parametro(parametroDto);
                 parametro.setUsuario(usuario);
                 em.persist(parametro);
@@ -144,7 +153,9 @@ public class ParametroService {
         }
     }
 
-    
+    /**
+     * Guarda múltiples parámetros (batch)
+     */
     public Respuesta guardarParametros(List<ParametroDto> parametrosDto) {
         try {
             if (parametrosDto == null || parametrosDto.isEmpty()) {
@@ -152,21 +163,21 @@ public class ParametroService {
                         "La lista de parámetros es requerida", "guardarParametros: Lista vacía");
             }
 
-            
+            // Validar que todos los parámetros tienen el mismo usuario
             Long idUsuario = parametrosDto.get(0).getIdUsuario();
             if (idUsuario == null) {
                 return new Respuesta(false, CodigoRespuesta.ERROR_CLIENTE, 
                         "El ID del usuario es requerido", "guardarParametros: ID usuario nulo");
             }
 
-            
+            // Verificar que el usuario existe
             Usuario usuario = em.find(Usuario.class, idUsuario);
             if (usuario == null) {
                 return new Respuesta(false, CodigoRespuesta.ERROR_NOENCONTRADO, 
                         "No se encontró el usuario especificado", "guardarParametros: Usuario no existe");
             }
 
-            
+            // Procesar cada parámetro
             for (ParametroDto parametroDto : parametrosDto) {
                 if (!idUsuario.equals(parametroDto.getIdUsuario())) {
                     return new Respuesta(false, CodigoRespuesta.ERROR_CLIENTE, 
@@ -174,19 +185,19 @@ public class ParametroService {
                             "guardarParametros: Usuario inconsistente");
                 }
 
-                
+                // Buscar si ya existe el parámetro por clave y usuario
                 try {
                     TypedQuery<Parametro> query = em.createNamedQuery("Parametro.findByUsuarioAndClave", Parametro.class);
                     query.setParameter("idUsuario", idUsuario);
                     query.setParameter("clave", parametroDto.getClave());
                     Parametro parametroExistente = query.getSingleResult();
                     
-                    
+                    // Actualizar existente
                     parametroExistente.actualizar(parametroDto);
                     em.merge(parametroExistente);
                     
                 } catch (NoResultException e) {
-                    
+                    // Crear nuevo
                     Parametro nuevoParametro = new Parametro(parametroDto);
                     nuevoParametro.setUsuario(usuario);
                     em.persist(nuevoParametro);
@@ -195,7 +206,7 @@ public class ParametroService {
             
             em.flush();
             
-            
+            // Retornar todos los parámetros actualizados del usuario
             return getParametrosPorUsuario(idUsuario);
 
         } catch (Exception e) {
@@ -206,7 +217,9 @@ public class ParametroService {
         }
     }
 
-    
+    /**
+     * Elimina un parámetro
+     */
     public Respuesta eliminarParametro(Long id) {
         try {
             if (id == null || id <= 0) {

@@ -3,7 +3,9 @@ package cr.ac.una.restuna.model;
 import java.io.Serializable;
 import java.time.LocalDate;
 
-
+/**
+ * DTO para parámetros de configuración del sistema por usuario
+ */
 public class ParametroDto implements Serializable {
     
     private static final long serialVersionUID = 1L;
@@ -85,7 +87,7 @@ public class ParametroDto implements Serializable {
         this.modificado = modificado;
     }
     
-    
+    // Métodos de utilidad para conversión de tipos
     public Integer getValorComoEntero() {
         if (valor == null || valor.isEmpty()) {
             return null;

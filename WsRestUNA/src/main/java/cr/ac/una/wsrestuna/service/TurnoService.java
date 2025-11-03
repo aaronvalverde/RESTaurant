@@ -29,7 +29,7 @@ public class TurnoService {
 
     public Respuesta iniciarTurno(TurnoDto turnoDto) {
         try {
-            
+            // Verificar si el usuario ya tiene un turno activo
             Turno turnoActivo = obtenerTurnoActivoByUsuario(turnoDto.getUsuarioId());
             if (turnoActivo != null) {
                 return new Respuesta(false, CodigoRespuesta.ERROR_INTERNO,
@@ -78,7 +78,7 @@ public class TurnoService {
                         "El turno ya está finalizado", "finalizarTurno", null);
             }
 
-            
+            // Establecer valores
             LocalDateTime ahora = LocalDateTime.now();
             LOG.log(Level.INFO, "Estableciendo fecha final a: {0}", ahora);
             turno.setFechaFinal(ahora);
@@ -86,7 +86,7 @@ public class TurnoService {
             LOG.log(Level.INFO, "Estableciendo estado a: F");
             turno.setEstado("F");
 
-            
+            // Calcular duración
             if (turno.getFechaInicio() != null) {
                 long minutos = Duration.between(turno.getFechaInicio(), ahora).toMinutes();
                 LOG.log(Level.INFO, "Calculando duración: {0} minutos", minutos);

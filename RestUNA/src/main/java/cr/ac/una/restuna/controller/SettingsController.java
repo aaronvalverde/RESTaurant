@@ -33,7 +33,11 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.layout.VBox;
 
-
+/**
+ * FXML Controller class
+ *
+ * @author aaron
+ */
 public class SettingsController extends Controller implements Initializable {
 
     @FXML
@@ -77,7 +81,7 @@ public class SettingsController extends Controller implements Initializable {
         loadCurrencyOptions();
         configurarSpinners();
 
-        
+        // Agregar validaciones
         TextFieldValidator.addPhoneValidation(txfPhone);
         TextFieldValidator.addPhoneValidation(txfSecondaryPhone);
         TextFieldValidator.addEmailValidation(txfEmail);
@@ -85,7 +89,7 @@ public class SettingsController extends Controller implements Initializable {
         settingsContainer.prefHeightProperty().bind(settingsRoot.heightProperty());
         settingsContainer.prefWidthProperty().bind(settingsRoot.widthProperty());
 
-        
+        // Cargar parámetros del usuario actual
         cargarParametros();
     }
 
@@ -94,15 +98,15 @@ public class SettingsController extends Controller implements Initializable {
     }
 
     private void configurarSpinners() {
-        
-        
+        // Los MFXSpinner necesitan tener su SpinnerModel configurado antes de usarlos
+        // Creamos modelos con rangos de 0-100 con incremento de 0.5
 
         if (spinnerIVA != null) {
             DoubleSpinnerModel modelIVA = new DoubleSpinnerModel();
             modelIVA.setMin(0.0);
             modelIVA.setMax(100.0);
             modelIVA.setIncrement(0.5);
-            modelIVA.setValue(13.0); 
+            modelIVA.setValue(13.0); // Valor inicial por defecto (IVA Costa Rica)
             spinnerIVA.setSpinnerModel(modelIVA);
         }
 
@@ -111,7 +115,7 @@ public class SettingsController extends Controller implements Initializable {
             modelService.setMin(0.0);
             modelService.setMax(100.0);
             modelService.setIncrement(0.5);
-            modelService.setValue(10.0); 
+            modelService.setValue(10.0); // Valor inicial por defecto (Servicio Costa Rica)
             spinnerServiceTax.setSpinnerModel(modelService);
         }
 
@@ -120,7 +124,7 @@ public class SettingsController extends Controller implements Initializable {
             modelDiscount.setMin(0.0);
             modelDiscount.setMax(100.0);
             modelDiscount.setIncrement(0.5);
-            modelDiscount.setValue(5.0); 
+            modelDiscount.setValue(5.0); // Valor inicial por defecto
             spinnerCashierDiscount.setSpinnerModel(modelDiscount);
         }
     }
@@ -156,7 +160,7 @@ public class SettingsController extends Controller implements Initializable {
                         procesarParametros(jsonArray);
                         aplicarParametrosAUI();
                     } else {
-                        
+                        // No hay parámetros guardados aún, aplicar valores por defecto visuales
                         System.out.println("No hay parámetros guardados para el usuario, aplicando valores por defecto");
                         aplicarValoresPorDefecto();
                     }
@@ -187,7 +191,7 @@ public class SettingsController extends Controller implements Initializable {
             return;
         }
 
-        
+        // Extraer cada objeto del array JSON
         Pattern pattern = Pattern.compile("\\{[^{}]*\\}");
         Matcher matcher = pattern.matcher(jsonArray);
 
@@ -219,7 +223,7 @@ public class SettingsController extends Controller implements Initializable {
     }
 
     private void aplicarParametrosAUI() {
-        
+        // Aplicar idioma
         ParametroDto idioma = parametrosMap.get("IDIOMA");
         if (idioma != null && idioma.getValor() != null) {
             if ("es".equalsIgnoreCase(idioma.getValor())) {
@@ -229,19 +233,19 @@ public class SettingsController extends Controller implements Initializable {
             }
         }
 
-        
+        // Aplicar moneda
         ParametroDto moneda = parametrosMap.get("MONEDA");
         if (moneda != null && moneda.getValor() != null) {
             cmbCurrency.selectItem(moneda.getValor());
         }
 
-        
+        // Aplicar nombre del restaurante
         ParametroDto nombreRestaurante = parametrosMap.get("NOMBRE_RESTAURANTE");
         if (nombreRestaurante != null && nombreRestaurante.getValor() != null) {
             txfRestaurantName.setText(nombreRestaurante.getValor());
         }
 
-        
+        // Aplicar impuesto de venta (IVA)
         ParametroDto iva = parametrosMap.get("IMPUESTO_VENTA");
         if (iva != null && iva.getValorComoDecimal() != null && spinnerIVA != null) {
             try {
@@ -253,7 +257,7 @@ public class SettingsController extends Controller implements Initializable {
             }
         }
 
-        
+        // Aplicar impuesto de servicio
         ParametroDto impuestoServicio = parametrosMap.get("IMPUESTO_SERVICIO");
         if (impuestoServicio != null && impuestoServicio.getValorComoDecimal() != null && spinnerServiceTax != null) {
             try {
@@ -265,7 +269,7 @@ public class SettingsController extends Controller implements Initializable {
             }
         }
 
-        
+        // Aplicar descuento máximo cajero
         ParametroDto descuentoMaximo = parametrosMap.get("DESCUENTO_MAXIMO_CAJERO");
         if (descuentoMaximo != null && descuentoMaximo.getValorComoDecimal() != null && spinnerCashierDiscount != null) {
             try {
@@ -277,50 +281,52 @@ public class SettingsController extends Controller implements Initializable {
             }
         }
 
-        
+        // Aplicar teléfono
         ParametroDto telefono = parametrosMap.get("TELEFONO");
         if (telefono != null && telefono.getValor() != null) {
             txfPhone.setText(telefono.getValor());
         }
 
-        
+        // Aplicar teléfono secundario
         ParametroDto telefonoSecundario = parametrosMap.get("TELEFONO_SECUNDARIO");
         if (telefonoSecundario != null && telefonoSecundario.getValor() != null) {
             txfSecondaryPhone.setText(telefonoSecundario.getValor());
         }
 
-        
+        // Aplicar email
         ParametroDto email = parametrosMap.get("EMAIL");
         if (email != null && email.getValor() != null) {
             txfEmail.setText(email.getValor());
         }
 
-        
+        // Aplicar dirección
         ParametroDto direccion = parametrosMap.get("DIRECCION");
         if (direccion != null && direccion.getValor() != null) {
             txfAddress.setText(direccion.getValor());
         }
 
-        
+        // Guardar valores originales para detectar cambios
         guardarValoresOriginales();
     }
 
-    
+    /**
+     * Aplica valores por defecto cuando no hay parámetros guardados en la BD
+     */
     private void aplicarValoresPorDefecto() {
-        
+        // Idioma por defecto: español
         cmbLanguage.selectItem("Español");
 
-        
+        // Moneda por defecto: Colón
         cmbCurrency.selectItem("CRC - Colón");
 
-        
+        // Nombre restaurante vacío (el usuario debe ingresarlo)
         txfRestaurantName.setText("");
 
-        
+        // Spinners con valores por defecto de Costa Rica
         if (spinnerIVA != null) {
             try {
                 if (spinnerIVA.getSpinnerModel() != null) {
-                    spinnerIVA.setValue(13.0); 
+                    spinnerIVA.setValue(13.0); // IVA estándar en Costa Rica
                 }
             } catch (Exception e) {
                 System.err.println("Error al establecer valor por defecto IVA: " + e.getMessage());
@@ -330,7 +336,7 @@ public class SettingsController extends Controller implements Initializable {
         if (spinnerServiceTax != null) {
             try {
                 if (spinnerServiceTax.getSpinnerModel() != null) {
-                    spinnerServiceTax.setValue(10.0); 
+                    spinnerServiceTax.setValue(10.0); // Servicio estándar en Costa Rica
                 }
             } catch (Exception e) {
                 System.err.println("Error al establecer valor por defecto servicio: " + e.getMessage());
@@ -340,14 +346,14 @@ public class SettingsController extends Controller implements Initializable {
         if (spinnerCashierDiscount != null) {
             try {
                 if (spinnerCashierDiscount.getSpinnerModel() != null) {
-                    spinnerCashierDiscount.setValue(5.0); 
+                    spinnerCashierDiscount.setValue(5.0); // Descuento razonable por defecto
                 }
             } catch (Exception e) {
                 System.err.println("Error al establecer valor por defecto descuento: " + e.getMessage());
             }
         }
 
-        
+        // Campos de contacto vacíos
         txfPhone.setText("");
         txfSecondaryPhone.setText("");
         txfEmail.setText("");
@@ -363,7 +369,7 @@ public class SettingsController extends Controller implements Initializable {
         Long idUsuario = UserSession.getInstance().getCurrentUser().getIdUsuario();
         List<ParametroDto> parametrosAGuardar = new ArrayList<>();
 
-        
+        // Crear lista de parámetros a guardar
         parametrosAGuardar.add(crearParametro("IDIOMA", obtenerCodigoIdioma(),
                 "Idioma de la interfaz", "STRING", idUsuario));
 
@@ -373,7 +379,7 @@ public class SettingsController extends Controller implements Initializable {
         parametrosAGuardar.add(crearParametro("NOMBRE_RESTAURANTE", txfRestaurantName.getText().trim(),
                 "Nombre del restaurante", "STRING", idUsuario));
 
-        
+        // Obtener valores de spinners con manejo seguro
         Double ivaValue = spinnerIVA != null && spinnerIVA.getValue() != null ? spinnerIVA.getValue() : 13.0;
         Double serviceTaxValue = spinnerServiceTax != null && spinnerServiceTax.getValue() != null ? spinnerServiceTax.getValue() : 10.0;
         Double cashierDiscountValue = spinnerCashierDiscount != null && spinnerCashierDiscount.getValue() != null ? spinnerCashierDiscount.getValue() : 5.0;
@@ -393,7 +399,7 @@ public class SettingsController extends Controller implements Initializable {
         parametrosAGuardar.add(crearParametro("TELEFONO", txfPhone.getText().trim(),
                 "Teléfono principal del restaurante", "STRING", idUsuario));
 
-        
+        // Solo agregar teléfono secundario si no está vacío (campo opcional)
         if (txfSecondaryPhone.getText() != null && !txfSecondaryPhone.getText().trim().isEmpty()) {
             parametrosAGuardar.add(crearParametro("TELEFONO_SECUNDARIO", txfSecondaryPhone.getText().trim(),
                     "Teléfono secundario del restaurante", "STRING", idUsuario));
@@ -405,7 +411,7 @@ public class SettingsController extends Controller implements Initializable {
         parametrosAGuardar.add(crearParametro("DIRECCION", txfAddress.getText().trim(),
                 "Dirección física del restaurante", "STRING", idUsuario));
 
-        
+        // Guardar en el servidor
         guardarParametrosEnServidor(parametrosAGuardar);
     }
 
@@ -417,7 +423,7 @@ public class SettingsController extends Controller implements Initializable {
             parametro.setClave(clave);
         }
 
-        
+        // Asegurar que el valor nunca sea null o vacío para campos obligatorios
         if (valor == null || valor.trim().isEmpty()) {
             throw new IllegalArgumentException("El valor para " + clave + " no puede estar vacío");
         }
@@ -432,7 +438,7 @@ public class SettingsController extends Controller implements Initializable {
     }
 
     private void guardarParametrosEnServidor(List<ParametroDto> parametros) {
-        
+        // Detectar si cambió el idioma
         String nuevoIdioma = obtenerCodigoIdioma();
         String idiomaOriginal = valoresOriginales.get("IDIOMA");
         final boolean cambioIdioma = idiomaOriginal != null && !nuevoIdioma.equals(idiomaOriginal);
@@ -445,7 +451,7 @@ public class SettingsController extends Controller implements Initializable {
                 Platform.runLater(() -> {
                     if (respuesta.getEstado()) {
                         if (cambioIdioma) {
-                            
+                            // Mostrar mensaje de que se requiere logout
                             Alert alert = new Alert(Alert.AlertType.INFORMATION);
                             alert.setTitle(FlowController.getInstance().getLanguage().getString("msg.change.language"));
                             alert.setHeaderText(null);
@@ -454,7 +460,7 @@ public class SettingsController extends Controller implements Initializable {
                                     FlowController.getInstance().getLanguage().getString("msg.relogin"));
                             alert.showAndWait();
 
-                            
+                            // Cerrar sesión y volver al login
                             UserSession.getInstance().clearSession();
                             FlowController.getInstance().goMain(AppKeys.LOGIN);
                         } else {
@@ -464,11 +470,11 @@ public class SettingsController extends Controller implements Initializable {
                             alert.setContentText(FlowController.getInstance().getLanguage().getString("msg.success.save"));
                             alert.showAndWait();
 
-                            
+                            // Recargar parámetros
                             String jsonArray = (String) respuesta.getResultado("Parametros");
                             procesarParametros(jsonArray);
 
-                            
+                            // Actualizar valores originales después de guardar
                             guardarValoresOriginales();
                         }
                     } else {
@@ -499,38 +505,38 @@ public class SettingsController extends Controller implements Initializable {
     }
 
     private boolean validarCampos() {
-        
+        // Validar idioma (combobox)
         if (cmbLanguage.getSelectedItem() == null || cmbLanguage.getSelectedItem().trim().isEmpty()) {
             mostrarError(getLanguageString("msg.language.required"), null);
             return false;
         }
 
-        
+        // Validar moneda (combobox)
         if (cmbCurrency.getSelectedItem() == null || cmbCurrency.getSelectedItem().trim().isEmpty()) {
             mostrarError(getLanguageString("msg.currency.required"), null);
             return false;
         }
 
-        
+        // Validar nombre del restaurante (obligatorio)
         if (txfRestaurantName.getText() == null || txfRestaurantName.getText().trim().isEmpty()) {
             mostrarError(getLanguageString("msg.restaurant.name.required"), txfRestaurantName);
             return false;
         }
 
-        
+        // Validar teléfono principal (obligatorio)
         if (txfPhone.getText() == null || txfPhone.getText().trim().isEmpty()) {
             mostrarError(getLanguageString("msg.phone.required"), txfPhone);
             return false;
         }
 
-        
+        // Validar formato de teléfono principal
         String phoneRegex = "^[+]?[0-9\\s()-]{7,20}$";
         if (!txfPhone.getText().trim().matches(phoneRegex)) {
             mostrarError(getLanguageString("msg.phone.format"), txfPhone);
             return false;
         }
 
-        
+        // Validar teléfono secundario (OPCIONAL - solo validar formato si tiene valor)
         if (txfSecondaryPhone.getText() != null && !txfSecondaryPhone.getText().trim().isEmpty()) {
             if (!txfSecondaryPhone.getText().trim().matches(phoneRegex)) {
                 mostrarError(getLanguageString("msg.secondaryphone.format"), txfSecondaryPhone);
@@ -538,26 +544,26 @@ public class SettingsController extends Controller implements Initializable {
             }
         }
 
-        
+        // Validar email (obligatorio)
         if (txfEmail.getText() == null || txfEmail.getText().trim().isEmpty()) {
             mostrarError(getLanguageString("msg.email.required"), txfEmail);
             return false;
         }
 
-        
+        // Validar formato de email
         String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
         if (!txfEmail.getText().trim().matches(emailRegex)) {
             mostrarError(getLanguageString("msg.email.format"), txfEmail);
             return false;
         }
 
-        
+        // Validar dirección (obligatoria)
         if (txfAddress.getText() == null || txfAddress.getText().trim().isEmpty()) {
             mostrarError(getLanguageString("msg.address.required"), txfAddress);
             return false;
         }
 
-        
+        // Validar que los spinners tengan valores válidos
         Double ivaValue = spinnerIVA != null && spinnerIVA.getValue() != null ? spinnerIVA.getValue() : 13.0;
         if (ivaValue < 0 || ivaValue > 100) {
             mostrarError(getLanguageString("msg.iva"), null);
@@ -602,7 +608,7 @@ public class SettingsController extends Controller implements Initializable {
 
     @FXML
     private void onActionBtnCancel(ActionEvent event) {
-        
+        // Recargar parámetros originales
         aplicarParametrosAUI();
 
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -631,7 +637,7 @@ public class SettingsController extends Controller implements Initializable {
         cmbLanguage.getItems().add("Español");
         cmbLanguage.getItems().add("English");
 
-        
+        // Seleccionar español por defecto si no hay nada seleccionado
         if (cmbLanguage.getSelectedItem() == null || cmbLanguage.getSelectedItem().isEmpty()) {
             cmbLanguage.selectItem("Español");
         }
@@ -643,7 +649,7 @@ public class SettingsController extends Controller implements Initializable {
         cmbCurrency.getItems().add("USD - Dólar");
         cmbCurrency.getItems().add("EUR - Euro");
 
-        
+        // Seleccionar CRC por defecto si no hay nada seleccionado
         if (cmbCurrency.getSelectedItem() == null || cmbCurrency.getSelectedItem().isEmpty()) {
             cmbCurrency.selectItem("CRC - Colón");
         }
@@ -658,7 +664,9 @@ public class SettingsController extends Controller implements Initializable {
         FlowController.getInstance().setLanguage(bundle);
     }
 
-    
+    /**
+     * Aplica el cambio de idioma a todo el sistema
+     */
     private void aplicarCambioDeIdioma(String codigoIdioma) {
         try {
             Locale locale;
@@ -668,7 +676,7 @@ public class SettingsController extends Controller implements Initializable {
             } else if ("en".equalsIgnoreCase(codigoIdioma)) {
                 locale = Locale.of("en");
             } else {
-                
+                // Por defecto usar español
                 locale = Locale.of("es");
             }
 
@@ -681,7 +689,9 @@ public class SettingsController extends Controller implements Initializable {
         }
     }
 
-    
+    /**
+     * Guarda los valores actuales de los campos para detectar cambios posteriores
+     */
     private void guardarValoresOriginales() {
         valoresOriginales.clear();
         valoresOriginales.put("IDIOMA", obtenerCodigoIdioma());
@@ -696,13 +706,15 @@ public class SettingsController extends Controller implements Initializable {
         valoresOriginales.put("DIRECCION", txfAddress.getText() != null ? txfAddress.getText().trim() : "");
     }
 
-    
+    /**
+     * Detecta si hay cambios no guardados en los campos
+     */
     private boolean hayCambiosNoGuardados() {
         if (valoresOriginales.isEmpty()) {
-            return false; 
+            return false; // No hay valores originales, no hay cambios
         }
 
-        
+        // Comparar cada campo con su valor original
         String idiomaActual = obtenerCodigoIdioma();
         if (!idiomaActual.equals(valoresOriginales.get("IDIOMA"))) return true;
 
@@ -733,14 +745,16 @@ public class SettingsController extends Controller implements Initializable {
         String direccionActual = txfAddress.getText() != null ? txfAddress.getText().trim() : "";
         if (!direccionActual.equals(valoresOriginales.get("DIRECCION"))) return true;
 
-        return false; 
+        return false; // No hay cambios
     }
 
-    
+    /**
+     * Maneja el evento del botón Exit
+     */
     @FXML
     private void onActionBtnExit(ActionEvent event) {
         if (hayCambiosNoGuardados()) {
-            
+            // Mostrar confirmación si hay cambios
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Cambios no guardados");
             alert.setHeaderText(null);
@@ -748,13 +762,13 @@ public class SettingsController extends Controller implements Initializable {
 
             alert.showAndWait().ifPresent(response -> {
                 if (response == javafx.scene.control.ButtonType.OK) {
-                    
+                    // Usuario confirmó salir sin guardar - restaurar contenido inicial
                     FlowController.getInstance().goHome();
                 }
-                
+                // Si cancela, no hace nada y permanece en Settings
             });
         } else {
-            
+            // No hay cambios, salir directamente - restaurar contenido inicial
             FlowController.getInstance().goHome();
         }
     }
