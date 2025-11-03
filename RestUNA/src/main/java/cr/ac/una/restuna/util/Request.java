@@ -103,19 +103,21 @@ public class Request {
             URL url = new URL(urlStr);
             conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
-            conn.setRequestProperty("Accept", "application/pdf");
+            conn.setRequestProperty("Accept", "application/pdf, application/octet-stream");
+            conn.setConnectTimeout(10000);
+            conn.setReadTimeout(15000);
 
             int statusCode = conn.getResponseCode();
+            System.out.println("HTTP Status Code en getResponseBytes(): " + statusCode);
 
             InputStream inputStream;
             if (statusCode >= 200 && statusCode < 300) {
                 inputStream = conn.getInputStream();
             } else {
                 inputStream = conn.getErrorStream();
-                if (inputStream == null) {
-                    this.error = "Error HTTP " + statusCode;
-                    return null;
-                }
+                this.error = "Error HTTP " + statusCode + " al obtener PDF";
+                this.isError = true;
+                return null;
             }
 
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
@@ -126,16 +128,14 @@ public class Request {
             }
             buffer.flush();
 
-            if (statusCode < 200 || statusCode >= 300) {
-                this.error = "Error HTTP " + statusCode;
-                return null;
-            }
-
-            return buffer.toByteArray();
+            byte[] result = buffer.toByteArray();
+            System.out.println("PDF recibido, tamaño: " + result.length + " bytes");
+            return result;
 
         } catch (Exception ex) {
             Logger.getLogger(Request.class.getName()).log(Level.SEVERE, "Error obteniendo respuesta binaria", ex);
-            this.error = ex.getMessage();
+            this.error = "Error obteniendo PDF: " + ex.getMessage();
+            this.isError = true;
             return null;
         } finally {
             if (conn != null) {

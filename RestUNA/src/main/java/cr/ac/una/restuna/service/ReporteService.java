@@ -34,7 +34,7 @@ public class ReporteService {
             parametros.put("fechaFin", fechaFin);
 
             Request request = new Request("ReporteController/reporte/productos-vendidos", "", parametros);
-            request.post(parametros);
+            request.get();
 
             if (request.isError()) {
 
@@ -42,8 +42,15 @@ public class ReporteService {
 
             }
 
-            String json = request.getResponseBody();
-            return new Respuesta(true, "", "", "Reporte", json);
+            byte[] pdf = request.getResponseBytes();
+
+            if (pdf == null || pdf.length == 0) {
+                return new Respuesta(false, "Error en el reporte", "PDF vacio");
+            }
+
+            Respuesta respuesta = new Respuesta(true, "Reporte generado correctamente", "");
+            respuesta.setResultado("Reporte", pdf);
+            return respuesta;
 
         } catch (Exception e) {
             LOG.log(Level.SEVERE, "Error generando reporte de productos", e);
@@ -66,7 +73,7 @@ public class ReporteService {
             parametros.put("fechaFin", fechaFin);
 
             Request request = new Request("ReporteController/reporte/facturas", "", parametros);
-            request.post(parametros);
+            request.get();
 
             if (request.isError()) {
 
@@ -74,8 +81,14 @@ public class ReporteService {
 
             }
 
-            String json = request.getResponseBody();
-            return new Respuesta(true, "", "", "Reporte", json);
+            byte[] pdf = request.getResponseBytes();
+            if (pdf == null || pdf.length == 0) {
+                return new Respuesta(false, "Error en el reporte", "PDF vacio");
+            }
+
+            Respuesta respuesta = new Respuesta(true, "Reporte generado correctamente", "");
+            respuesta.setResultado("Reporte", pdf);
+            return respuesta;
 
         } catch (Exception e) {
             LOG.log(Level.SEVERE, "Error generando reporte de facturas", e);
@@ -94,10 +107,10 @@ public class ReporteService {
             }
 
             Map<String, Object> parametros = new HashMap<>();
-            parametros.put("idCierreCja", idCierreCaja);
+            parametros.put("idCierreCaja", idCierreCaja);
 
             Request request = new Request("ReporteController/reporte/cierre-caja", "", parametros);
-            request.post(parametros);
+            request.get();
 
             if (request.isError()) {
 
@@ -105,8 +118,14 @@ public class ReporteService {
 
             }
 
-            String json = request.getResponseBody();
-            return new Respuesta(true, "", "", "Reporte", json);
+            byte[] pdf = request.getResponseBytes();
+            if (pdf == null || pdf.length == 0) {
+                return new Respuesta(false, "Error en el reporte", "PDF vacio");
+            }
+
+            Respuesta respuesta = new Respuesta(true, "Reporte generado correctamente", "");
+            respuesta.setResultado("Reporte", pdf);
+            return respuesta;
         } catch (Exception e) {
             LOG.log(Level.SEVERE, "Error generando reporte de cierre", e);
             return new Respuesta(false, "Error generando reporte de cierre.", "reporteCierreCaja " + e.getMessage());
