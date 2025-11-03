@@ -35,141 +35,166 @@ import java.text.ParseException;
 @Path("/ReporteController")
 @Tag(name = "Reporte", description = "Operaciones sobre reportes del restaurante")
 public class ReporteController {
+
     private static final Logger LOG = Logger.getLogger(MesaController.class.getName());
-    
+
     @EJB
     ReporteService reporteService;
-    
-    @POST
+
+    @GET
     @Path("/reporte/productos-vendidos")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces("application/pdf")
     @Operation(summary = "Genera reporte de productos vendidos")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Reporte generado correctamente",
-                content = @Content(mediaType = MediaType.APPLICATION_JSON)),
+                content = @Content(mediaType = "application/pdf")),
         @ApiResponse(responseCode = "400", description = "Parámetros inválidos",
                 content = @Content(mediaType = MediaType.TEXT_PLAIN)),
         @ApiResponse(responseCode = "500", description = "Error interno",
                 content = @Content(mediaType = MediaType.TEXT_PLAIN))
     })
     public Response reporteProductosVendidos(
-            @Parameter(description = "Fecha inicio (yyyy-MM-dd)", example = "2025-11-01") 
+            @Parameter(description = "Fecha inicio (yyyy-MM-dd)", example = "2025-11-01")
             @QueryParam("fechaInicio") String fechaInicio,
-            @Parameter(description = "Fecha fin (yyyy-MM-dd)", example = "2025-11-02") 
+            @Parameter(description = "Fecha fin (yyyy-MM-dd)", example = "2025-11-02")
             @QueryParam("fechaFin") String fechaFin) {
         try {
+
             if (fechaInicio == null || fechaFin == null) {
                 return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("Las fechas de inicio y fin son obligatorias")
+                        .entity("Las fechas de inicio y fin son obligatorias")
+                        .build();
+            }
+
+            SimpleDateFormat formatoDate = new SimpleDateFormat("yyyy-MM-dd");
+            Date FechaInicio = new Date(formatoDate.parse(fechaInicio).getTime());
+            Date FechaFin = new Date(formatoDate.parse(fechaFin).getTime());
+
+            Respuesta respuesta = reporteService.reporteProductosVendidos(FechaInicio, FechaFin);
+            if (!respuesta.getEstado()) {
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                        .entity(respuesta.getMensaje())
+                        .build();
+            }
+
+            byte[] pdf = (byte[]) respuesta.getResultado("Reporte");
+            String nombreReporte = "reporte_productos_" + System.currentTimeMillis() + ".pdf";
+
+            return Response.ok(pdf)
+                    .header("Content-Disposition", "attachment; filename=\"" + nombreReporte + "\"")
+                    .type("application/pdf")
                     .build();
-            }
-            
-            SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd");
-            Date FechaInicio = new Date(formato.parse(fechaInicio).getTime());
-            Date FechaFin = new Date(formato.parse(fechaFin).getTime());
-            
-            Respuesta res = reporteService.reporteProductosVendidos(FechaInicio, FechaFin);
-            if (!res.getEstado()) {
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(res).build();
-            }
-            return Response.ok(res.getResultado("Reporte")).build();
         } catch (ParseException ex) {
             return Response.status(Response.Status.BAD_REQUEST)
-                .entity("Error en el formato de fecha. Use yyyy-MM-dd")
-                .build();
+                    .entity("Error en el formato de fecha. Use yyyy-MM-dd")
+                    .build();
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, "Error generando reporte de productos vendidos.", ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity("Error generando reporte: " + ex.getMessage())
-                .build();
+                    .entity("Error generando reporte: " + ex.getMessage())
+                    .build();
         }
     }
-    
-   
-    @POST
+
+    @GET
     @Path("/reporte/cierre-caja")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces("application/pdf")
     @Operation(summary = "Genera reporte de cierre de caja")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Reporte generado correctamente",
-                content = @Content(mediaType = MediaType.APPLICATION_JSON)),
+                content = @Content(mediaType = "application/pdf")),
         @ApiResponse(responseCode = "400", description = "Parámetros inválidos",
                 content = @Content(mediaType = MediaType.TEXT_PLAIN)),
         @ApiResponse(responseCode = "500", description = "Error interno",
                 content = @Content(mediaType = MediaType.TEXT_PLAIN))
     })
     public Response reporteCierreCaja(
-            @Parameter(description = "ID del cierre de caja", example = "1") 
+            @Parameter(description = "ID del cierre de caja", example = "1")
             @QueryParam("idCierreCaja") Long idCierreCaja) {
         try {
             if (idCierreCaja == null) {
                 return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("El ID del cierre de caja es obligatorio")
+                        .entity("El ID del cierre de caja es obligatorio")
+                        .build();
+            }
+
+            Respuesta respuesta = reporteService.reporteCierreCaja(idCierreCaja);
+            if (!respuesta.getEstado()) {
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                        .entity(respuesta.getMensaje())
+                        .build();
+            }
+
+            byte[] pdf = (byte[]) respuesta.getResultado("Reporte");
+            String nombreReporte = "reporte_cierre_caja_" + System.currentTimeMillis() + ".pdf";
+
+            return Response.ok(pdf)
+                    .header("Content-Disposition", "attachment; filename=\"" + nombreReporte + "\"")
+                    .type("application/pdf")
                     .build();
-            }
-            
-            Respuesta res = reporteService.reporteCierreCaja(idCierreCaja);
-            if (!res.getEstado()) {
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(res).build();
-            }
-            return Response.ok(res.getResultado("Reporte")).build();
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, "Error generando reporte de cierre de caja.", ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity("Error generando reporte: " + ex.getMessage())
-                .build();
+                    .entity("Error generando reporte: " + ex.getMessage())
+                    .build();
         }
     }
-    
-    @POST
+
+    @GET
     @Path("/reporte/facturas")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces("application/pdf")
     @Operation(summary = "Genera reporte de facturas")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Reporte generado correctamente",
-                content = @Content(mediaType = MediaType.APPLICATION_JSON)),
+                content = @Content(mediaType = "application/pdf")),
         @ApiResponse(responseCode = "400", description = "Parámetros inválidos",
                 content = @Content(mediaType = MediaType.TEXT_PLAIN)),
         @ApiResponse(responseCode = "500", description = "Error interno",
                 content = @Content(mediaType = MediaType.TEXT_PLAIN))
     })
     public Response reporteFacturas(
-            @Parameter(description = "Fecha inicio (yyyy-MM-dd)", example = "2025-11-01") 
+            @Parameter(description = "Fecha inicio (yyyy-MM-dd)", example = "2025-11-01")
             @QueryParam("fechaInicio") String fechaInicio,
-            @Parameter(description = "Fecha fin (yyyy-MM-dd)", example = "2025-11-02") 
+            @Parameter(description = "Fecha fin (yyyy-MM-dd)", example = "2025-11-02")
             @QueryParam("fechaFin") String fechaFin) {
         try {
             if (fechaInicio == null || fechaFin == null) {
                 return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("Las fechas de inicio y fin son obligatorias")
+                        .entity("Las fechas de inicio y fin son obligatorias")
+                        .build();
+            }
+
+             SimpleDateFormat formatoDate = new SimpleDateFormat("yyyy-MM-dd");
+            Date FechaInicio = new Date(formatoDate.parse(fechaInicio).getTime());
+            Date FechaFin = new Date(formatoDate.parse(fechaFin).getTime());
+            
+            Respuesta respuesta = reporteService.reporteFacturas(FechaInicio, FechaFin);
+            if (!respuesta.getEstado()) {
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(respuesta.getMensaje())
                     .build();
             }
             
-            SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd");
-            Date FechaInicio = new Date(formato.parse(fechaInicio).getTime());
-            Date FechaFin = new Date(formato.parse(fechaFin).getTime());
+           
+            byte[] pdf = (byte[]) respuesta.getResultado("Reporte");
+            String nombreReporte = "reporte_facturas_" + System.currentTimeMillis() + ".pdf";
             
-            Respuesta res = reporteService.reporteFacturas(FechaInicio, FechaFin);
-            if (!res.getEstado()) {
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(res).build();
-            }
-            return Response.ok(res.getResultado("Reporte")).build();
+            return Response.ok(pdf)
+                .header("Content-Disposition", "attachment; filename=\"" + nombreReporte + "\"")
+                .type("application/pdf")
+                .build();
         } catch (ParseException ex) {
             return Response.status(Response.Status.BAD_REQUEST)
-                .entity("Error en el formato de fecha. Use yyyy-MM-dd")
-                .build();
+                    .entity("Error en el formato de fecha. Use yyyy-MM-dd")
+                    .build();
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, "Error generando reporte de facturas.", ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity("Error generando reporte: " + ex.getMessage())
-                .build();
+                    .entity("Error generando reporte: " + ex.getMessage())
+                    .build();
         }
     }
-    
-    
+
     @GET
     @Path("/factura/{id}/pdf")
     @Produces("application/pdf")
@@ -183,34 +208,32 @@ public class ReporteController {
                 content = @Content(mediaType = MediaType.TEXT_PLAIN))
     })
     public Response pdfFactura(
-            @Parameter(description = "ID de la factura", example = "1") 
+            @Parameter(description = "ID de la factura", example = "1")
             @PathParam("id") Long idFactura) {
         try {
             if (idFactura == null || idFactura <= 0) {
                 return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("ID de factura inválido")
-                    .build();
+                        .entity("ID de factura inválido")
+                        .build();
             }
-            
-            Respuesta res = reporteService.pdfFactura(idFactura);
-            if (!res.getEstado()) {
-                return Response.status(Response.Status.NOT_FOUND).entity(res).build();
+
+            Respuesta respuesta = reporteService.pdfFactura(idFactura);
+            if (!respuesta.getEstado()) {
+                return Response.status(Response.Status.NOT_FOUND).entity(respuesta).build();
             }
-            
-            byte[] pdfBytes = (byte[]) res.getResultado("PDF");
+
+            byte[] pdf = (byte[]) respuesta.getResultado("PDF");
             String nombreReporte = "factura_" + idFactura + ".pdf";
-            
-            return Response.ok(pdfBytes)
-                .header("Content-Disposition", "attachment; filename=\"" + nombreReporte + "\"")
-                .build();
+
+            return Response.ok(pdf)
+                    .header("Content-Disposition", "attachment; filename=\"" + nombreReporte + "\"")
+                    .build();
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, "Error generando PDF de factura individual.", ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity("Error generando PDF de factura: " + ex.getMessage())
-                .build();
+                    .entity("Error generando PDF de factura: " + ex.getMessage())
+                    .build();
         }
     }
-    
-    
-   
+
 }

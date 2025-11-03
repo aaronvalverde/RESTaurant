@@ -99,7 +99,7 @@ public class ReportsController extends Controller implements Initializable {
         setActiveButton(btnSalesReport);
         lbReportType.setText(getLanguageString("lb.sales.report"));
         setBoxes(false);
-        reportType = "PROUDCTO_VENDIDO";
+        reportType = "PRODUCTOS_VENDIDOS";
     }
 
     @FXML
@@ -115,7 +115,7 @@ public class ReportsController extends Controller implements Initializable {
                 case "CIERRE_CAJA":
                     respuesta = generateCashClosingReport();
                     break;
-                case "PROUDCTO_VENDIDO":
+                case "PRODUCTOS_VENDIDOS":
                     respuesta = generateSalesReport();
                     break;
                 default:
@@ -257,7 +257,7 @@ public class ReportsController extends Controller implements Initializable {
         Date fechaInicio = Date.from(dpStartDate.getValue().atStartOfDay(ZoneId.systemDefault()).toInstant());
         Date fechaFin = Date.from(dpEndDate.getValue().atStartOfDay(ZoneId.systemDefault()).toInstant());
 
-        return reporteService.reporteProductoVendido(fechaInicio, fechaFin);
+        return reporteService.reporteProductosVendidos(fechaInicio, fechaFin);
     }
 
     private Respuesta generateCashClosingReport() {
@@ -276,7 +276,7 @@ public class ReportsController extends Controller implements Initializable {
         Date fechaInicio = Date.from(dpStartDate.getValue().atStartOfDay(ZoneId.systemDefault()).toInstant());
         Date fechaFin = Date.from(dpEndDate.getValue().atStartOfDay(ZoneId.systemDefault()).toInstant());
 
-        return reporteService.reporteFactura(fechaInicio, fechaFin);
+        return reporteService.reporteFacturas(fechaInicio, fechaFin);
     }
 
     private String generateFileName() {

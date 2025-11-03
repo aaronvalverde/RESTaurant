@@ -52,8 +52,8 @@ public class ReporteService {
             LOG.log(Level.INFO, "Generando reporte productos vendidos",
                     new Object[]{fechaInicio, fechaFin});
 
-            InputStream reportStream = getClass().getClassLoader()
-                    .getResourceAsStream("/Reportes/SalesReport.jrxml");
+            InputStream reportStream = getClass()
+                    .getResourceAsStream("Reportes/SalesReport.jrxml");
 
             if (reportStream == null) {
                 return new Respuesta(false, CodigoRespuesta.ERROR_NOENCONTRADO,
@@ -96,8 +96,8 @@ public class ReporteService {
         try {
             LOG.log(Level.INFO, "Generando reporte cierre caja ID: {0}", idCierreCaja);
 
-            InputStream reportStream = getClass().getClassLoader()
-                    .getResourceAsStream("/Reportes/CashClosingrReport.jrxml");
+            InputStream reportStream = getClass()
+                    .getResourceAsStream("Reportes/CashClosingrReport.jrxml");
 
             if (reportStream == null) {
                 return new Respuesta(false, CodigoRespuesta.ERROR_NOENCONTRADO,
@@ -140,8 +140,7 @@ public class ReporteService {
             LOG.log(Level.INFO, "Generando reporte facturas: {0} a {1}",
                     new Object[]{fechaInicio, fechaFin});
 
-            InputStream reportStream = getClass().getClassLoader()
-                    .getResourceAsStream("/Reportes/BillingReport.jrxml");
+            InputStream reportStream = getClass().getResourceAsStream("Reportes/BillingReport.jrxml");
 
             if (reportStream == null) {
                 return new Respuesta(false, CodigoRespuesta.ERROR_NOENCONTRADO,
