@@ -16,28 +16,29 @@ public class ReporteDto {
 
     private static final long serialVersionUID = 1L;
 
+    @Schema(description = "Id del Reporte", example = "1")
     private Long idReporte;
-
+    @Schema(description = "Tipo de reporte", example = "CIERRE_DE_CAJA")
     private String tipoReporte;
-
+    @Schema(description = "Nombre del Reporte", example = "SALESREPORT")
     private String nombreReporte;
-
+    @Schema(description = "Contenido pdf")
     private byte[] pdf;
-
+    @Schema(description = "Fecha Generado")
     private Date fechaGenerado;
-
+    @Schema(description = "Id del Usuario", example = "3")
     private Long idUsuario;
-
+    @Schema(description = "Parametros del Reporte", example = "fecha = 2025")
     private String parametros;
-
+    @Schema(description = "Nombre del Usuario")
     private String nombreUsuario;
-
+    @Schema(description = "Fecha Inicio")
     private Date fechaInicio;
-
+    @Schema(description = "Fecha Fin")
     private Date fechaFin;
-
+    @Schema(description = "Id del Cajero", example = "1")
     private Long idCajero;
-
+    @Schema(description = "Id de la factura", example = "2")
     private Long idFactura;
 
     public ReporteDto() {
@@ -158,6 +159,4 @@ public class ReporteDto {
         this.idFactura = idFactura;
     }
 
-    
-    
 }
