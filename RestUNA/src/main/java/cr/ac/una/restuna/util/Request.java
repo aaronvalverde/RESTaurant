@@ -150,8 +150,7 @@ public class Request {
     public void post(Object body) {
         HttpURLConnection connection = null;
         try {
-            String url = buildUrl();
-            System.out.println("Realizando POST a: " + url);
+            String url = BASE_URL + endpoint;
             connection = createConnection(url, "POST");
             connection.setDoOutput(true);
             connection.setConnectTimeout(10000); // 10 segundos
@@ -955,7 +954,7 @@ public class Request {
     }
 
   private String buildUrl() {
-        String url = buildUrl();
+        String url = BASE_URL + endpoint;
 
         // PRIMERO: Manejar path parameters (como {id})
         if (pathTemplate != null && !pathTemplate.isEmpty() && parametros != null) {
