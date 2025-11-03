@@ -24,9 +24,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Controlador REST para gestión de archivos (imágenes)
- */
+
 @Path("/ArchivoController")
 @Tag(name = "Archivos", description = "Operaciones sobre archivos e imágenes")
 public class ArchivoController {
@@ -36,10 +34,7 @@ public class ArchivoController {
     @EJB
     ArchivoService archivoService;
     
-    /**
-     * Obtiene un archivo por ID con su contenido
-     * GET /ArchivoController/archivo/{id}
-     */
+    
     @GET
     @Path("/archivo/{id}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -70,10 +65,7 @@ public class ArchivoController {
         }
     }
     
-    /**
-     * Obtiene todos los archivos (sin contenido, solo metadata)
-     * GET /ArchivoController/archivos
-     */
+    
     @GET
     @Path("/archivos")
     @Produces(MediaType.APPLICATION_JSON)
@@ -104,10 +96,7 @@ public class ArchivoController {
         }
     }
     
-    /**
-     * Guarda un archivo (crear o actualizar)
-     * POST /ArchivoController/archivo
-     */
+    
     @POST
     @Path("/archivo")
     @Produces(MediaType.APPLICATION_JSON)
@@ -138,10 +127,7 @@ public class ArchivoController {
         }
     }
     
-    /**
-     * Elimina un archivo por ID
-     * DELETE /ArchivoController/archivo/{id}
-     */
+    
     @DELETE
     @Path("/archivo/{id}")
     @Produces(MediaType.APPLICATION_JSON)

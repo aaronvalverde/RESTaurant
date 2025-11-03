@@ -7,10 +7,7 @@ import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Date;
 
-/**
- * Entidad JPA para secciones/salones del restaurante
- * Mapea la tabla SECCION
- */
+
 @Entity
 @Table(name = "SECCION", schema = "RESTUNA")
 @NamedQueries({
@@ -58,9 +55,9 @@ public class Seccion implements Serializable {
     @JoinColumn(name = "ID_ARCHIVO_IMAGEN", referencedColumnName = "ID_ARCHIVO")
     private Archivo archivoImagen;
     
-    // @Version - Comentado porque la columna VERSION no existe en la tabla SECCION
-    // @Column(name = "VERSION")
-    // private Long version;
+    
+    
+    
     
     @Transient
     private Boolean modificado;
@@ -84,11 +81,11 @@ public class Seccion implements Serializable {
         this.cobraImpuesto = dto.getCobraImpuesto();
         this.estado = dto.getEstado();
         
-        // El archivo imagen se maneja por separado en el servicio
+        
         this.modificado = true;
     }
     
-    // Métodos de utilidad
+    
     public boolean isActiva() {
         return "A".equals(this.estado);
     }
@@ -105,7 +102,7 @@ public class Seccion implements Serializable {
         return "BARRA".equals(this.tipo);
     }
 
-    // Getters y Setters
+    
     public Long getIdSeccion() {
         return idSeccion;
     }
@@ -162,14 +159,14 @@ public class Seccion implements Serializable {
         this.archivoImagen = archivoImagen;
     }
 
-    // Getters/Setters de version comentados porque el campo no existe en BD
-    // public Long getVersion() {
-    //     return version;
-    // }
-    //
-    // public void setVersion(Long version) {
-    //     this.version = version;
-    // }
+    
+    
+    
+    
+    
+    
+    
+    
 
     public Boolean getModificado() {
         return modificado;

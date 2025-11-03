@@ -7,10 +7,7 @@ import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Date;
 
-/**
- * Entidad JPA para grupos/categorías de productos
- * Mapea la tabla GRUPO_PRODUCTO
- */
+
 @Entity
 @Table(name = "GRUPO_PRODUCTO", schema = "RESTUNA")
 @NamedQueries({
@@ -88,7 +85,7 @@ public class GrupoProducto implements Serializable {
         this.modificado = true;
     }
     
-    // Métodos de utilidad
+    
     public boolean isActivo() {
         return "A".equals(this.estado);
     }
@@ -97,7 +94,7 @@ public class GrupoProducto implements Serializable {
         return "S".equals(this.accesoRapido);
     }
 
-    // Getters y Setters
+    
     public Long getIdGrupoProducto() {
         return idGrupoProducto;
     }

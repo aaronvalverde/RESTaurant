@@ -44,11 +44,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
-/**
- * FXML Controller class
- *
- * @author aaron
- */
+
 public class OrderController extends Controller implements Initializable {
 
     @FXML
@@ -102,13 +98,13 @@ public class OrderController extends Controller implements Initializable {
     @FXML
     private VBox sectionModeBox;
 
-    //al entrar desde facturación en vista principal.
+    
     private Boolean billingMode = false;
-    //al entrar desde vista de salón (drag&drop y click en mesa).
+    
     private Boolean sectionMode = false;
-    //settea el quick billing
+    
     private Boolean quickBillingMode = false;
-    // Bandera para evitar limpiar automáticamente al cambiar combos
+    
     private boolean isClearing = false;
 
     private OrdenDto currentOrder;
@@ -131,9 +127,7 @@ public class OrderController extends Controller implements Initializable {
     private List<ProductoDto> todosLosProductos = new ArrayList<>();
     private TableView<ProductoDto> tableProductos;
 
-    /**
-     * Initializes the controller class.
-     */
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         quickBillingMode = false;
@@ -142,16 +136,16 @@ public class OrderController extends Controller implements Initializable {
         currentOrder = new OrdenDto();
         groupProduct = new ArrayList<>();
         
-        // Inicializar tabla de productos
+        
         inicializarTablaProductos();
         
-        // Configurar combos
+        
         configurarCombos();
         
-        // Cargar datos
+        
         cargarSecciones();
-        cargarGruposAccesoRapido(); // Para barra horizontal
-        cargarTodosGrupos(); // Para combo box
+        cargarGruposAccesoRapido(); 
+        cargarTodosGrupos(); 
         cargarTodosLosProductos();
         configurarBuscador();
         cargarParametros();
@@ -187,26 +181,24 @@ public class OrderController extends Controller implements Initializable {
         mostrarTodosLosProductos();
     }
     
-    /**
-     * Guarda la orden en el servidor
-     */
+    
     private void guardarOrden() {
-        // Validaciones
+        
         if (currentOrder.getDetalles() == null || currentOrder.getDetalles().isEmpty()) {
             mostrarAlerta("No hay productos", "Debe agregar al menos un producto a la orden");
             return;
         }
         
-        // DEBUG: Verificar modos activos
+        
         System.out.println("DEBUG - billingMode: " + billingMode);
         System.out.println("DEBUG - sectionMode: " + sectionMode);
         System.out.println("DEBUG - quickBillingMode: " + quickBillingMode);
         System.out.println("DEBUG - currentSection: " + currentSection);
         System.out.println("DEBUG - currentMesa: " + currentMesa);
         
-        // Establecer datos de la orden
+        
         if (!billingMode && !sectionMode && !quickBillingMode) {
-            // Modo normal - requiere sección y mesa
+            
             if (currentSection == null) {
                 mostrarAlerta("Sección requerida", "Debe seleccionar una sección");
                 return;
@@ -218,16 +210,16 @@ public class OrderController extends Controller implements Initializable {
             currentOrder.setIdMesa(currentMesa.getIdMesa());
             currentOrder.setIdSeccion(currentSection.getIdSeccion());
         } else if (sectionMode && currentMesa != null) {
-            // Modo desde vista de sección
+            
             currentOrder.setIdMesa(currentMesa.getIdMesa());
             currentOrder.setIdSeccion(currentMesa.getIdSeccion());
         } else if (billingMode && currentMesa != null && currentSection != null) {
-            // Modo facturación - desde BillingView
+            
             currentOrder.setIdMesa(currentMesa.getIdMesa());
             currentOrder.setIdSeccion(currentSection.getIdSeccion());
         } else if (quickBillingMode) {
-            // Modo facturación rápida - no requiere mesa
-            // Solo requiere sección
+            
+            
             if (currentSection == null) {
                 mostrarAlerta("Sección requerida", "Debe seleccionar una sección");
                 return;
@@ -235,21 +227,21 @@ public class OrderController extends Controller implements Initializable {
             currentOrder.setIdSeccion(currentSection.getIdSeccion());
         }
         
-        // Establecer usuario (salonero actual)
+        
         if (UserSession.getInstance().isAuthenticated()) {
             currentOrder.setIdSalonero(UserSession.getInstance().getCurrentUser().getIdUsuario());
         }
         
-        // Fecha y hora actual
+        
         currentOrder.setFechaHora(java.time.LocalDateTime.now());
         
-        // Estado inicial
+        
         currentOrder.setEstado("ABIERTA");
         
-        // Calcular subtotal de la orden
+        
         currentOrder.calcularSubtotal();
         
-        // Validar que el campo del nombre del cliente tenga texto
+        
         String nombreCliente = txfClientName.getText();
         if (nombreCliente == null || nombreCliente.trim().isEmpty()) {
             Alert alert = new Alert(Alert.AlertType.WARNING);
@@ -260,33 +252,31 @@ public class OrderController extends Controller implements Initializable {
             return;
         }
         
-        // Guardar cliente (solo nombre) y luego asociarlo con la orden
+        
         System.out.println("DEBUG - Guardando cliente con nombre: " + nombreCliente.trim());
         guardarClienteYOrden(nombreCliente.trim());
     }
     
-    /**
-     * Guardar cliente y luego la orden con el cliente asociado
-     */
+    
     private void guardarClienteYOrden(String nombreCliente) {
         javafx.concurrent.Task<Void> task = new javafx.concurrent.Task<Void>() {
             @Override
             protected Void call() throws Exception {
-                // Crear cliente
+                
                 ClienteDto cliente = new ClienteDto();
                 cliente.setNombre(nombreCliente);
                 
-                // Guardar cliente
+                
                 Respuesta respuestaCliente = clienteService.guardarCliente(cliente);
                 
                 if (respuestaCliente.getEstado()) {
-                    // Parsear el cliente guardado para obtener su ID
+                    
                     String clienteJson = (String) respuestaCliente.getResultado("Cliente");
                     Long idCliente = JsonParser.extraerValorLong(clienteJson, "idCliente");
                     
                     System.out.println("DEBUG - Cliente guardado con ID: " + idCliente);
                     
-                    // Asignar cliente a la orden
+                    
                     currentOrder.setIdCliente(idCliente);
                 } else {
                     System.err.println("Error guardando cliente: " + respuestaCliente.getMensaje());
@@ -297,14 +287,14 @@ public class OrderController extends Controller implements Initializable {
             
             @Override
             protected void succeeded() {
-                // Ahora guardar la orden con el cliente asociado
+                
                 guardarOrdenDirectamente();
             }
             
             @Override
             protected void failed() {
                 System.err.println("Error en tarea de guardar cliente: " + getException().getMessage());
-                // Guardar orden sin cliente si falla
+                
                 guardarOrdenDirectamente();
             }
         };
@@ -312,27 +302,25 @@ public class OrderController extends Controller implements Initializable {
         new Thread(task).start();
     }
     
-    /**
-     * Guardar la orden en la base de datos
-     */
+    
     private void guardarOrdenDirectamente() {
         
-        // Guardar en background
+        
         javafx.concurrent.Task<Respuesta> task = new javafx.concurrent.Task<Respuesta>() {
             @Override
             protected Respuesta call() throws Exception {
-                // Guardar la orden
+                
                 Respuesta respuesta = ordenService.guardarOrden(currentOrder);
                 
-                // Si se guardó exitosamente, actualizar estado de la mesa a OCUPADA
+                
                 if (respuesta.getEstado() && currentOrder.getIdMesa() != null) {
                     MesaDto mesa = null;
                     
-                    // Obtener la mesa actual
+                    
                     if (currentMesa != null && currentMesa.getIdMesa().equals(currentOrder.getIdMesa())) {
                         mesa = currentMesa;
                     } else {
-                        // Buscar en el combo
+                        
                         for (MesaDto m : mesas) {
                             if (m.getIdMesa().equals(currentOrder.getIdMesa())) {
                                 mesa = m;
@@ -341,7 +329,7 @@ public class OrderController extends Controller implements Initializable {
                         }
                     }
                     
-                    // DEBUG: Ver coordenadas antes de guardar
+                    
                     if (mesa != null) {
                         System.out.println("DEBUG - Mesa antes de guardar: " + mesa.getNumeroMesa() + 
                                          " posX=" + mesa.getPosicionX() + " posY=" + mesa.getPosicionY());
@@ -359,10 +347,10 @@ public class OrderController extends Controller implements Initializable {
                 if (respuesta.getEstado()) {
                     mostrarAlerta("Éxito", "Orden guardada correctamente. La mesa ahora está ocupada.");
                     
-                    // Limpiar la orden actual (incluye limpiar combos)
+                    
                     limpiarOrden();
                     
-                    // Recargar secciones para actualizar la vista con estados actualizados
+                    
                     cargarSecciones();
                 } else {
                     mostrarAlerta("Error", "Error al guardar la orden: " + respuesta.getMensaje());
@@ -378,34 +366,30 @@ public class OrderController extends Controller implements Initializable {
         new Thread(task).start();
     }
     
-    /**
-     * Limpia la orden actual
-     */
+    
     private void limpiarOrden() {
-        isClearing = true; // Activar bandera antes de limpiar
+        isClearing = true; 
         
         currentOrder = new OrdenDto();
         orderContainer.getChildren().clear();
         txfClientName.clear();
         
-        // Limpiar selección de sección y mesa
+        
         cmbSection.clearSelection();
         cmbTable.clearSelection();
         currentSection = null;
         currentMesa = null;
         
-        // Limpiar filtro de grupos y mostrar todos los productos
+        
         cmbGroups.clearSelection();
         mostrarTodosLosProductos();
         
         updateTotals();
         
-        isClearing = false; // Desactivar bandera después de limpiar
+        isClearing = false; 
     }
     
-    /**
-     * Cargar la orden activa de una mesa ocupada
-     */
+    
     private void cargarOrdenDeMesa(Long idMesa) {
         javafx.concurrent.Task<Void> task = new javafx.concurrent.Task<Void>() {
             @Override
@@ -419,17 +403,17 @@ public class OrderController extends Controller implements Initializable {
                         System.out.println("DEBUG - JSON de órdenes recibido: " + jsonArray);
                         
                         if (jsonArray != null && !jsonArray.trim().isEmpty() && !jsonArray.equals("[]")) {
-                            // Parsear las órdenes
+                            
                             List<String> objetosOrdenes = JsonParser.extraerObjetosDelArray(jsonArray);
                             System.out.println("DEBUG - Número de órdenes encontradas: " + objetosOrdenes.size());
                             
-                            // Buscar la orden ABIERTA (activa)
+                            
                             boolean ordenEncontrada = false;
                             for (String objetoJson : objetosOrdenes) {
                                 String estado = JsonParser.extraerValor(objetoJson, "estado");
                                 System.out.println("DEBUG - Orden con estado: " + estado);
                                 if ("ABIERTA".equals(estado)) {
-                                    // Parsear la orden completa
+                                    
                                     parsearYCargarOrden(objetoJson);
                                     ordenEncontrada = true;
                                     break;
@@ -461,20 +445,18 @@ public class OrderController extends Controller implements Initializable {
         new Thread(task).start();
     }
     
-    /**
-     * Parsear y cargar una orden desde JSON
-     */
+    
     private void parsearYCargarOrden(String objetoJson) {
         try {
             System.out.println("DEBUG - Parseando orden: " + objetoJson);
             
-            // Crear nueva orden con los datos parseados
+            
             OrdenDto orden = new OrdenDto();
             orden.setIdOrden(JsonParser.extraerValorLong(objetoJson, "idOrden"));
             orden.setIdMesa(JsonParser.extraerValorLong(objetoJson, "idMesa"));
             orden.setIdSeccion(JsonParser.extraerValorLong(objetoJson, "idSeccion"));
             
-            // Intentar ambos nombres de campo para el salonero
+            
             Long idSalonero = JsonParser.extraerValorLong(objetoJson, "idSalonero");
             if (idSalonero == null) {
                 idSalonero = JsonParser.extraerValorLong(objetoJson, "idUsuarioSalonero");
@@ -482,22 +464,22 @@ public class OrderController extends Controller implements Initializable {
             orden.setIdSalonero(idSalonero);
             orden.setEstado(JsonParser.extraerValor(objetoJson, "estado"));
             
-            // Parsear ID del cliente
+            
             Long idCliente = JsonParser.extraerValorLong(objetoJson, "idCliente");
             if (idCliente != null) {
                 orden.setIdCliente(idCliente);
             }
             
-            // Parsear nombre del cliente para mostrar en la interfaz
+            
             String nombreCliente = JsonParser.extraerValor(objetoJson, "nombreCliente");
             if (nombreCliente != null && !nombreCliente.trim().isEmpty()) {
-                // Establecer el nombre en el campo de texto
+                
                 javafx.application.Platform.runLater(() -> {
                     txfClientName.setText(nombreCliente);
                 });
             }
             
-            // Parsear fecha - intentar ambos nombres de campo
+            
             String fechaStr = JsonParser.extraerValor(objetoJson, "fecha");
             if (fechaStr == null || fechaStr.isEmpty()) {
                 fechaStr = JsonParser.extraerValor(objetoJson, "fechaCreacion");
@@ -508,7 +490,7 @@ public class OrderController extends Controller implements Initializable {
             
             System.out.println("DEBUG - Orden parseada - ID: " + orden.getIdOrden() + ", Mesa: " + orden.getIdMesa());
             
-            // Parsear detalles - usar extraerArray para obtener el array anidado
+            
             String detallesJson = JsonParser.extraerArray(objetoJson, "detalles");
             System.out.println("DEBUG - Detalles JSON: " + detallesJson);
             
@@ -547,13 +529,13 @@ public class OrderController extends Controller implements Initializable {
                     detalles.add(detalle);
                 }
                 
-                // NO agregamos los detalles a la orden aquí
-                // Los detalles se agregarán cuando se carguen los productos en la interfaz
-                // orden.setDetalles(detalles);
+                
+                
+                
             }
             
-            // Establecer como orden actual SIN detalles
-            // Los detalles se crearán al cargar los productos
+            
+            
             currentOrder.setIdOrden(orden.getIdOrden());
             currentOrder.setIdMesa(orden.getIdMesa());
             currentOrder.setIdSeccion(orden.getIdSeccion());
@@ -564,23 +546,23 @@ public class OrderController extends Controller implements Initializable {
             
             System.out.println("DEBUG - Orden establecida como actual, cargando " + detalles.size() + " detalles en interfaz");
             
-            // Limpiar los detalles antiguos del currentOrder antes de cargar los nuevos
+            
             currentOrder.getDetalles().clear();
             
-            // Cargar detalles en la interfaz
+            
             orderContainer.getChildren().clear();
             System.out.println("DEBUG - OrderContainer limpiado, cargando productos...");
             
-            // Pasar los detalles parseados para cargar los productos
+            
             for (DetalleOrdenDto detalle : detalles) {
-                // Buscar el producto correspondiente y agregar a la interfaz
+                
                 cargarProductoYAgregarDetalle(detalle);
             }
             
-            // NO llamar updateTotals() aquí porque los productos se cargan de forma asíncrona
-            // updateTotals() se llamará después de que se agregue el último producto
             
-            // Mostrar mensaje
+            
+            
+            
             mostrarAlerta("Orden Cargada", "Se ha cargado la orden existente de esta mesa. Puede modificarla o ir a facturar.");
             
         } catch (Exception e) {
@@ -589,33 +571,31 @@ public class OrderController extends Controller implements Initializable {
         }
     }
     
-    /**
-     * Cargar producto y agregar detalle a la interfaz
-     */
+    
     private void cargarProductoYAgregarDetalle(DetalleOrdenDto detalle) {
         System.out.println("DEBUG - Cargando producto ID: " + detalle.getIdProducto() + " con cantidad: " + detalle.getCantidad());
         
-        // Buscar el producto en la lista actual de productos
+        
         javafx.concurrent.Task<Void> task = new javafx.concurrent.Task<Void>() {
             @Override
             protected Void call() throws Exception {
                 System.out.println("DEBUG - Solicitando producto al servicio...");
-                // Obtener el producto desde el servicio
+                
                 Respuesta respuesta = productoService.getProducto(detalle.getIdProducto());
                 
                 javafx.application.Platform.runLater(() -> {
                     System.out.println("DEBUG - Respuesta del servicio - Estado: " + respuesta.getEstado());
                     if (respuesta.getEstado()) {
-                        // El servicio puede devolver ProductoDto directamente o como JSON String
+                        
                         Object resultado = respuesta.getResultado("Producto");
                         ProductoDto producto = null;
                         
                         if (resultado instanceof ProductoDto) {
-                            // Si es directamente un ProductoDto
+                            
                             producto = (ProductoDto) resultado;
                             System.out.println("DEBUG - Producto recibido directamente: " + producto.getNombre());
                         } else if (resultado instanceof String) {
-                            // Si es JSON String
+                            
                             String productoJson = (String) resultado;
                             System.out.println("DEBUG - Producto JSON recibido: " + productoJson);
                             producto = parsearProducto(productoJson);
@@ -632,18 +612,18 @@ public class OrderController extends Controller implements Initializable {
                                 Node itemNode = loader.load();
 
                                 OrderItemController itemController = loader.getController();
-                                // Usar loadExistingDetail() para cargar el detalle con su cantidad específica
+                                
                                 itemController.loadExistingDetail(producto, detalle);
                                 itemController.setParentController(OrderController.this);
                                 
-                                // Agregar el detalle al currentOrder manualmente
+                                
                                 currentOrder.getDetalles().add(detalle);
                                 
-                                // Guardar referencia del controlador en el nodo
+                                
                                 itemNode.setUserData(itemController);
                                 orderContainer.getChildren().add(itemNode);
                                 
-                                // Actualizar totales después de agregar este producto
+                                
                                 updateTotals();
                                 
                                 System.out.println("DEBUG - Producto agregado a interfaz exitosamente");
@@ -666,9 +646,7 @@ public class OrderController extends Controller implements Initializable {
         new Thread(task).start();
     }
     
-    /**
-     * Parsear un producto desde JSON
-     */
+    
     private ProductoDto parsearProducto(String objetoJson) {
         try {
             ProductoDto producto = new ProductoDto();
@@ -690,19 +668,15 @@ public class OrderController extends Controller implements Initializable {
         }
     }
     
-    /**
-     * Obtener la moneda actual configurada
-     */
+    
     public String getMonedaActual() {
         if (parametrosMap != null && parametrosMap.containsKey("MONEDA")) {
             return parametrosMap.get("MONEDA").getValor();
         }
-        return "CRC - Colón"; // Default
+        return "CRC - Colón"; 
     }
     
-    /**
-     * Muestra un diálogo de alerta
-     */
+    
     private void mostrarAlerta(String titulo, String mensaje) {
         javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
         alert.setTitle(titulo);
@@ -718,7 +692,7 @@ public class OrderController extends Controller implements Initializable {
             return;
         }
         
-        // Obtener el controlador de facturación y cargar los datos de la mesa
+        
         BillingController billingController = (BillingController) FlowController.getInstance()
             .getController(AppKeys.BILLING);
         
@@ -726,7 +700,7 @@ public class OrderController extends Controller implements Initializable {
             billingController.cargarMesa(currentMesa);
         }
         
-        // Cambiar a la vista de facturación
+        
         FlowController.getInstance().goView(AppKeys.BILLING);
     }
 
@@ -761,14 +735,12 @@ public class OrderController extends Controller implements Initializable {
         billingModeBox.setManaged(!isVisible);
     }
     
-    /**
-     * Inicializar tabla de productos
-     */
+    
     private void inicializarTablaProductos() {
         tableProductos = new TableView<>();
         tableProductos.setMaxHeight(Double.MAX_VALUE);
         
-        // Columna Nombre
+        
         TableColumn<ProductoDto, String> colNombre = new TableColumn<>("Producto");
         colNombre.setCellValueFactory(cellData -> {
             String nombre = cellData.getValue().getNombreCorto() != null && 
@@ -779,7 +751,7 @@ public class OrderController extends Controller implements Initializable {
         });
         colNombre.setPrefWidth(250);
         
-        // Columna Grupo
+        
         TableColumn<ProductoDto, String> colGrupo = new TableColumn<>("Grupo");
         colGrupo.setCellValueFactory(cellData -> {
             Long idGrupo = cellData.getValue().getIdGrupoProducto();
@@ -796,7 +768,7 @@ public class OrderController extends Controller implements Initializable {
         });
         colGrupo.setPrefWidth(150);
         
-        // Columna Precio
+        
         TableColumn<ProductoDto, String> colPrecio = new TableColumn<>("Precio");
         colPrecio.setCellValueFactory(cellData -> {
             return new javafx.beans.property.SimpleStringProperty(formatearPrecio(cellData.getValue().getPrecio()));
@@ -805,7 +777,7 @@ public class OrderController extends Controller implements Initializable {
         
         tableProductos.getColumns().addAll(colNombre, colGrupo, colPrecio);
         
-        // Evento de doble clic para agregar producto
+        
         tableProductos.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
                 ProductoDto selected = tableProductos.getSelectionModel().getSelectedItem();
@@ -819,9 +791,7 @@ public class OrderController extends Controller implements Initializable {
         VBox.setVgrow(tableProductos, javafx.scene.layout.Priority.ALWAYS);
     }
     
-    /**
-     * Mostrar grupos en la barra horizontal
-     */
+    
     private void menuGroups() {
         groupsBox.getChildren().clear();
 
@@ -829,18 +799,18 @@ public class OrderController extends Controller implements Initializable {
             MFXButton btnGroup = new MFXButton(group.getNombre());
             btnGroup.getStyleClass().add("group-button");
             btnGroup.setOnAction(x -> {
-                // Buscar el grupo correspondiente en la lista del combo por ID
+                
                 GrupoProductoDto grupoEnCombo = grupos.stream()
                     .filter(g -> g.getIdGrupoProducto().equals(group.getIdGrupoProducto()))
                     .findFirst()
                     .orElse(null);
                 
                 if (grupoEnCombo != null) {
-                    // Seleccionar grupo en combo y filtrar
+                    
                     cmbGroups.selectItem(grupoEnCombo);
                     mostrarProductosPorGrupo(grupoEnCombo);
                 } else {
-                    // Si no está en el combo, solo filtrar sin seleccionar
+                    
                     mostrarProductosPorGrupo(group);
                 }
             });
@@ -849,14 +819,14 @@ public class OrderController extends Controller implements Initializable {
     }
 
     private void addProduct(ProductoDto product) {
-        // Validar que haya mesa seleccionada
+        
         boolean mesaValida = false;
         
         if (quickBillingMode) {
-            // En modo quick billing no requiere mesa
+            
             mesaValida = true;
         } else if (currentMesa != null) {
-            // Si hay mesa (de cualquier modo), es válido
+            
             mesaValida = true;
         }
         
@@ -873,11 +843,11 @@ public class OrderController extends Controller implements Initializable {
             itemController.selectProduct(product);
             itemController.setParentController(this);
             
-            // Obtener el detalle que se creó en selectProduct() y agregarlo a la orden
+            
             DetalleOrdenDto detalle = itemController.getDetail();
             currentOrder.getDetalles().add(detalle);
             
-            // Guardar referencia del controlador en el nodo para actualizaciones futuras
+            
             itemNode.setUserData(itemController);
 
             orderContainer.getChildren().add(itemNode);
@@ -894,29 +864,27 @@ public class OrderController extends Controller implements Initializable {
     }
 
     public void updateTotals() {
-        // Determinar si la sección cobra impuesto
+        
         boolean sectionHasTax = currentSection != null && currentSection.cobraImpuesto();
         
-        // Calcular usando BillingCalculator
+        
         BillingCalculator.BillingResult result = BillingCalculator.calculateBilling(
             currentOrder.getDetalles(),
             sectionHasTax,
             parametrosMap
         );
         
-        // Actualizar labels con formato de moneda
+        
         lbSubtotal.setText(result.getFormattedSubtotal());
         lbVAT.setText(result.getFormattedIva());
         lbServiceTax.setText(result.getFormattedServiceTax());
         lbTotal.setText(result.getFormattedTotal());
         
-        // Actualizar precios de todos los items en la vista
+        
         actualizarPreciosItems();
     }
     
-    /**
-     * Actualizar la visualización de precios de todos los items de la orden
-     */
+    
     private void actualizarPreciosItems() {
         for (javafx.scene.Node node : orderContainer.getChildren()) {
             Object userData = node.getUserData();
@@ -926,9 +894,7 @@ public class OrderController extends Controller implements Initializable {
         }
     }
     
-    /**
-     * Cargar parámetros del sistema (impuestos y moneda)
-     */
+    
     private void cargarParametros() {
         if (!UserSession.getInstance().isAuthenticated()) {
             System.err.println("No hay usuario autenticado para cargar parámetros");
@@ -950,7 +916,7 @@ public class OrderController extends Controller implements Initializable {
                     if (respuesta.getEstado()) {
                         String jsonArray = (String) respuesta.getResultado("Parametros");
                         procesarParametros(jsonArray);
-                        // Actualizar tabla después de cargar parámetros
+                        
                         actualizarTablaProductos();
                     } else {
                         System.err.println("Error cargando parámetros: " + respuesta.getMensaje());
@@ -971,9 +937,7 @@ public class OrderController extends Controller implements Initializable {
         new Thread(task).start();
     }
     
-    /**
-     * Procesar JSON de parámetros
-     */
+    
     private void procesarParametros(String jsonArray) {
         parametrosMap.clear();
         
@@ -981,7 +945,7 @@ public class OrderController extends Controller implements Initializable {
             return;
         }
         
-        // Extraer cada objeto del array JSON
+        
         java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("\\{[^{}]*\\}");
         java.util.regex.Matcher matcher = pattern.matcher(jsonArray);
         
@@ -993,13 +957,11 @@ public class OrderController extends Controller implements Initializable {
             }
         }
         
-        // Actualizar totales con nuevos parámetros
+        
         updateTotals();
     }
     
-    /**
-     * Parsear un parámetro desde JSON
-     */
+    
     private ParametroDto parsearParametro(String objetoJson) {
         try {
             ParametroDto parametro = new ParametroDto();
@@ -1018,17 +980,13 @@ public class OrderController extends Controller implements Initializable {
         }
     }
     
-    /**
-     * Establecer la sección actual
-     */
+    
     public void setCurrentSection(SeccionDto section) {
         this.currentSection = section;
         updateTotals();
     }
     
-    /**
-     * Establecer la mesa actual
-     */
+    
     public void setCurrentMesa(MesaDto mesa) {
         this.currentMesa = mesa;
         if (mesa != null && lbTable != null) {
@@ -1036,11 +994,9 @@ public class OrderController extends Controller implements Initializable {
         }
     }
     
-    /**
-     * Configurar los combo boxes
-     */
+    
     private void configurarCombos() {
-        // Configurar combo de secciones
+        
         cmbSection.setItems(secciones);
         cmbSection.setConverter(new javafx.util.StringConverter<SeccionDto>() {
             @Override
@@ -1061,13 +1017,13 @@ public class OrderController extends Controller implements Initializable {
             }
         });
         
-        // Configurar combo de mesas
+        
         cmbTable.setItems(mesas);
         cmbTable.setConverter(new javafx.util.StringConverter<MesaDto>() {
             @Override
             public String toString(MesaDto mesa) {
                 if (mesa == null) return "";
-                // Agregar distintivo si la mesa está ocupada
+                
                 String estado = mesa.getEstado();
                 if ("OCUPADA".equals(estado)) {
                     return mesa.getNumeroMesa() + " (OCUPADA)";
@@ -1082,18 +1038,18 @@ public class OrderController extends Controller implements Initializable {
         });
         
         cmbTable.selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-            // Ignorar cambios durante limpieza automática
+            
             if (isClearing) {
                 return;
             }
             
             if (newVal != null) {
                 currentMesa = newVal;
-                // Si la mesa está ocupada, cargar su orden
+                
                 if ("OCUPADA".equals(newVal.getEstado())) {
                     cargarOrdenDeMesa(newVal.getIdMesa());
                 } else {
-                    // Si es una mesa libre, solo limpiar productos pero mantener la selección
+                    
                     currentOrder = new OrdenDto();
                     orderContainer.getChildren().clear();
                     txfClientName.clear();
@@ -1102,7 +1058,7 @@ public class OrderController extends Controller implements Initializable {
             }
         });
         
-        // Configurar combo de grupos
+        
         cmbGroups.setItems(grupos);
         cmbGroups.setPromptText("Todos los grupos");
         cmbGroups.setConverter(new javafx.util.StringConverter<GrupoProductoDto>() {
@@ -1126,9 +1082,7 @@ public class OrderController extends Controller implements Initializable {
         });
     }
     
-    /**
-     * Cargar todas las secciones
-     */
+    
     private void cargarSecciones() {
         javafx.concurrent.Task<Void> task = new javafx.concurrent.Task<Void>() {
             @Override
@@ -1149,9 +1103,7 @@ public class OrderController extends Controller implements Initializable {
         new Thread(task).start();
     }
     
-    /**
-     * Procesar JSON de secciones
-     */
+    
     private void procesarSecciones(String jsonArray) {
         secciones.clear();
         
@@ -1169,9 +1121,7 @@ public class OrderController extends Controller implements Initializable {
         }
     }
     
-    /**
-     * Parsear una sección desde JSON
-     */
+    
     private SeccionDto parsearSeccion(String objetoJson) {
         try {
             SeccionDto seccion = new SeccionDto();
@@ -1189,9 +1139,7 @@ public class OrderController extends Controller implements Initializable {
         }
     }
     
-    /**
-     * Cargar mesas de una sección
-     */
+    
     private void cargarMesasPorSeccion(Long idSeccion) {
         javafx.concurrent.Task<Void> task = new javafx.concurrent.Task<Void>() {
             @Override
@@ -1212,9 +1160,7 @@ public class OrderController extends Controller implements Initializable {
         new Thread(task).start();
     }
     
-    /**
-     * Procesar JSON de mesas
-     */
+    
     private void procesarMesas(String jsonArray) {
         mesas.clear();
         
@@ -1226,16 +1172,14 @@ public class OrderController extends Controller implements Initializable {
         
         for (String objetoJson : objetosMesas) {
             MesaDto mesa = parsearMesa(objetoJson);
-            // Mostrar todas las mesas (LIBRE y OCUPADA)
+            
             if (mesa != null && ("LIBRE".equals(mesa.getEstado()) || "OCUPADA".equals(mesa.getEstado()))) {
                 mesas.add(mesa);
             }
         }
     }
     
-    /**
-     * Parsear una mesa desde JSON
-     */
+    
     private MesaDto parsearMesa(String objetoJson) {
         try {
             MesaDto mesa = new MesaDto();
@@ -1244,7 +1188,7 @@ public class OrderController extends Controller implements Initializable {
             mesa.setNumeroMesa(JsonParser.extraerValor(objetoJson, "numeroMesa"));
             mesa.setEstado(JsonParser.extraerValor(objetoJson, "estado"));
             
-            // Parsear coordenadas de posición
+            
             String posXStr = JsonParser.extraerValorNumerico(objetoJson, "posicionX");
             if (posXStr != null && !posXStr.isEmpty()) {
                 mesa.setPosicionX(Double.parseDouble(posXStr));
@@ -1262,12 +1206,8 @@ public class OrderController extends Controller implements Initializable {
         }
     }
     
-    /**
-     * Cargar grupos de productos
-     */
-    /**
-     * Cargar grupos de acceso rápido para la barra horizontal
-     */
+    
+    
     private void cargarGruposAccesoRapido() {
         javafx.concurrent.Task<Void> task = new javafx.concurrent.Task<Void>() {
             @Override
@@ -1288,9 +1228,7 @@ public class OrderController extends Controller implements Initializable {
         new Thread(task).start();
     }
     
-    /**
-     * Cargar todos los grupos para el combo box
-     */
+    
     private void cargarTodosGrupos() {
         javafx.concurrent.Task<Void> task = new javafx.concurrent.Task<Void>() {
             @Override
@@ -1311,9 +1249,7 @@ public class OrderController extends Controller implements Initializable {
         new Thread(task).start();
     }
     
-    /**
-     * Procesar JSON de grupos de acceso rápido (para barra horizontal)
-     */
+    
     private void procesarGruposAccesoRapido(String jsonArray) {
         groupProduct.clear();
         
@@ -1330,13 +1266,11 @@ public class OrderController extends Controller implements Initializable {
             }
         }
         
-        // Mostrar grupos en la barra horizontal
+        
         menuGroups();
     }
     
-    /**
-     * Procesar JSON de todos los grupos (para combo box)
-     */
+    
     private void procesarTodosGrupos(String jsonArray) {
         grupos.clear();
         
@@ -1354,9 +1288,7 @@ public class OrderController extends Controller implements Initializable {
         }
     }
     
-    /**
-     * Parsear un grupo desde JSON
-     */
+    
     private GrupoProductoDto parsearGrupo(String objetoJson) {
         try {
             GrupoProductoDto grupo = new GrupoProductoDto();
@@ -1372,9 +1304,7 @@ public class OrderController extends Controller implements Initializable {
         }
     }
     
-    /**
-     * Cargar todos los productos activos
-     */
+    
     private void cargarTodosLosProductos() {
         javafx.concurrent.Task<Void> task = new javafx.concurrent.Task<Void>() {
             @Override
@@ -1396,21 +1326,17 @@ public class OrderController extends Controller implements Initializable {
         new Thread(task).start();
     }
     
-    /**
-     * Configurar el buscador de productos
-     */
+    
     private void configurarBuscador() {
         txfSearch.textProperty().addListener((obs, oldVal, newVal) -> {
             filtrarProductos(newVal);
         });
     }
     
-    /**
-     * Filtrar productos por texto de búsqueda
-     */
+    
     private void filtrarProductos(String filtro) {
         if (filtro == null || filtro.trim().isEmpty()) {
-            // Si no hay filtro, mostrar según grupo seleccionado
+            
             if (cmbGroups.getSelectedItem() != null) {
                 mostrarProductosPorGrupo(cmbGroups.getSelectedItem());
             } else {
@@ -1428,15 +1354,13 @@ public class OrderController extends Controller implements Initializable {
         mostrarProductos(productosFiltrados);
     }
     
-    /**
-     * Mostrar productos de un grupo específico
-     */
+    
     private void mostrarProductosPorGrupo(GrupoProductoDto grupo) {
         List<ProductoDto> productosDelGrupo = todosLosProductos.stream()
             .filter(p -> p.getIdGrupoProducto().equals(grupo.getIdGrupoProducto()))
             .collect(java.util.stream.Collectors.toList());
         
-        // Aplicar filtro de búsqueda si existe
+        
         String filtro = txfSearch.getText();
         if (filtro != null && !filtro.trim().isEmpty()) {
             String filtroLower = filtro.toLowerCase();
@@ -1449,9 +1373,7 @@ public class OrderController extends Controller implements Initializable {
         mostrarProductos(productosDelGrupo);
     }
     
-    /**
-     * Mostrar todos los productos
-     */
+    
     private void mostrarTodosLosProductos() {
         String filtro = txfSearch.getText();
         if (filtro != null && !filtro.trim().isEmpty()) {
@@ -1461,18 +1383,14 @@ public class OrderController extends Controller implements Initializable {
         }
     }
     
-    /**
-     * Mostrar una lista de productos en la tabla
-     */
+    
     private void mostrarProductos(List<ProductoDto> productos) {
         javafx.collections.ObservableList<ProductoDto> items = 
             javafx.collections.FXCollections.observableArrayList(productos);
         tableProductos.setItems(items);
     }
     
-    /**
-     * Formatear precio con moneda actual y conversión usando BillingCalculator
-     */
+    
     public String formatearPrecio(Double precioCRC) {
         if (precioCRC == null) {
             precioCRC = 0.0;
@@ -1483,27 +1401,22 @@ public class OrderController extends Controller implements Initializable {
             currency = parametrosMap.get("MONEDA").getValor();
         }
         
-        // Obtener tipo de cambio (multiplicador para convertir CRC a moneda destino)
+        
         java.math.BigDecimal tipoCambio = obtenerTipoCambio(currency);
         
-        // Convertir precio
+        
         java.math.BigDecimal precioBase = java.math.BigDecimal.valueOf(precioCRC);
         java.math.BigDecimal precioConvertido = precioBase.multiply(tipoCambio)
             .setScale(2, java.math.RoundingMode.HALF_UP);
         
-        // Formatear con símbolo de moneda
+        
         return BillingCalculator.formatCurrency(precioConvertido, currency);
     }
     
-    /**
-     * Obtener tipo de cambio según la moneda (devuelve multiplicador)
-     * Para CRC: 1 (sin conversión)
-     * Para USD: 1/520 (convierte CRC a USD)
-     * Para EUR: 1/570 (convierte CRC a EUR)
-     */
+    
     public java.math.BigDecimal obtenerTipoCambio(String moneda) {
         if (moneda == null || moneda.startsWith("CRC")) {
-            return java.math.BigDecimal.ONE; // Sin conversión para CRC
+            return java.math.BigDecimal.ONE; 
         }
         
         if (moneda.startsWith("USD")) {
@@ -1512,7 +1425,7 @@ public class OrderController extends Controller implements Initializable {
                 java.math.BigDecimal rate = java.math.BigDecimal.valueOf(usdParam.getValorComoDecimal());
                 return java.math.BigDecimal.ONE.divide(rate, 6, java.math.RoundingMode.HALF_UP);
             }
-            // Default: 1 USD = 520 CRC, entonces para convertir CRC a USD dividimos entre 520
+            
             return java.math.BigDecimal.ONE.divide(java.math.BigDecimal.valueOf(520), 6, java.math.RoundingMode.HALF_UP);
         }
         
@@ -1522,25 +1435,21 @@ public class OrderController extends Controller implements Initializable {
                 java.math.BigDecimal rate = java.math.BigDecimal.valueOf(eurParam.getValorComoDecimal());
                 return java.math.BigDecimal.ONE.divide(rate, 6, java.math.RoundingMode.HALF_UP);
             }
-            // Default: 1 EUR = 570 CRC, entonces para convertir CRC a EUR dividimos entre 570
+            
             return java.math.BigDecimal.ONE.divide(java.math.BigDecimal.valueOf(570), 6, java.math.RoundingMode.HALF_UP);
         }
         
-        return java.math.BigDecimal.ONE; // Default sin conversión
+        return java.math.BigDecimal.ONE; 
     }
     
-    /**
-     * Actualizar la tabla de productos para reflejar cambios de moneda
-     */
+    
     private void actualizarTablaProductos() {
         if (tableProductos != null) {
             tableProductos.refresh();
         }
     }
     
-    /**
-     * Procesar JSON de productos usando el constructor del DTO
-     */
+    
     private List<ProductoDto> procesarProductos(String jsonArray) {
         List<ProductoDto> productos = new ArrayList<>();
         

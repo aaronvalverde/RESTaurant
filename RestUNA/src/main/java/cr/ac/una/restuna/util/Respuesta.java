@@ -3,10 +3,7 @@ package cr.ac.una.restuna.util;
 import java.io.Serializable;
 import java.util.HashMap;
 
-/**
- * Clase para estandarizar respuestas del sistema
- * Permite encapsular el estado, código de respuesta, mensajes y resultados
- */
+
 public class Respuesta implements Serializable {
     
     private static final long serialVersionUID = 1L;

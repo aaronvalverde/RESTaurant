@@ -24,9 +24,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Controlador REST para gestión de grupos/categorías de productos
- */
+
 @Path("/GrupoProductoController")
 @Tag(name = "Grupos de Producto", description = "Operaciones sobre los grupos/categorías del menú")
 public class GrupoProductoController {
@@ -36,10 +34,7 @@ public class GrupoProductoController {
     @EJB
     GrupoProductoService grupoProductoService;
     
-    /**
-     * Obtiene un grupo de productos por ID
-     * GET /GrupoProductoController/grupo/{id}
-     */
+    
     @GET
     @Path("/grupo/{id}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -70,10 +65,7 @@ public class GrupoProductoController {
         }
     }
     
-    /**
-     * Obtiene todos los grupos de productos ordenados por orden de visualización
-     * GET /GrupoProductoController/grupos
-     */
+    
     @GET
     @Path("/grupos")
     @Produces(MediaType.APPLICATION_JSON)
@@ -101,10 +93,7 @@ public class GrupoProductoController {
         }
     }
     
-    /**
-     * Obtiene solo los grupos activos ordenados por orden de visualización
-     * GET /GrupoProductoController/grupos/activos
-     */
+    
     @GET
     @Path("/grupos/activos")
     @Produces(MediaType.APPLICATION_JSON)
@@ -132,10 +121,7 @@ public class GrupoProductoController {
         }
     }
     
-    /**
-     * Obtiene los grupos marcados para acceso rápido (para menú POS)
-     * GET /GrupoProductoController/grupos/accesorapido
-     */
+    
     @GET
     @Path("/grupos/accesorapido")
     @Produces(MediaType.APPLICATION_JSON)
@@ -163,10 +149,7 @@ public class GrupoProductoController {
         }
     }
     
-    /**
-     * Obtiene los grupos más vendidos
-     * GET /GrupoProductoController/grupos/masvendidos
-     */
+    
     @GET
     @Path("/grupos/masvendidos")
     @Produces(MediaType.APPLICATION_JSON)
@@ -194,10 +177,7 @@ public class GrupoProductoController {
         }
     }
     
-    /**
-     * Guarda un nuevo grupo o actualiza uno existente
-     * POST /GrupoProductoController/grupo
-     */
+    
     @POST
     @Path("/grupo")
     @Produces(MediaType.APPLICATION_JSON)
@@ -227,10 +207,7 @@ public class GrupoProductoController {
         }
     }
     
-    /**
-     * Elimina un grupo de productos por ID
-     * DELETE /GrupoProductoController/grupo/{id}
-     */
+    
     @DELETE
     @Path("/grupo/{id}")
     @Produces(MediaType.APPLICATION_JSON)

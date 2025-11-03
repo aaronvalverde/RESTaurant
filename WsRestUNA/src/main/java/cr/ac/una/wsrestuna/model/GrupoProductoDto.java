@@ -4,10 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
 import java.util.Date;
 
-/**
- * DTO para transferencia de datos de GrupoProducto
- * POJO simple sin dependencias JavaFX
- */
+
 @Schema(description = "Grupo o categoría de productos del menú")
 public class GrupoProductoDto implements Serializable {
     
@@ -44,7 +41,7 @@ public class GrupoProductoDto implements Serializable {
         this.fechaCreacion = grupo.getFechaCreacion();
     }
 
-    // Getters y Setters
+    
     public Long getIdGrupoProducto() {
         return idGrupoProducto;
     }

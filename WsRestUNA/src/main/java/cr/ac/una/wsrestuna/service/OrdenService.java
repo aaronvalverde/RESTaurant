@@ -14,12 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-/**
- * Servicio EJB para la gestión de órdenes
- * 
- * @author Kendall Fonseca
- * @author Kaleb Alfaro
- */
+
 @Stateless
 @LocalBean
 public class OrdenService {
@@ -103,14 +98,14 @@ public class OrdenService {
             List<Orden> ordenes;
             
             if (estado == null || estado.trim().isEmpty()) {
-                // Si no se especifica estado, buscar todas las órdenes de la mesa
+                
                 query = em.createQuery(
                     "SELECT o FROM Orden o WHERE o.mesa.idMesa = :idMesa ORDER BY o.fechaHora DESC", 
                     Orden.class);
                 query.setParameter("idMesa", idMesa);
                 ordenes = query.getResultList();
             } else {
-                // Si se especifica estado, usar el NamedQuery
+                
                 query = em.createNamedQuery("Orden.findByMesa", Orden.class);
                 query.setParameter("idMesa", idMesa);
                 query.setParameter("estado", estado);
@@ -141,14 +136,14 @@ public class OrdenService {
             List<Orden> ordenes;
             
             if (estado == null || estado.trim().isEmpty()) {
-                // Si no se especifica estado, buscar todas las órdenes de la sección
+                
                 query = em.createQuery(
                     "SELECT o FROM Orden o WHERE o.seccion.idSeccion = :idSeccion ORDER BY o.fechaHora DESC", 
                     Orden.class);
                 query.setParameter("idSeccion", idSeccion);
                 ordenes = query.getResultList();
             } else {
-                // Si se especifica estado, usar el NamedQuery
+                
                 query = em.createNamedQuery("Orden.findBySeccion", Orden.class);
                 query.setParameter("idSeccion", idSeccion);
                 query.setParameter("estado", estado);
@@ -180,7 +175,7 @@ public class OrdenService {
             orden.setEstado(ordenDto.getEstado() != null ? ordenDto.getEstado() : "PENDIENTE");
             orden.setObservaciones(ordenDto.getObservaciones());
 
-            // Relaciones
+            
             if (ordenDto.getIdMesa() != null) {
                 Mesa mesa = em.find(Mesa.class, ordenDto.getIdMesa());
                 if (mesa == null) {
@@ -221,7 +216,7 @@ public class OrdenService {
             }
             orden.setSalonero(salonero);
 
-            // Detalles
+            
             if (ordenDto.getDetalles() != null && !ordenDto.getDetalles().isEmpty()) {
                 for (DetalleOrdenDto detalleDto : ordenDto.getDetalles()) {
                     Producto producto = em.find(Producto.class, detalleDto.getIdProducto());

@@ -6,12 +6,7 @@ import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
-/**
- * DTO para transferencia de datos de DetalleFactura
- * 
- * @author Kendall Fonseca
- * @author Kaleb Alfaro
- */
+
 @Schema(description = "Detalle de factura - producto facturado")
 public class DetalleFacturaDto implements Serializable {
 
@@ -37,7 +32,7 @@ public class DetalleFacturaDto implements Serializable {
     @JsonbProperty("subtotal")
     private BigDecimal subtotal;
 
-    // IDs de relaciones
+    
     @Schema(description = "ID de la factura", example = "5")
     @JsonbProperty("idFactura")
     private Long idFactura;
@@ -47,7 +42,7 @@ public class DetalleFacturaDto implements Serializable {
     @JsonbProperty("idProducto")
     private Long idProducto;
 
-    // Información adicional del producto
+    
     @Schema(description = "Nombre del producto", example = "Hamburguesa Clásica")
     @JsonbProperty("nombreProducto")
     private String nombreProducto;
@@ -56,7 +51,7 @@ public class DetalleFacturaDto implements Serializable {
     @JsonbProperty("descripcionProducto")
     private String descripcionProducto;
 
-    // Constructores
+    
     public DetalleFacturaDto() {
         this.cantidad = 0;
         this.precioUnitario = BigDecimal.ZERO;
@@ -82,7 +77,7 @@ public class DetalleFacturaDto implements Serializable {
         }
     }
 
-    // Getters y Setters
+    
     public Long getIdDetalleFactura() {
         return idDetalleFactura;
     }

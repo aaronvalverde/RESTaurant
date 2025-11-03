@@ -4,10 +4,7 @@ import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
-/**
- * Entidad JPA para almacenar archivos (imágenes) en la base de datos
- * Mapea la tabla ARCHIVO
- */
+
 @Entity
 @Table(name = "ARCHIVO", schema = "RESTUNA")
 @NamedQueries({
@@ -42,9 +39,9 @@ public class Archivo implements Serializable {
     @Column(name = "FECHA_SUBIDA", nullable = false)
     private Date fechaSubida;
     
-    // @Version - Comentado porque la tabla ARCHIVO no tiene columna VERSION en la BD
-    // @Column(name = "VERSION")
-    // private Long version;
+    
+    
+    
     
     public Archivo() {
         this.fechaSubida = new Date();
@@ -65,12 +62,12 @@ public class Archivo implements Serializable {
         if (dto.getFechaSubida() != null) {
             this.fechaSubida = dto.getFechaSubida();
         } else if (this.fechaSubida == null) {
-            // Asegurar que siempre tenga fecha
+            
             this.fechaSubida = new Date();
         }
     }
 
-    // Getters y Setters
+    
     public Long getIdArchivo() {
         return idArchivo;
     }
@@ -122,14 +119,14 @@ public class Archivo implements Serializable {
         this.fechaSubida = fechaSubida;
     }
 
-    // Getters/Setters de VERSION comentados - la columna no existe en la BD
-    // public Long getVersion() {
-    //     return version;
-    // }
+    
+    
+    
+    
 
-    // public void setVersion(Long version) {
-    //     this.version = version;
-    // }
+    
+    
+    
 
     @Override
     public int hashCode() {

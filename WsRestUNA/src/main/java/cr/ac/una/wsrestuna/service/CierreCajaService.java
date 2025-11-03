@@ -15,12 +15,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-/**
- * Servicio EJB para la gestión de cierres de caja
- * 
- * @author Kendall Fonseca
- * @author Kaleb Alfaro
- */
+
 @Stateless
 @LocalBean
 public class CierreCajaService {
@@ -134,7 +129,7 @@ public class CierreCajaService {
             cierre.setTotalFacturas(cierreDto.getTotalFacturas() != null ? cierreDto.getTotalFacturas() : 0);
             cierre.setObservaciones(cierreDto.getObservaciones());
 
-            // Cajero
+            
             if (cierreDto.getIdCajero() == null) {
                 return new Respuesta(false, CodigoRespuesta.ERROR_CLIENTE, 
                         "El cajero es requerido", "idCajero nulo");
@@ -146,7 +141,7 @@ public class CierreCajaService {
             }
             cierre.setCajero(cajero);
 
-            // Calcular diferencias
+            
             cierre.calcularDiferencias();
 
             em.persist(cierre);

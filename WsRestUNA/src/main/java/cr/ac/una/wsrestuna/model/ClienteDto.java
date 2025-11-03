@@ -7,12 +7,7 @@ import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-/**
- * DTO para transferencia de datos de Cliente
- * 
- * @author Kendall Fonseca
- * @author Kaleb Alfaro
- */
+
 @Schema(description = "Cliente del sistema RESTaurant")
 public class ClienteDto implements Serializable {
 
@@ -39,7 +34,7 @@ public class ClienteDto implements Serializable {
     @JsonbDateFormat("yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime fechaCreacion;
 
-    // Campos de control
+    
     @Schema(description = "Indica si el registro fue modificado", example = "false")
     @JsonbProperty("modificado")
     private Boolean modificado;
@@ -49,7 +44,7 @@ public class ClienteDto implements Serializable {
     @JsonbDateFormat("yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime fecha;
 
-    // Constructores
+    
     public ClienteDto() {
         this.modificado = false;
         this.fecha = LocalDateTime.now();
@@ -65,7 +60,7 @@ public class ClienteDto implements Serializable {
         }
     }
 
-    // Getters y Setters
+    
     public Long getIdCliente() {
         return idCliente;
     }

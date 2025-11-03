@@ -8,16 +8,12 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Servicio para operaciones con archivos/imágenes
- */
+
 public class ArchivoService {
     
     private static final Logger LOG = Logger.getLogger(ArchivoService.class.getName());
     
-    /**
-     * Obtiene un archivo por ID con su contenido
-     */
+    
     public Respuesta getArchivo(Long id) {
         try {
             Map<String, Object> parametros = new HashMap<>();
@@ -38,9 +34,7 @@ public class ArchivoService {
         }
     }
     
-    /**
-     * Obtiene todos los archivos (sin contenido, solo metadata)
-     */
+    
     public Respuesta getArchivos() {
         try {
             Request request = new Request("ArchivoController/archivos");
@@ -59,9 +53,7 @@ public class ArchivoService {
         }
     }
     
-    /**
-     * Guarda un archivo (crear o actualizar)
-     */
+    
     public Respuesta guardarArchivo(ArchivoDto archivoDto) {
         try {
             if (archivoDto == null) {
@@ -96,9 +88,7 @@ public class ArchivoService {
         }
     }
     
-    /**
-     * Elimina un archivo por ID
-     */
+    
     public Respuesta eliminarArchivo(Long id) {
         try {
             Map<String, Object> parametros = new HashMap<>();

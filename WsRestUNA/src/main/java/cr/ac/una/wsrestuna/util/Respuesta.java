@@ -4,10 +4,7 @@ import jakarta.json.bind.annotation.JsonbProperty;
 import java.io.Serializable;
 import java.util.HashMap;
 
-/**
- * Clase para estandarizar respuestas del sistema
- * Permite encapsular el estado, código de respuesta, mensajes y resultados
- */
+
 public class Respuesta implements Serializable {
     
     private static final long serialVersionUID = 1L;
@@ -105,7 +102,7 @@ public class Respuesta implements Serializable {
         this.resultado.put("[Objeto]", resultado);
     }
     
-    // Getter y setter para el HashMap completo (necesario para JSON serialization)
+    
     public HashMap<String, Object> getResultados() {
         return resultado;
     }

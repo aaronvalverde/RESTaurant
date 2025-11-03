@@ -24,12 +24,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-/**
- * Servicio EJB para la gestión de facturas
- * 
- * @author Kendall Fonseca
- * @author Kaleb Alfaro
- */
+
 @Stateless
 @LocalBean
 public class FacturaService {
@@ -187,12 +182,12 @@ public class FacturaService {
             factura.setEstado(facturaDto.getEstado() != null ? facturaDto.getEstado() : "ACTIVA");
             factura.setCorreoEnviado(facturaDto.getCorreoEnviado() != null ? facturaDto.getCorreoEnviado() : "N");
             
-            // El numeroFactura se genera automáticamente por trigger en la BD
+            
             if (facturaDto.getNumeroFactura() != null && !facturaDto.getNumeroFactura().isEmpty()) {
                 factura.setNumeroFactura(facturaDto.getNumeroFactura());
             }
 
-            // Relaciones
+            
             if (facturaDto.getIdOrden() != null) {
                 ordenRelacionado = em.find(Orden.class, facturaDto.getIdOrden());
                 if (ordenRelacionado == null) {
@@ -222,7 +217,7 @@ public class FacturaService {
             }
             factura.setCajero(cajero);
 
-            // Detalles
+            
             if (facturaDto.getDetalles() != null && !facturaDto.getDetalles().isEmpty()) {
                 for (DetalleFacturaDto detalleDto : facturaDto.getDetalles()) {
                     Producto producto = em.find(Producto.class, detalleDto.getIdProducto());
@@ -236,7 +231,7 @@ public class FacturaService {
                 }
             }
 
-            // Calcular vuelto
+            
             factura.calcularVuelto();
 
             em.persist(factura);

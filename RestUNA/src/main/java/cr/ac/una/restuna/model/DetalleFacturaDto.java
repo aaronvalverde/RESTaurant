@@ -1,7 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package cr.ac.una.restuna.model;
 
 import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
@@ -9,10 +6,7 @@ import java.io.Serializable;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.SimpleLongProperty;
 
-/**
- *
- * @author fonse
- */
+
 public class DetalleFacturaDto extends RecursiveTreeObject<DetalleFacturaDto> implements Serializable {
 
     private LongProperty idDetalleFactura;
@@ -21,7 +15,7 @@ public class DetalleFacturaDto extends RecursiveTreeObject<DetalleFacturaDto> im
     private LongProperty cantidad;
     private LongProperty precioUnitario;
     private LongProperty subtotal;
-    private String nombreProducto; // Transitorio para mostrar en la vista
+    private String nombreProducto; 
 
 
   

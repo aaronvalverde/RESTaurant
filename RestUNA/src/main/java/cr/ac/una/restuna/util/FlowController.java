@@ -131,7 +131,7 @@ public class FlowController {
                     currentContentArea.setCenter(newContent);
                 } else {
                     logger.log(Level.WARNING, "No BorderPane found to update view: " + viewName);
-                    // Fallback to creating a new scene
+                    
                     Scene scene = new Scene(newContent);
                     MFXThemeManager.addOn(scene, Themes.DEFAULT, Themes.LEGACY);
                     mainStage.setScene(scene);
@@ -173,7 +173,7 @@ public class FlowController {
                 MFXThemeManager.addOn(scene, Themes.DEFAULT, Themes.LEGACY);
                 mainStage.setScene(scene);
 
-                // Clear contentArea reference since we're in main view
+                
                 this.contentArea = null;
 
             } catch (Exception e) {
@@ -182,11 +182,7 @@ public class FlowController {
         });
     }
 
-    /**
-     * Restores the initial home content to the contentArea.
-     * This is useful for returning to the home screen from child views.
-     * Uses the MainController's restoreInitialContent() method.
-     */
+    
     public void goHome() {
         Platform.runLater(() -> {
             if (mainController != null) {

@@ -10,10 +10,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 
-/**
- * Entidad JPA para mesas de los salones del restaurante
- * Mapea la tabla MESA
- */
+
 @Entity
 @Table(name = "MESA", schema = "RESTUNA")
 @NamedQueries({
@@ -71,7 +68,7 @@ public class Mesa implements Serializable {
     public Mesa() {
         this.fechaCreacion = new Date();
         this.estado = "LIBRE";
-        this.capacidad = 4; // Capacidad por defecto
+        this.capacidad = 4; 
         this.modificado = false;
     }
     
@@ -96,7 +93,7 @@ public class Mesa implements Serializable {
         this.modificado = true;
     }
     
-    // Métodos de utilidad
+    
     public boolean isLibre() {
         return "LIBRE".equals(this.estado);
     }
@@ -117,7 +114,7 @@ public class Mesa implements Serializable {
         return isLibre() || isReservada();
     }
 
-    // Getters y Setters
+    
     public Long getIdMesa() {
         return idMesa;
     }

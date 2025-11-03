@@ -3,9 +3,7 @@ package cr.ac.una.wsrestuna.model;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
 
-/**
- * DTO para transferencia de datos de mesas
- */
+
 @Schema(description = "Mesa dentro de una sección")
 public class MesaDto implements Serializable {
     
@@ -26,7 +24,7 @@ public class MesaDto implements Serializable {
     @Schema(description = "Estado de la mesa", example = "LIBRE")
     private String estado;
     @Schema(description = "Nombre de la sección para visualización", example = "Terraza")
-    private String nombreSeccion; // Para mostrar en cliente
+    private String nombreSeccion; 
     @Schema(description = "Indica si el registro fue modificado", example = "false")
     private Boolean modificado;
     
@@ -56,7 +54,7 @@ public class MesaDto implements Serializable {
         this.modificado = mesa.getModificado();
     }
 
-    // Getters y Setters
+    
     public Long getIdMesa() {
         return idMesa;
     }
