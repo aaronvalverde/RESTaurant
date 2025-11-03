@@ -144,6 +144,13 @@ public class OrderItemController extends Controller implements Initializable {
         lbItemPrice.setText(parentController.formatearPrecio(price));
         lbTotal.setText(parentController.formatearPrecio(price * quantity));
     }
+    
+    /**
+     * Obtener el detalle de la orden
+     */
+    public DetalleOrdenDto getDetail() {
+        return this.detail;
+    }
 
     public void OrderItemController(String itemName, Double itemPrice) {
         price = itemPrice;

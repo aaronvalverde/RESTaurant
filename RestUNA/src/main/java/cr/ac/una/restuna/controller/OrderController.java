@@ -859,17 +859,14 @@ public class OrderController extends Controller implements Initializable {
             itemController.selectProduct(product);
             itemController.setParentController(this);
             
+            // Obtener el detalle que se creó en selectProduct() y agregarlo a la orden
+            DetalleOrdenDto detalle = itemController.getDetail();
+            currentOrder.getDetalles().add(detalle);
+            
             // Guardar referencia del controlador en el nodo para actualizaciones futuras
             itemNode.setUserData(itemController);
 
             orderContainer.getChildren().add(itemNode);
-
-            DetalleOrdenDto detalle = new DetalleOrdenDto();
-            detalle.setIdProducto(product.getIdProducto());
-            detalle.setCantidad(1);
-            detalle.setPrecioUnitario(product.getPrecio());
-            detalle.setSubtotal(product.getPrecio());
-            currentOrder.getDetalles().add(detalle);
 
             updateTotals();
         } catch (Exception ex) {
