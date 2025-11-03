@@ -713,6 +713,20 @@ public class OrderController extends Controller implements Initializable {
 
     @FXML
     private void onActionBtnToBill(ActionEvent event) {
+        if (currentMesa == null) {
+            mostrarAlerta("Error", "No hay mesa seleccionada para facturar.");
+            return;
+        }
+        
+        // Obtener el controlador de facturación y cargar los datos de la mesa
+        BillingController billingController = (BillingController) FlowController.getInstance()
+            .getController(AppKeys.BILLING);
+        
+        if (billingController != null) {
+            billingController.cargarMesa(currentMesa);
+        }
+        
+        // Cambiar a la vista de facturación
         FlowController.getInstance().goView(AppKeys.BILLING);
     }
 
