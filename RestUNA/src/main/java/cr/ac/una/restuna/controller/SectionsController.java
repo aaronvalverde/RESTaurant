@@ -159,16 +159,16 @@ public class SectionsController extends Controller implements Initializable {
     @FXML
     private void onActionBtnAddTable(ActionEvent event) {
         if (seccionActual == null) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Agregar Mesa", 
-                "Debe seleccionar una sección primero");
+            mostrarAlerta(Alert.AlertType.WARNING, getMsg("add.table"),
+                getMsg("choose.section.first"));
             return;
         }
         
         // Solicitar número o nombre de mesa
         TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Nueva Mesa");
-        dialog.setHeaderText("Agregar nueva mesa");
-        dialog.setContentText("Número o nombre de mesa:");
+        dialog.setTitle(getMsg("new.table"));
+        dialog.setHeaderText(getMsg("add.new.table"));
+        dialog.setContentText(getMsg("table.number"));
         
         Optional<String> resultado = dialog.showAndWait();
         if (resultado.isEmpty() || resultado.get().trim().isEmpty()) {
@@ -196,21 +196,21 @@ public class SectionsController extends Controller implements Initializable {
                 if (mesaGuardada != null) {
                     mesasActuales.add(mesaGuardada);
                     crearBotonMesa(mesaGuardada);
-                    mostrarAlerta(Alert.AlertType.INFORMATION, "Nueva Mesa", 
-                        "Mesa creada correctamente");
+                    mostrarAlerta(Alert.AlertType.INFORMATION, getMsg("new.table"),
+                        getMsg("table.success"));
                 }
             }
         } else {
-            mostrarAlerta(Alert.AlertType.ERROR, "Nueva Mesa", 
-                "Error al crear la mesa: " + respuesta.getMensaje());
+            mostrarAlerta(Alert.AlertType.ERROR, getMsg("new.table"),
+                getMsg("error.table") + respuesta.getMensaje());
         }
     }
 
     @FXML
     private void onActionBtnDeleteTable(ActionEvent event) {
         if (mesaSeleccionada == null) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Eliminar Mesa", 
-                "Debe seleccionar una mesa para eliminar");
+            mostrarAlerta(Alert.AlertType.WARNING, getMsg("delete.table"),
+                getMsg("choose.table.delete"));
             return;
         }
         
@@ -592,5 +592,9 @@ public class SectionsController extends Controller implements Initializable {
             }
         }
         event.consume();
+    }
+
+    private String getMsg(String key) {
+        return FlowController.getInstance().getLanguage().getString(key);
     }
 }

@@ -268,7 +268,7 @@ public class UsersMgmtController extends Controller implements Initializable {
             // Verificar si el JSON es válido
             if (usuariosJson == null || usuariosJson.trim().isEmpty()) {
                 System.err.println("JSON vacío");
-                showMessage("No se recibieron datos de usuarios");
+                showMessage(getLanguageString("msg.nouserdata"));
                 return;
             }
 
@@ -444,17 +444,17 @@ public class UsersMgmtController extends Controller implements Initializable {
                         controller.loadUser(usuarioDto);
                         FlowController.getInstance().goViewInWindowModal(AppKeys.NEW_USER, this.getStage(), false);
                     } else {
-                        showMessage("Error: No se pudo cargar el usuario");
+                        showMessage(getLanguageString("msg.user.error"));
                     }
                 } else {
-                    showMessage("Error cargando usuario: " + (respuesta != null ? respuesta.getMensaje() : "Error desconocido"));
+                    showMessage(getLanguageString("msg.error.user") + (respuesta != null ? respuesta.getMensaje() : "Error desconocido"));
                 }
             });
         });
 
         loadTask.setOnFailed(e -> {
             Platform.runLater(() -> {
-                showMessage("Error de conexión: " + loadTask.getException().getMessage());
+                showMessage(getLanguageString("msg.connection.error") + loadTask.getException().getMessage());
             });
         });
 
@@ -466,10 +466,10 @@ public class UsersMgmtController extends Controller implements Initializable {
     private void onDeleteUser(UserRow userRow) {
         // Mostrar diálogo de confirmación
         Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmAlert.setTitle("Confirmar eliminación");
-        confirmAlert.setHeaderText("¿Eliminar usuario?");
-        confirmAlert.setContentText("¿Está seguro que desea eliminar el usuario '" + userRow.getUsername().get() + "'?\n\n" +
-                "Esta acción no se puede deshacer.");
+        confirmAlert.setTitle(getLanguageString("confirm.delete"));
+        confirmAlert.setHeaderText(getLanguageString("delete.user"));
+        confirmAlert.setContentText(getLanguageString("sure.delete.user") + userRow.getUsername().get() + "'?\n\n" +
+                getLanguageString("action.not.reversible"));
         
         // Esperar respuesta del usuario
         confirmAlert.showAndWait().ifPresent(response -> {
@@ -482,7 +482,7 @@ public class UsersMgmtController extends Controller implements Initializable {
     private void eliminarUsuarioDelServidor(UserRow userRow) {
         // Deshabilitar botón mientras se elimina
         btnAdd.setDisable(true);
-        btnAdd.setText("Eliminando...");
+        btnAdd.setText(getLanguageString("btn.deleting"));
         
         Task<Respuesta> deleteTask = new Task<Respuesta>() {
             @Override
@@ -497,7 +497,7 @@ public class UsersMgmtController extends Controller implements Initializable {
                 
                 if (respuesta != null && respuesta.getEstado()) {
                     // Eliminación exitosa
-                    showMessage("Usuario '" + userRow.getUsername().get() + "' eliminado correctamente");
+                    showMessage(getLanguageString("user")+ userRow.getUsername().get() + getLanguageString("deletion.success"));
                     
                     // Eliminar de la lista local
                     userList.remove(userRow);
@@ -507,12 +507,12 @@ public class UsersMgmtController extends Controller implements Initializable {
                 } else {
                     // Error al eliminar
                     String errorMsg = respuesta != null ? respuesta.getMensaje() : "Error desconocido";
-                    showMessage("Error al eliminar usuario: " + errorMsg);
+                    showMessage(getLanguageString("msg.error.user.delete") + errorMsg);
                 }
                 
                 // Restaurar botón
                 btnAdd.setDisable(false);
-                btnAdd.setText("Añadir");
+                btnAdd.setText(getLanguageString("btn.add"));
             });
         });
         
@@ -523,7 +523,7 @@ public class UsersMgmtController extends Controller implements Initializable {
                 
                 // Restaurar botón
                 btnAdd.setDisable(false);
-                btnAdd.setText("Añadir");
+                btnAdd.setText(getLanguageString("btn.add"));
             });
         });
         
@@ -616,9 +616,13 @@ public class UsersMgmtController extends Controller implements Initializable {
 
     private void showMessage(String msg) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Información");
+        alert.setTitle(getLanguageString("msg.info"));
         alert.setHeaderText(null);
         alert.setContentText(msg);
         alert.showAndWait();
+    }
+
+    private String getLanguageString(String key) {
+        return FlowController.getInstance().getLanguage().getString(key);
     }
 }

@@ -313,7 +313,7 @@ public class GroupsMgmtController extends Controller implements Initializable {
 
     private void showMessage(String msg) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Información");
+        alert.setTitle(getLanguageString("msg.info"));
         alert.setHeaderText(null);
         alert.setContentText(msg);
         alert.showAndWait();
@@ -349,6 +349,10 @@ public class GroupsMgmtController extends Controller implements Initializable {
                     }
                 });
             }
+
+            private String getLanguageString(String key) {
+                return FlowController.getInstance().getLanguage().getString(key);
+            }
             
             @Override
             protected void updateItem(Void item, boolean empty) {
@@ -367,9 +371,9 @@ public class GroupsMgmtController extends Controller implements Initializable {
         System.out.println("DEBUG: Eliminando grupo: " + grupo.getNombre());
         
         Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmacion.setTitle("Confirmar eliminación");
-        confirmacion.setHeaderText("¿Eliminar grupo?");
-        confirmacion.setContentText("¿Está seguro de eliminar el grupo '" + grupo.getNombre() + "'?");
+        confirmacion.setTitle(getLanguageString("msg.confirm.delete"));
+        confirmacion.setHeaderText(getLanguageString("msg.delete.group"));
+        confirmacion.setContentText(getLanguageString("msg.sure.delete.group") + grupo.getNombre() + "'?");
         
         if (confirmacion.showAndWait().get() != javafx.scene.control.ButtonType.OK) {
             return;
@@ -385,20 +389,20 @@ public class GroupsMgmtController extends Controller implements Initializable {
         deleteTask.setOnSucceeded(event -> {
             Respuesta respuesta = deleteTask.getValue();
             if (!respuesta.getEstado()) {
-                System.err.println("Error eliminando grupo: " + respuesta.getMensaje());
-                showMessage("Error al eliminar el grupo: " + respuesta.getMensaje());
+                System.err.println(getLanguageString("msg.delete.error.group") + respuesta.getMensaje());
+                showMessage(getLanguageString("msg.delete.error.group") + respuesta.getMensaje());
                 return;
             }
             
             System.out.println("Grupo eliminado exitosamente");
-            showMessage("Grupo eliminado correctamente");
+            showMessage(getLanguageString("msg.delete.group.success"));
             loadGroupsAsync();
         });
         
         deleteTask.setOnFailed(event -> {
             Throwable ex = deleteTask.getException();
             System.err.println("Excepción eliminando grupo: " + (ex != null ? ex.getMessage() : "desconocida"));
-            showMessage("Error eliminando grupo: " + (ex != null ? ex.getMessage() : "Error desconocido"));
+            showMessage(getLanguageString("msg.error.group") + (ex != null ? ex.getMessage() : "Error desconocido"));
         });
         
         Thread deleteThread = new Thread(deleteTask);
