@@ -6,7 +6,6 @@ import cr.ac.una.wsrestuna.util.Respuesta;
 import jakarta.ejb.LocalBean;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import java.time.LocalDateTime;

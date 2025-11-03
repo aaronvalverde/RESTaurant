@@ -6,7 +6,6 @@ import jakarta.validation.constraints.Pattern;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 @Schema(description = "Turno del usuario registrado en el sistema RESTuna")
 public class TurnoDto implements Serializable {
