@@ -249,6 +249,33 @@ public class Request {
             return json.toString();
         }
 
+        // Soportar ClienteDto
+        if (objeto instanceof cr.ac.una.restuna.model.ClienteDto) {
+            cr.ac.una.restuna.model.ClienteDto cliente = (cr.ac.una.restuna.model.ClienteDto) objeto;
+            StringBuilder json = new StringBuilder();
+            json.append('{');
+            
+            // ID (si existe)
+            if (cliente.getIdCliente() != null && cliente.getIdCliente() > 0) {
+                json.append("\"idCliente\":").append(cliente.getIdCliente()).append(',');
+            }
+            
+            // Nombre (requerido)
+            if (cliente.getNombre() != null && !cliente.getNombre().isEmpty()) {
+                json.append("\"nombre\":\"").append(escaparJson(cliente.getNombre())).append("\"");
+            } else {
+                json.append("\"nombre\":null");
+            }
+            
+            // Correo (opcional)
+            if (cliente.getCorreo() != null && !cliente.getCorreo().isEmpty()) {
+                json.append(",\"correo\":\"").append(escaparJson(cliente.getCorreo())).append("\"");
+            }
+            
+            json.append('}');
+            return json.toString();
+        }
+
         // Soportar GrupoProductoDto
         if (objeto instanceof cr.ac.una.restuna.model.GrupoProductoDto) {
             cr.ac.una.restuna.model.GrupoProductoDto grupo = (cr.ac.una.restuna.model.GrupoProductoDto) objeto;

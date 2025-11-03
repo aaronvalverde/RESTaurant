@@ -1,5 +1,6 @@
 package cr.ac.una.restuna.controller;
 
+import cr.ac.una.restuna.model.ClienteDto;
 import cr.ac.una.restuna.model.DetalleOrdenDto;
 import cr.ac.una.restuna.model.GrupoProductoDto;
 import cr.ac.una.restuna.model.MesaDto;
@@ -36,6 +37,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -245,6 +247,74 @@ public class OrderController extends Controller implements Initializable {
         // Calcular subtotal de la orden
         currentOrder.calcularSubtotal();
         
+        // Validar que el campo del nombre del cliente tenga texto
+        String nombreCliente = txfClientName.getText();
+        if (nombreCliente == null || nombreCliente.trim().isEmpty()) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Validación");
+            alert.setHeaderText(null);
+            alert.setContentText("Por favor, ingrese el nombre del cliente antes de guardar la orden.");
+            alert.showAndWait();
+            return;
+        }
+        
+        // Guardar cliente (solo nombre) y luego asociarlo con la orden
+        System.out.println("DEBUG - Guardando cliente con nombre: " + nombreCliente.trim());
+        guardarClienteYOrden(nombreCliente.trim());
+    }
+    
+    /**
+     * Guardar cliente y luego la orden con el cliente asociado
+     */
+    private void guardarClienteYOrden(String nombreCliente) {
+        javafx.concurrent.Task<Void> task = new javafx.concurrent.Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                // Crear cliente
+                ClienteDto cliente = new ClienteDto();
+                cliente.setNombre(nombreCliente);
+                
+                // Guardar cliente
+                Respuesta respuestaCliente = clienteService.guardarCliente(cliente);
+                
+                if (respuestaCliente.getEstado()) {
+                    // Parsear el cliente guardado para obtener su ID
+                    String clienteJson = (String) respuestaCliente.getResultado("Cliente");
+                    Long idCliente = JsonParser.extraerValorLong(clienteJson, "idCliente");
+                    
+                    System.out.println("DEBUG - Cliente guardado con ID: " + idCliente);
+                    
+                    // Asignar cliente a la orden
+                    currentOrder.setIdCliente(idCliente);
+                } else {
+                    System.err.println("Error guardando cliente: " + respuestaCliente.getMensaje());
+                }
+                
+                return null;
+            }
+            
+            @Override
+            protected void succeeded() {
+                // Ahora guardar la orden con el cliente asociado
+                guardarOrdenDirectamente();
+            }
+            
+            @Override
+            protected void failed() {
+                System.err.println("Error en tarea de guardar cliente: " + getException().getMessage());
+                // Guardar orden sin cliente si falla
+                guardarOrdenDirectamente();
+            }
+        };
+        
+        new Thread(task).start();
+    }
+    
+    /**
+     * Guardar la orden en la base de datos
+     */
+    private void guardarOrdenDirectamente() {
+        
         // Guardar en background
         javafx.concurrent.Task<Respuesta> task = new javafx.concurrent.Task<Respuesta>() {
             @Override
@@ -390,6 +460,21 @@ public class OrderController extends Controller implements Initializable {
             orden.setIdSalonero(idSalonero);
             orden.setEstado(JsonParser.extraerValor(objetoJson, "estado"));
             
+            // Parsear ID del cliente
+            Long idCliente = JsonParser.extraerValorLong(objetoJson, "idCliente");
+            if (idCliente != null) {
+                orden.setIdCliente(idCliente);
+            }
+            
+            // Parsear nombre del cliente para mostrar en la interfaz
+            String nombreCliente = JsonParser.extraerValor(objetoJson, "nombreCliente");
+            if (nombreCliente != null && !nombreCliente.trim().isEmpty()) {
+                // Establecer el nombre en el campo de texto
+                javafx.application.Platform.runLater(() -> {
+                    txfClientName.setText(nombreCliente);
+                });
+            }
+            
             // Parsear fecha - intentar ambos nombres de campo
             String fechaStr = JsonParser.extraerValor(objetoJson, "fecha");
             if (fechaStr == null || fechaStr.isEmpty()) {
@@ -450,6 +535,7 @@ public class OrderController extends Controller implements Initializable {
             currentOrder.setIdOrden(orden.getIdOrden());
             currentOrder.setIdMesa(orden.getIdMesa());
             currentOrder.setIdSeccion(orden.getIdSeccion());
+            currentOrder.setIdCliente(orden.getIdCliente());
             currentOrder.setIdSalonero(orden.getIdSalonero());
             currentOrder.setEstado(orden.getEstado());
             currentOrder.setFechaHora(orden.getFechaHora());

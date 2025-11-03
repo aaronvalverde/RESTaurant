@@ -123,7 +123,7 @@ public class OrdenDto implements Serializable {
             }
             if (orden.getCliente() != null) {
                 this.idCliente = orden.getCliente().getIdCliente();
-                this.nombreCliente = orden.getCliente().getNombre() + " " + orden.getCliente().getApellidos();
+                this.nombreCliente = orden.getCliente().getNombre();
             }
             if (orden.getSeccion() != null) {
                 this.idSeccion = orden.getSeccion().getIdSeccion();

@@ -148,7 +148,7 @@ public class FacturaDto implements Serializable {
             }
             if (factura.getCliente() != null) {
                 this.idCliente = factura.getCliente().getIdCliente();
-                this.nombreCliente = factura.getCliente().getNombre() + " " + factura.getCliente().getApellidos();
+                this.nombreCliente = factura.getCliente().getNombre();
             }
             if (factura.getCajero() != null) {
                 this.idCajero = factura.getCajero().getIdUsuario();

@@ -156,25 +156,52 @@ public class MesaService {
                     return new Respuesta(false, CodigoRespuesta.ERROR_NOENCONTRADO,
                         "No se encontró la mesa a actualizar", "guardarMesa");
                 }
+                
+                // Validar número de mesa único en sección al actualizar
+                if (dto.getNumeroMesa() != null && !dto.getNumeroMesa().equals(mesa.getNumeroMesa())) {
+                    List<Mesa> mesasExistentes = em.createQuery(
+                        "SELECT m FROM Mesa m WHERE m.numeroMesa = :numero AND m.seccion.idSeccion = :idSeccion AND m.idMesa <> :idMesa", Mesa.class)
+                        .setParameter("numero", dto.getNumeroMesa())
+                        .setParameter("idSeccion", dto.getIdSeccion())
+                        .setParameter("idMesa", mesa.getIdMesa())
+                        .getResultList();
+                    
+                    if (!mesasExistentes.isEmpty()) {
+                        return new Respuesta(false, CodigoRespuesta.ERROR_CLIENTE,
+                            "Ya existe una mesa con el número '" + dto.getNumeroMesa() + "' en esta sección", "guardarMesa");
+                    }
+                }
+                
                 mesa.actualizar(dto);
                 mesa = em.merge(mesa);
             } else {
-                // Crear nueva
-                mesa = new Mesa(dto);
-                
-                // Asignar sección
-                if (dto.getIdSeccion() != null) {
-                    Seccion seccion = em.find(Seccion.class, dto.getIdSeccion());
-                    if (seccion == null) {
-                        return new Respuesta(false, CodigoRespuesta.ERROR_NOENCONTRADO,
-                            "No se encontró la sección especificada", "guardarMesa");
-                    }
-                    mesa.setSeccion(seccion);
-                } else {
+                // Validar sección
+                if (dto.getIdSeccion() == null) {
                     return new Respuesta(false, CodigoRespuesta.ERROR_CLIENTE,
                         "Debe especificar una sección para la mesa", "guardarMesa");
                 }
                 
+                Seccion seccion = em.find(Seccion.class, dto.getIdSeccion());
+                if (seccion == null) {
+                    return new Respuesta(false, CodigoRespuesta.ERROR_NOENCONTRADO,
+                        "No se encontró la sección especificada", "guardarMesa");
+                }
+                
+                // Validar número de mesa único en sección
+                List<Mesa> mesasExistentes = em.createQuery(
+                    "SELECT m FROM Mesa m WHERE m.numeroMesa = :numero AND m.seccion.idSeccion = :idSeccion", Mesa.class)
+                    .setParameter("numero", dto.getNumeroMesa())
+                    .setParameter("idSeccion", dto.getIdSeccion())
+                    .getResultList();
+                
+                if (!mesasExistentes.isEmpty()) {
+                    return new Respuesta(false, CodigoRespuesta.ERROR_CLIENTE,
+                        "Ya existe una mesa con el número '" + dto.getNumeroMesa() + "' en esta sección", "guardarMesa");
+                }
+                
+                // Crear nueva
+                mesa = new Mesa(dto);
+                mesa.setSeccion(seccion);
                 em.persist(mesa);
             }
             

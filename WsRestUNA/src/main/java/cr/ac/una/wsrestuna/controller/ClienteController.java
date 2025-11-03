@@ -94,10 +94,10 @@ public class ClienteController {
     }
     
     @GET
-    @Path("/cliente/cedula/{cedula}")
+    @Path("/cliente/correo/{correo}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(summary = "Obtiene un cliente por cédula")
+    @Operation(summary = "Obtiene un cliente por correo electrónico")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Cliente encontrado",
                 content = @Content(mediaType = MediaType.APPLICATION_JSON,
@@ -107,16 +107,16 @@ public class ClienteController {
         @ApiResponse(responseCode = "500", description = "Error interno",
                 content = @Content(mediaType = MediaType.TEXT_PLAIN))
     })
-    public Response getClientePorCedula(@Parameter(description = "Cédula del cliente", example = "1-1234-5678")
-                                        @PathParam("cedula") String cedula) {
+    public Response getClientePorCorreo(@Parameter(description = "Correo electrónico del cliente", example = "cliente@email.com")
+                                        @PathParam("correo") String correo) {
         try {
-            Respuesta res = clienteService.obtenerPorCedula(cedula);
+            Respuesta res = clienteService.obtenerPorCorreo(correo);
             if (!res.getEstado()) {
                 return Response.status(Response.Status.NOT_FOUND).entity(res).build();
             }
             return Response.ok((ClienteDto) res.getResultado("Cliente")).build();
         } catch (Exception ex) {
-            LOG.log(Level.SEVERE, "Error obteniendo cliente por cédula.", ex);
+            LOG.log(Level.SEVERE, "Error obteniendo cliente por correo.", ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                 .entity("Error obteniendo cliente: " + ex.getMessage())
                 .build();
@@ -125,6 +125,44 @@ public class ClienteController {
     
     @POST
     @Path("/cliente")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(summary = "Guarda un cliente (crear o actualizar)")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Cliente guardado exitosamente",
+                content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                        schema = @Schema(implementation = ClienteDto.class))),
+        @ApiResponse(responseCode = "400", description = "Datos inválidos",
+                content = @Content(mediaType = MediaType.TEXT_PLAIN)),
+        @ApiResponse(responseCode = "500", description = "Error interno",
+                content = @Content(mediaType = MediaType.TEXT_PLAIN))
+    })
+    public Response guardarCliente(@Parameter(description = "Datos del cliente a guardar", required = true)
+                                   ClienteDto clienteDto) {
+        try {
+            Respuesta res;
+            
+            // Si tiene ID, actualizar; si no, crear
+            if (clienteDto.getIdCliente() != null && clienteDto.getIdCliente() > 0) {
+                res = clienteService.actualizar(clienteDto);
+            } else {
+                res = clienteService.crear(clienteDto);
+            }
+            
+            if (!res.getEstado()) {
+                return Response.status(Response.Status.BAD_REQUEST).entity(res).build();
+            }
+            return Response.ok((ClienteDto) res.getResultado("Cliente")).build();
+        } catch (Exception ex) {
+            LOG.log(Level.SEVERE, "Error guardando cliente.", ex);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity("Error guardando cliente: " + ex.getMessage())
+                .build();
+        }
+    }
+    
+    @POST
+    @Path("/crearCliente")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(summary = "Crea un nuevo cliente")
