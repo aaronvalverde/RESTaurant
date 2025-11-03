@@ -137,9 +137,9 @@ public class ReporteController {
                 content = @Content(mediaType = MediaType.TEXT_PLAIN))
     })
     public Response reporteFacturas(
-            @Parameter(description = "Fecha inicio (yyyy-MM-dd)", example = "2024-01-01") 
+            @Parameter(description = "Fecha inicio (yyyy-MM-dd)", example = "2025-11-01") 
             @QueryParam("fechaInicio") String fechaInicio,
-            @Parameter(description = "Fecha fin (yyyy-MM-dd)", example = "2024-12-31") 
+            @Parameter(description = "Fecha fin (yyyy-MM-dd)", example = "2025-11-02") 
             @QueryParam("fechaFin") String fechaFin) {
         try {
             if (fechaInicio == null || fechaFin == null) {
