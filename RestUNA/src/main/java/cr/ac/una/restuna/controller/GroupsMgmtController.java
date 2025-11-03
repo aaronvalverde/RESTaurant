@@ -31,11 +31,7 @@ import javafx.scene.layout.HBox;
 import java.util.List;
 import cr.ac.una.restuna.util.JsonParser;
 
-/**
- * FXML Controller class
- *
- * @author aaron
- */
+
 public class GroupsMgmtController extends Controller implements Initializable {
 
     @FXML
@@ -93,7 +89,7 @@ public class GroupsMgmtController extends Controller implements Initializable {
         cmbStatus.valueProperty().addListener((obs, oldVal, newVal) -> groupFilter());
         
         setActionsColumn();
-        loadGroupsAsync(); // Cargar grupos desde el servidor
+        loadGroupsAsync(); 
     }
 
     @Override
@@ -126,15 +122,13 @@ public class GroupsMgmtController extends Controller implements Initializable {
     }
 
     @FXML
-    private void onEditSection(/*DTO de la seccion*/) {
+    private void onEditSection() {
         NewGroupController controller = new NewGroupController();
         FlowController.getInstance().goViewInWindowModal(AppKeys.NEW_MENU_GROUP, new Stage(), false);
-        controller.loadSection(/*DTO de la seccion*/);
+        controller.loadSection();
     }
     
-    /**
-     * Carga los grupos desde el servidor
-     */
+    
     public void loadGroupsFromServer() {
         loadGroupsAsync();
     }
@@ -177,7 +171,7 @@ public class GroupsMgmtController extends Controller implements Initializable {
         
         group.clear();
         
-        // Extraer objetos JSON de nivel superior del array
+        
         List<String> objetosGrupos = JsonParser.extraerObjetosDelArray(contenido);
         System.out.println("DEBUG: Se encontraron " + objetosGrupos.size() + " grupos");
         
@@ -194,9 +188,7 @@ public class GroupsMgmtController extends Controller implements Initializable {
         System.out.println("DEBUG: procesarGruposDesdeJson() completado. Total grupos: " + group.size());
     }
     
-    /**
-     * Parsea un objeto JSON string a GrupoProductoDto
-     */
+    
     private GrupoProductoDto parsearGrupoProducto(String objetoJson) {
         try {
             GrupoProductoDto grupo = new GrupoProductoDto();
@@ -205,7 +197,7 @@ public class GroupsMgmtController extends Controller implements Initializable {
             grupo.setDescripcion(JsonParser.extraerValor(objetoJson, "descripcion"));
             grupo.setAccesoRapido(JsonParser.extraerValor(objetoJson, "accesoRapido"));
             
-            // Convertir Long a Integer para estos campos
+            
             Long ordenVis = JsonParser.extraerValorLong(objetoJson, "ordenVisualizacion");
             if (ordenVis != null) {
                 grupo.setOrdenVisualizacion(ordenVis.intValue());
@@ -229,7 +221,7 @@ public class GroupsMgmtController extends Controller implements Initializable {
     public void addGroup(String nameGroup, String description, String shorcut, String status) {
         System.out.println("DEBUG: Agregando grupo: " + nameGroup);
         
-        // Verificar duplicados locales
+        
         for (GrupoProductoDto grp : group) {
             if (grp.getNombre().equalsIgnoreCase(nameGroup)) {
                 showMessage("El grupo ya existe: " + nameGroup);
@@ -237,18 +229,18 @@ public class GroupsMgmtController extends Controller implements Initializable {
             }
         }
         
-        // Crear Task para guardar en background
+        
         Task<Respuesta> saveTask = new Task<Respuesta>() {
             @Override
             protected Respuesta call() throws Exception {
-                // Crear DTO para enviar al servidor
+                
                 GrupoProductoDto nuevoGrupo = new GrupoProductoDto();
                 nuevoGrupo.setNombre(nameGroup);
                 nuevoGrupo.setDescripcion(description);
                 nuevoGrupo.setAccesoRapido(shorcut);
                 nuevoGrupo.setEstado(status);
                 
-                // Determinar el siguiente orden de visualización
+                
                 Integer maxOrden = 0;
                 for (GrupoProductoDto grp : group) {
                     if (grp.getOrdenVisualizacion() != null && grp.getOrdenVisualizacion() > maxOrden) {
@@ -257,7 +249,7 @@ public class GroupsMgmtController extends Controller implements Initializable {
                 }
                 nuevoGrupo.setOrdenVisualizacion(maxOrden + 1);
                 
-                // Guardar en el servidor
+                
                 return grupoProductoService.guardarGrupoProducto(nuevoGrupo);
             }
         };
@@ -267,7 +259,7 @@ public class GroupsMgmtController extends Controller implements Initializable {
             
             if (respuesta.getEstado()) {
                 System.out.println("Grupo guardado exitosamente en el servidor");
-                // Recargar grupos desde el servidor
+                
                 loadGroupsAsync();
             } else {
                 System.err.println("Error guardando grupo: " + respuesta.getMensaje());
@@ -280,7 +272,7 @@ public class GroupsMgmtController extends Controller implements Initializable {
             showMessage("Error al guardar el grupo: " + saveTask.getException().getMessage());
         });
         
-        // Ejecutar tarea en background
+        
         Thread saveThread = new Thread(saveTask);
         saveThread.setDaemon(true);
         saveThread.start();
@@ -302,7 +294,7 @@ public class GroupsMgmtController extends Controller implements Initializable {
 
         System.out.println("DEBUG groupFilter: Total después de filtrar: " + filter.size());
 
-        // Workaround para JFXTreeTableView - forzar refresh
+        
         TreeItem<GrupoProductoDto> root = new RecursiveTreeItem<>(filter, RecursiveTreeObject::getChildren);
         tbvMenuGroups.setRoot(null);
         tbvMenuGroups.setRoot(root);

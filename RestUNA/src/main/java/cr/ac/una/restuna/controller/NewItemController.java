@@ -22,11 +22,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
 
-/**
- * FXML Controller class
- *
- * @author aaron
- */
+
 public class NewItemController extends Controller implements Initializable {
 
     @FXML
@@ -57,17 +53,15 @@ public class NewItemController extends Controller implements Initializable {
     private final ProductoService productoService = new ProductoService();
     private List<GrupoProductoDto> gruposDisponibles = new ArrayList<>();
 
-    /**
-     * Initializes the controller class.
-     */
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // Agregar validaciones
+        
         TextFieldValidator.addTextOnlyValidation(txfName);
         TextFieldValidator.addTextOnlyValidation(txfShortName);
         TextFieldValidator.addDecimalOnlyValidation(txfPrice);
         
-        loadGrupos(); // Cargar grupos desde el servidor
+        loadGrupos(); 
         initButtons();
         validations();
     }
@@ -76,9 +70,7 @@ public class NewItemController extends Controller implements Initializable {
     public void initialize() {
     }
     
-    /**
-     * Carga los grupos activos desde el servidor
-     */
+    
     private void loadGrupos() {
         System.out.println("DEBUG: Cargando grupos para ComboBox");
         Respuesta respuesta = grupoProductoService.getGrupoProductosActivos();
@@ -99,7 +91,7 @@ public class NewItemController extends Controller implements Initializable {
         gruposDisponibles.clear();
         cmbGroup.getItems().clear();
         
-        // Extraer objetos JSON
+        
         List<String> objetosGrupos = JsonParser.extraerObjetosDelArray(contenido);
         
         for (String objetoJson : objetosGrupos) {
@@ -113,9 +105,7 @@ public class NewItemController extends Controller implements Initializable {
         System.out.println("DEBUG: Grupos cargados: " + gruposDisponibles.size());
     }
     
-    /**
-     * Parsea un objeto JSON string a GrupoProductoDto
-     */
+    
     private GrupoProductoDto parsearGrupoProducto(String objetoJson) {
         try {
             GrupoProductoDto grupo = new GrupoProductoDto();
@@ -175,7 +165,7 @@ public class NewItemController extends Controller implements Initializable {
             cbShortcut.setSelected("S".equals(product.getAccesoRapido()));
             cbStatus.setSelected("A".equals(product.getEstado()));
             
-            // Seleccionar el grupo en el combo
+            
             if (product.getNombreGrupo() != null && !product.getNombreGrupo().isEmpty()) {
                 cmbGroup.selectItem(product.getNombreGrupo());
             }
@@ -213,13 +203,13 @@ public class NewItemController extends Controller implements Initializable {
 
     private void addProduct() {
         try {
-            // Validar que se seleccionó un grupo
+            
             if (cmbGroup.getSelectionModel().getSelectedItem() == null) {
                 showMessage(new Respuesta(false, "Error", "Debe seleccionar un grupo de producto"));
                 return;
             }
             
-            // Buscar el grupo seleccionado
+            
             String nombreGrupoSeleccionado = cmbGroup.getSelectionModel().getSelectedItem();
             GrupoProductoDto grupoSeleccionado = null;
             for (GrupoProductoDto grupo : gruposDisponibles) {
@@ -234,7 +224,7 @@ public class NewItemController extends Controller implements Initializable {
                 return;
             }
             
-            // Crear DTO del producto
+            
             ProductoDto nuevoProducto = new ProductoDto();
             nuevoProducto.setIdGrupoProducto(grupoSeleccionado.getIdGrupoProducto());
             nuevoProducto.setNombre(txfName.getText().trim());
@@ -244,7 +234,7 @@ public class NewItemController extends Controller implements Initializable {
             nuevoProducto.setAccesoRapido(cbShortcut.isSelected() ? "S" : "N");
             nuevoProducto.setEstado(cbStatus.isSelected() ? "A" : "I");
             
-            // Guardar en el servidor
+            
             Respuesta respuesta = productoService.guardarProducto(nuevoProducto);
             
             if (!respuesta.getEstado()) {
@@ -254,7 +244,7 @@ public class NewItemController extends Controller implements Initializable {
             
             showMessage(new Respuesta(true, "Éxito", "Producto agregado correctamente"));
             
-            // Recargar tabla en el controlador padre si existe
+            
             if (parentController != null) {
                 parentController.loadProductsFromServer();
             }
@@ -270,13 +260,13 @@ public class NewItemController extends Controller implements Initializable {
 
     private void saveProduct() {
         try {
-            // Validar que se seleccionó un grupo
+            
             if (cmbGroup.getSelectionModel().getSelectedItem() == null) {
                 showMessage(new Respuesta(false, "Error", "Debe seleccionar un grupo de producto"));
                 return;
             }
             
-            // Buscar el grupo seleccionado
+            
             String nombreGrupoSeleccionado = cmbGroup.getSelectionModel().getSelectedItem();
             GrupoProductoDto grupoSeleccionado = null;
             for (GrupoProductoDto grupo : gruposDisponibles) {
@@ -291,7 +281,7 @@ public class NewItemController extends Controller implements Initializable {
                 return;
             }
             
-            // Actualizar campos del producto
+            
             productEdit.setIdGrupoProducto(grupoSeleccionado.getIdGrupoProducto());
             productEdit.setNombre(txfName.getText().trim());
             productEdit.setNombreCorto(txfShortName.getText().trim());
@@ -300,7 +290,7 @@ public class NewItemController extends Controller implements Initializable {
             productEdit.setAccesoRapido(cbShortcut.isSelected() ? "S" : "N");
             productEdit.setEstado(cbStatus.isSelected() ? "A" : "I");
 
-            // Guardar en el servidor
+            
             Respuesta respuesta = productoService.guardarProducto(productEdit);
             
             if (!respuesta.getEstado()) {
@@ -310,7 +300,7 @@ public class NewItemController extends Controller implements Initializable {
             
             showMessage(new Respuesta(true, "Éxito", "Producto actualizado correctamente"));
             
-            // Recargar tabla en el controlador padre si existe
+            
             if (parentController != null) {
                 parentController.loadProductsFromServer();
             }
