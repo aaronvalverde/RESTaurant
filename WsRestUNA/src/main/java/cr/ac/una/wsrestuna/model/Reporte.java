@@ -29,9 +29,9 @@ import java.util.Date;
 @Entity
 @Table(name = "REPORTE", schema = "RESTUNA")
 @NamedQueries({
-    @NamedQuery(name = "Reporte.findAll", query = "SELECT p FROM Reporte p ORDER BY p.fechaGeneracion DESC"),
-    @NamedQuery(name = "Reporte.findByTipo", query = "SELECT p FROM Reporte p WHERE p.tipoReporte = :tipo ORDER BY p.fechaGeneracion DESC"),
-    @NamedQuery(name = "Reporte.findByFecha", query = "SELECT p FROM Reporte p WHERE p.fechaGeneracion BETWEEN :fechaInicio AND :fechaFin ORDER BY p.fechaGeneracion DESC")
+    @NamedQuery(name = "Reporte.findAll", query = "SELECT p FROM Reporte p ORDER BY p.fechaGenerado"),
+    @NamedQuery(name = "Reporte.findByTipo", query = "SELECT p FROM Reporte p WHERE p.tipoReporte = :tipo ORDER BY p.fechaGenerado"),
+    @NamedQuery(name = "Reporte.findByFecha", query = "SELECT p FROM Reporte p WHERE p.fechaGenerado BETWEEN :fechaInicio AND :fechaFin ORDER BY p.fechaGenerado")
 })
 public class Reporte implements Serializable {
 
