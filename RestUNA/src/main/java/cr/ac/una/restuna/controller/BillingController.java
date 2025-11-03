@@ -13,6 +13,8 @@ import cr.ac.una.restuna.service.MesaService;
 import cr.ac.una.restuna.service.OrdenService;
 import cr.ac.una.restuna.service.FacturaService;
 import cr.ac.una.restuna.service.ClienteService;
+import cr.ac.una.restuna.util.AppKeys;
+import cr.ac.una.restuna.util.FlowController;
 import cr.ac.una.restuna.util.JsonParser;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXTextField;
@@ -217,7 +219,9 @@ public class BillingController extends Controller implements Initializable {
 
     @FXML
     void onActionBtnCancel(ActionEvent event) {
-        closeWindow();
+        // Limpiar datos y volver a la vista de secciones
+        clear();
+        FlowController.getInstance().goView(AppKeys.SECTIONS);
     }
 
     @FXML

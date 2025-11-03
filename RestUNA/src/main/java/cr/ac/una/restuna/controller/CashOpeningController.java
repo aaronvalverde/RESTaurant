@@ -3,12 +3,19 @@ package cr.ac.una.restuna.controller;
 import cr.ac.una.restuna.model.CierreCajaDto;
 import cr.ac.una.restuna.model.ParametroDto;
 import cr.ac.una.restuna.service.ParametroService;
+import cr.ac.una.restuna.util.JsonParser;
+import cr.ac.una.restuna.util.Respuesta;
+import cr.ac.una.restuna.util.UserSession;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXTextField;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.ResourceBundle;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -42,7 +49,7 @@ public class CashOpeningController extends Controller implements Initializable {
     private Boolean onKeypadMode = false;
     public static CierreCajaDto activeOpening;
 
-    private final ParametroService parametroService =  new ParametroService();
+    private final ParametroService parametroService = new ParametroService();
     
     
     @Override
@@ -79,12 +86,13 @@ public class CashOpeningController extends Controller implements Initializable {
     private void onActionBtnOk(ActionEvent event) {
         try {
             double initAmount = Double.parseDouble(txfInitialFund.getText().trim());
-            activeOpening = new CierreCajaDto();
-            activeOpening.setIdCierreCaja(System.currentTimeMillis());
-            activeOpening.setFechaApertura(new Date());
-            activeOpening.setEfectivoInicial((long) initAmount);
-            activeOpening.setEstado("A");
             
+            // Crear el objeto de cierre de caja (apertura) - solo en memoria
+            activeOpening = new CierreCajaDto();
+            activeOpening.setEfectivoInicial((long) initAmount);
+            activeOpening.setEstado("A"); // Estado Abierta
+            
+            // Guardar en parámetros del sistema
             saveParameters(initAmount);
             
             showMessage("Caja abierta con éxito.");
@@ -97,26 +105,121 @@ public class CashOpeningController extends Controller implements Initializable {
     private void saveParameters(double initAmount){
         
         try{
+            // Obtener el ID del usuario actual
+            Long idUsuario = UserSession.getInstance().getCurrentUser().getIdUsuario();
             
-            ParametroDto status = new ParametroDto();
-            status.setClave("CAJA_ESTADO");
+            // Obtener parámetros existentes del usuario
+            Respuesta resp = parametroService.getParametrosPorUsuario(idUsuario);
+            List<ParametroDto> parametrosExistentes = new ArrayList<>();
+            
+            if (resp.getEstado()) {
+                String jsonArray = (String) resp.getResultado("Parametros");
+                parametrosExistentes = parsearParametros(jsonArray);
+            } else {
+                System.err.println("Error al obtener parámetros: " + resp.getMensaje());
+            }
+            
+            // Buscar o crear parámetro CAJA_ESTADO
+            ParametroDto status = buscarParametro(parametrosExistentes, "CAJA_ESTADO");
+            if (status == null) {
+                status = new ParametroDto();
+                status.setIdUsuario(idUsuario);
+                status.setClave("CAJA_ESTADO");
+                status.setDescripcion("Estado de la caja");
+            }
             status.setValor("A");
             
-            ParametroDto date = new ParametroDto();
-            date.setClave("FECHA_APERTURA");
+            // Buscar o crear parámetro FECHA_APERTURA
+            ParametroDto date = buscarParametro(parametrosExistentes, "FECHA_APERTURA");
+            if (date == null) {
+                date = new ParametroDto();
+                date.setIdUsuario(idUsuario);
+                date.setClave("FECHA_APERTURA");
+                date.setDescripcion("Fecha de apertura de caja");
+            }
             date.setValor(new Date().toString());
             
-            ParametroDto amount = new ParametroDto();
-            amount.setClave("MONTO_INICIAL");
+            // Buscar o crear parámetro MONTO_INICIAL
+            ParametroDto amount = buscarParametro(parametrosExistentes, "MONTO_INICIAL");
+            if (amount == null) {
+                amount = new ParametroDto();
+                amount.setIdUsuario(idUsuario);
+                amount.setClave("MONTO_INICIAL");
+                amount.setDescripcion("Monto inicial de apertura");
+            }
             amount.setValor(String.valueOf(initAmount));
             
-            parametroService.guardarParametro(status);
-            parametroService.guardarParametro(date);
-            parametroService.guardarParametro(amount);
+            // Guardar cada parámetro y verificar errores
+            Respuesta respStatus = parametroService.guardarParametro(status);
+            if (!respStatus.getEstado()) {
+                System.err.println("Error al guardar CAJA_ESTADO: " + respStatus.getMensaje());
+                throw new Exception("No se pudo guardar el estado de la caja");
+            }
+            
+            Respuesta respDate = parametroService.guardarParametro(date);
+            if (!respDate.getEstado()) {
+                System.err.println("Error al guardar FECHA_APERTURA: " + respDate.getMensaje());
+                throw new Exception("No se pudo guardar la fecha de apertura");
+            }
+            
+            Respuesta respAmount = parametroService.guardarParametro(amount);
+            if (!respAmount.getEstado()) {
+                System.err.println("Error al guardar MONTO_INICIAL: " + respAmount.getMensaje());
+                throw new Exception("No se pudo guardar el monto inicial");
+            }
             
         }catch(Exception e){
-            showMessage("Error al guardar parametros");
+            e.printStackTrace();
+            showMessage("No se pudo abrir la caja. Intente nuevamente.");
         }
+    }
+    
+    private List<ParametroDto> parsearParametros(String jsonArray) {
+        List<ParametroDto> parametros = new ArrayList<>();
+        
+        if (jsonArray == null || jsonArray.trim().isEmpty() || jsonArray.equals("[]")) {
+            return parametros;
+        }
+
+        // Extraer cada objeto del array JSON
+        Pattern pattern = Pattern.compile("\\{[^{}]*\\}");
+        Matcher matcher = pattern.matcher(jsonArray);
+
+        while (matcher.find()) {
+            String objetoJson = matcher.group();
+            ParametroDto parametro = parsearParametro(objetoJson);
+            if (parametro != null) {
+                parametros.add(parametro);
+            }
+        }
+        
+        return parametros;
+    }
+
+    private ParametroDto parsearParametro(String objetoJson) {
+        try {
+            ParametroDto parametro = new ParametroDto();
+            
+            parametro.setIdParametro(JsonParser.extraerValorLong(objetoJson, "idParametro"));
+            parametro.setIdUsuario(JsonParser.extraerValorLong(objetoJson, "idUsuario"));
+            parametro.setClave(JsonParser.extraerValor(objetoJson, "clave"));
+            parametro.setValor(JsonParser.extraerValor(objetoJson, "valor"));
+            parametro.setDescripcion(JsonParser.extraerValor(objetoJson, "descripcion"));
+            parametro.setTipoDato(JsonParser.extraerValor(objetoJson, "tipoDato"));
+            
+            return parametro;
+        } catch (Exception e) {
+            System.err.println("Error parseando parámetro: " + e.getMessage());
+            return null;
+        }
+    }
+    
+    private ParametroDto buscarParametro(List<ParametroDto> parametros, String clave) {
+        if (parametros == null) return null;
+        return parametros.stream()
+                .filter(p -> clave.equals(p.getClave()))
+                .findFirst()
+                .orElse(null);
     }
 
     @FXML
