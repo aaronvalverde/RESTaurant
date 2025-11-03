@@ -4,6 +4,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.fxml.Initializable;
 import com.jfoenix.controls.JFXTreeTableView;
+import cr.ac.una.restuna.model.ClienteDto;
 import cr.ac.una.restuna.model.DetalleFacturaDto;
 import cr.ac.una.restuna.model.DetalleOrdenDto;
 import cr.ac.una.restuna.model.FacturaDto;
@@ -16,6 +17,8 @@ import cr.ac.una.restuna.service.ClienteService;
 import cr.ac.una.restuna.util.AppKeys;
 import cr.ac.una.restuna.util.FlowController;
 import cr.ac.una.restuna.util.JsonParser;
+import cr.ac.una.restuna.util.Respuesta;
+import cr.ac.una.restuna.util.UserSession;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXTextField;
 import java.io.IOException;
@@ -96,6 +99,11 @@ public class BillingController extends Controller implements Initializable {
     private double totalPaid = 0.0;
     private double totalTip = 0.0;
     
+    // Control de pagos por método
+    private double cashPayment = 0.0;      // Efectivo
+    private double cardPayment = 0.0;      // Tarjeta
+    private double paypalPayment = 0.0;    // PayPal
+    
     // Servicios
     private final MesaService mesaService = new MesaService();
     private final OrdenService ordenService = new OrdenService();
@@ -130,30 +138,118 @@ public class BillingController extends Controller implements Initializable {
     //métodos de pago
     @FXML
     void onActionBtnCash(ActionEvent event) {
-        addPay("Cash");
+        try {
+            double amount = Double.parseDouble(txfAmount.getText().trim());
+            
+            if (amount <= 0) {
+                showMessage("El monto debe ser mayor a cero.");
+                return;
+            }
+            
+            // Validar si el monto cubre lo pendiente
+            double pendiente = totalToPay - totalPaid;
+            if (amount < pendiente) {
+                showMessage("Monto insuficiente. Debe: ₡" + String.format("%.2f", pendiente));
+                return;
+            }
+            
+            // Reemplazar el pago anterior (no sumar)
+            cashPayment = amount;
+            totalPaid = amount;
+            
+            txfAmountTendered.setText(String.format("%.2f", totalPaid));
+            updateTotal();
+            txfAmount.clear();
+            
+            System.out.println("Pago en efectivo registrado: ₡" + amount);
+            
+        } catch (NumberFormatException e) {
+            showMessage("Ingrese un monto válido.");
+        }
     }
 
     @FXML
     void onActionBtnCard(ActionEvent event) {
-        addPay("Card");
+        try {
+            double amount = Double.parseDouble(txfAmount.getText().trim());
+            
+            if (amount <= 0) {
+                showMessage("El monto debe ser mayor a cero.");
+                return;
+            }
+            
+            // Validar si el monto cubre lo pendiente
+            double pendiente = totalToPay - totalPaid;
+            if (amount < pendiente) {
+                showMessage("Monto insuficiente. Debe: ₡" + String.format("%.2f", pendiente));
+                return;
+            }
+            
+            // Reemplazar el pago anterior (no sumar)
+            cardPayment = amount;
+            totalPaid = amount;
+            
+            txfAmountTendered.setText(String.format("%.2f", totalPaid));
+            updateTotal();
+            txfAmount.clear();
+            
+            System.out.println("Pago con tarjeta registrado: ₡" + amount);
+            
+        } catch (NumberFormatException e) {
+            showMessage("Ingrese un monto válido.");
+        }
     }
 
     @FXML
     void onActionBtnPayPal(ActionEvent event) {
-        addPay("PayPal");
+        try {
+            double amount = Double.parseDouble(txfAmount.getText().trim());
+            
+            if (amount <= 0) {
+                showMessage("El monto debe ser mayor a cero.");
+                return;
+            }
+            
+            // Validar si el monto cubre lo pendiente
+            double pendiente = totalToPay - totalPaid;
+            if (amount < pendiente) {
+                showMessage("Monto insuficiente. Debe: ₡" + String.format("%.2f", pendiente));
+                return;
+            }
+            
+            // Reemplazar el pago anterior (no sumar)
+            paypalPayment = amount;
+            totalPaid = amount;
+            
+            txfAmountTendered.setText(String.format("%.2f", totalPaid));
+            updateTotal();
+            txfAmount.clear();
+            
+            System.out.println("Pago con PayPal registrado: ₡" + amount);
+            
+        } catch (NumberFormatException e) {
+            showMessage("Ingrese un monto válido.");
+        }
     }
 
     @FXML
     void onActionBtnTip(ActionEvent event) {
         try {
             double amount = Double.parseDouble(txfAmount.getText().trim());
-            totalTip += amount;
-            totalToPay += amount;
+            
+            if (amount <= 0) {
+                showMessage("La propina debe ser mayor a cero.");
+                return;
+            }
+            
+            // La propina NO se suma al total a pagar, es dinero adicional que se recibe
+            totalTip = amount;
             
             txfTotalTip.setText(String.format("%.2f", totalTip));
-            txfTotalDue.setText(String.format("%.2f", totalToPay));
-            updateTotal();
             txfAmount.clear();
+            
+            System.out.println("Propina registrada: ₡" + amount);
+            
         } catch (NumberFormatException e) {
             showMessage("Ingrese un monto válido para la propina.");
         }
@@ -168,24 +264,87 @@ public class BillingController extends Controller implements Initializable {
             return;
         }
         
+        if (totalPaid < totalToPay) {
+            showMessage("El monto pagado es insuficiente.");
+            return;
+        }
+        
+        // Calcular cambio
+        double cambio = (totalPaid > totalToPay) ? (totalPaid - totalToPay) : 0.0;
+        
         currentBill = new FacturaDto();
         currentBill.setIdFactura(System.currentTimeMillis());
-        currentBill.setTotal((long) totalToPay);
-        currentBill.setEfectivoRecibido((long) totalPaid);
-        currentBill.setVuelto((long) (totalPaid - totalToPay));
+        
+        // Calcular subtotal e impuestos (23% total: 13% IVA + 10% servicio)
+        long totalLong = (long) totalToPay;
+        long subtotalCalc = Math.round(totalLong / 1.23);
+        long impuestoVentaCalc = Math.round(subtotalCalc * 0.13);  // IVA 13%
+        long impuestoServicioCalc = Math.round(subtotalCalc * 0.10);  // Servicio 10%
+        
+        currentBill.setSubtotal(subtotalCalc);
+        currentBill.setImpuestoVenta(impuestoVentaCalc);
+        currentBill.setImpuestoServicio(impuestoServicioCalc);
+        currentBill.setTotal(totalLong);
+        currentBill.setEfectivoRecibido((long) cashPayment);
+        currentBill.setTarjetaRecibida((long) cardPayment);
+        currentBill.setVuelto((long) cambio);
         currentBill.setFechaFactura(new Date());
+        
+        // Asignar el cajero actual
+        if (UserSession.getInstance().getCurrentUser() != null) {
+            currentBill.setIdUsuarioCajero(UserSession.getInstance().getCurrentUser().getIdUsuario());
+        }
         
         // Si hay una orden asociada, vincularla a la factura
         if (ordenActual != null) {
             currentBill.setIdOrden(ordenActual.getIdOrden());
+            currentBill.setIdCliente(ordenActual.getIdCliente());
         }
+        
+        // Imprimir resumen de pago para logs/reportes
+        System.out.println("=== RESUMEN DE FACTURA ===");
+        System.out.println("Total a pagar: ₡" + String.format("%.2f", totalToPay));
+        System.out.println("Efectivo: ₡" + String.format("%.2f", cashPayment));
+        System.out.println("Tarjeta: ₡" + String.format("%.2f", cardPayment));
+        System.out.println("PayPal: ₡" + String.format("%.2f", paypalPayment));
+        System.out.println("Total pagado: ₡" + String.format("%.2f", totalPaid));
+        System.out.println("Cambio devuelto: ₡" + String.format("%.2f", cambio));
+        System.out.println("--- ADICIONAL ---");
+        System.out.println("Propina recibida: ₡" + String.format("%.2f", totalTip));
+        System.out.println("==========================");
         
         // Guardar factura en background
         javafx.concurrent.Task<Void> task = new javafx.concurrent.Task<Void>() {
             @Override
             protected Void call() throws Exception {
+                // Actualizar correo del cliente si se proporcionó
+                String correoCliente = txfClientEmail.getText().trim();
+                if (!correoCliente.isEmpty() && currentBill.getIdCliente() != null) {
+                    // Obtener el cliente actual
+                    Respuesta respCliente = clienteService.getCliente(currentBill.getIdCliente());
+                    if (respCliente.getEstado()) {
+                        String clienteJson = (String) respCliente.getResultado("Cliente");
+                        if (clienteJson != null && !clienteJson.trim().isEmpty()) {
+                            // Parsear cliente y actualizar correo
+                            ClienteDto cliente = parsearCliente(clienteJson);
+                            cliente.setCorreo(correoCliente);
+                            
+                            // Guardar cliente actualizado
+                            Respuesta respGuardar = clienteService.guardarCliente(cliente);
+                            if (!respGuardar.getEstado()) {
+                                System.err.println("Error al guardar correo del cliente: " + respGuardar.getMensaje());
+                            } else {
+                                System.out.println("Correo del cliente actualizado: " + correoCliente);
+                            }
+                        }
+                    }
+                }
+                
                 // Guardar factura
-                // facturaService.guardarFactura(currentBill);
+                Respuesta respFactura = facturaService.guardarFactura(currentBill);
+                if (!respFactura.getEstado()) {
+                    throw new Exception("Error al guardar factura: " + respFactura.getMensaje());
+                }
                 
                 // Liberar mesa si existe
                 if (mesaActual != null) {
@@ -246,23 +405,9 @@ public class BillingController extends Controller implements Initializable {
                 return;
             }
             
-            DetalleFacturaDto detail = new DetalleFacturaDto();
-            detail.setIdDetalleFactura(System.currentTimeMillis());
-            detail.setIdProducto((long) (detailBill.size() + 1));
-            detail.setPrecioUnitario((long) amount);
-            detail.setCantidad(1L);
-            detail.setSubtotal((long) amount);
+            // Este método ya no se usa, los botones de pago ahora
+            // registran directamente en cashPayment, cardPayment, paypalPayment
             
-            detailBill.add(detail);
-
-            TreeItem<DetalleFacturaDto> item = new TreeItem<>(detail);
-            tbvPaymentBreakdown.getRoot().getChildren().add(item);
-
-            totalPaid += amount;
-            txfAmountTendered.setText(String.format("%.2f", totalPaid));
-            updateTotal();
-            txfAmount.clear();
-
         } catch (NumberFormatException e) {
             showMessage("Ingrese un monto válido.");
         }
@@ -318,8 +463,16 @@ public class BillingController extends Controller implements Initializable {
         txfTotalTip.setText("0.00");
         txfClient.setText("");
         txfClientEmail.setText("");
+        
         totalPaid = 0.0;
         totalToPay = 0.0;
+        totalTip = 0.0;
+        
+        // Limpiar pagos por método
+        cashPayment = 0.0;
+        cardPayment = 0.0;
+        paypalPayment = 0.0;
+        
         detailBill.clear();
         
         // Limpiar la tabla de productos
@@ -487,6 +640,19 @@ public class BillingController extends Controller implements Initializable {
         mesa.setIdSeccion(JsonParser.extraerValorLong(json, "idSeccion"));
         
         return mesa;
+    }
+    
+    /**
+     * Parsear JSON de cliente a ClienteDto
+     */
+    private cr.ac.una.restuna.model.ClienteDto parsearCliente(String json) {
+        cr.ac.una.restuna.model.ClienteDto cliente = new cr.ac.una.restuna.model.ClienteDto();
+        
+        cliente.setIdCliente(JsonParser.extraerValorLong(json, "idCliente"));
+        cliente.setNombre(JsonParser.extraerValorString(json, "nombre"));
+        cliente.setCorreo(JsonParser.extraerValorString(json, "correo"));
+        
+        return cliente;
     }
     
     /**

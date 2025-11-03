@@ -51,11 +51,21 @@ public class FacturaDto implements Serializable {
     @JsonbProperty("total")
     private BigDecimal total;
 
-    @NotBlank(message = "El método de pago es obligatorio")
-    @Size(min = 1, max = 20, message = "El método de pago debe tener entre 1 y 20 caracteres")
-    @Schema(description = "Método de pago", allowableValues = {"EFECTIVO", "TARJETA", "MIXTO"}, example = "EFECTIVO", required = true)
-    @JsonbProperty("metodoPago")
-    private String metodoPago;
+    @Schema(description = "Número de factura", example = "FACT-20240530-000001")
+    @JsonbProperty("numeroFactura")
+    private String numeroFactura;
+
+    @Schema(description = "Estado de la factura", allowableValues = {"ACTIVA", "ANULADA"}, example = "ACTIVA")
+    @JsonbProperty("estado")
+    private String estado;
+
+    @Schema(description = "Descuento aplicado", example = "0.00")
+    @JsonbProperty("descuento")
+    private BigDecimal descuento;
+
+    @Schema(description = "Indica si el correo fue enviado", allowableValues = {"S", "N"}, example = "N")
+    @JsonbProperty("correoEnviado")
+    private String correoEnviado;
 
     @Schema(description = "Efectivo recibido", example = "20000.00")
     @JsonbProperty("efectivoRecibido")
@@ -68,11 +78,6 @@ public class FacturaDto implements Serializable {
     @Schema(description = "Vuelto entregado", example = "1550.00")
     @JsonbProperty("vuelto")
     private BigDecimal vuelto;
-
-    @Size(max = 500, message = "Las observaciones no pueden exceder 500 caracteres")
-    @Schema(description = "Observaciones de la factura", example = "Pago con billete de 20000")
-    @JsonbProperty("observaciones")
-    private String observaciones;
 
     // IDs de relaciones
     @Schema(description = "ID de la orden relacionada", example = "10")
@@ -120,10 +125,13 @@ public class FacturaDto implements Serializable {
         this.subtotal = BigDecimal.ZERO;
         this.impuestoVenta = BigDecimal.ZERO;
         this.impuestoServicio = BigDecimal.ZERO;
+        this.descuento = BigDecimal.ZERO;
         this.total = BigDecimal.ZERO;
         this.efectivoRecibido = BigDecimal.ZERO;
         this.tarjetaRecibido = BigDecimal.ZERO;
         this.vuelto = BigDecimal.ZERO;
+        this.estado = "ACTIVA";
+        this.correoEnviado = "N";
         this.detalles = new ArrayList<>();
     }
 
@@ -132,15 +140,17 @@ public class FacturaDto implements Serializable {
         if (factura != null) {
             this.idFactura = factura.getIdFactura();
             this.fechaHora = factura.getFechaHora();
+            this.numeroFactura = factura.getNumeroFactura();
             this.subtotal = factura.getSubtotal();
             this.impuestoVenta = factura.getImpuestoVenta();
             this.impuestoServicio = factura.getImpuestoServicio();
+            this.descuento = factura.getDescuento();
             this.total = factura.getTotal();
-            this.metodoPago = factura.getMetodoPago();
             this.efectivoRecibido = factura.getEfectivoRecibido();
             this.tarjetaRecibido = factura.getTarjetaRecibido();
             this.vuelto = factura.getVuelto();
-            this.observaciones = factura.getObservaciones();
+            this.estado = factura.getEstado();
+            this.correoEnviado = factura.getCorreoEnviado();
 
             // IDs
             if (factura.getOrden() != null) {
@@ -214,12 +224,36 @@ public class FacturaDto implements Serializable {
         this.total = total;
     }
 
-    public String getMetodoPago() {
-        return metodoPago;
+    public String getNumeroFactura() {
+        return numeroFactura;
     }
 
-    public void setMetodoPago(String metodoPago) {
-        this.metodoPago = metodoPago;
+    public void setNumeroFactura(String numeroFactura) {
+        this.numeroFactura = numeroFactura;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
+    public String getCorreoEnviado() {
+        return correoEnviado;
+    }
+
+    public void setCorreoEnviado(String correoEnviado) {
+        this.correoEnviado = correoEnviado;
+    }
+
+    public BigDecimal getDescuento() {
+        return descuento;
+    }
+
+    public void setDescuento(BigDecimal descuento) {
+        this.descuento = descuento;
     }
 
     public BigDecimal getEfectivoRecibido() {
@@ -244,14 +278,6 @@ public class FacturaDto implements Serializable {
 
     public void setVuelto(BigDecimal vuelto) {
         this.vuelto = vuelto;
-    }
-
-    public String getObservaciones() {
-        return observaciones;
-    }
-
-    public void setObservaciones(String observaciones) {
-        this.observaciones = observaciones;
     }
 
     public Long getIdOrden() {
@@ -322,9 +348,10 @@ public class FacturaDto implements Serializable {
     public String toString() {
         return "FacturaDto{" +
                 "idFactura=" + idFactura +
+                ", numeroFactura='" + numeroFactura + '\'' +
                 ", fechaHora=" + fechaHora +
                 ", total=" + total +
-                ", metodoPago='" + metodoPago + '\'' +
+                ", estado='" + estado + '\'' +
                 ", cliente='" + nombreCliente + '\'' +
                 ", cajero='" + nombreCajero + '\'' +
                 '}';

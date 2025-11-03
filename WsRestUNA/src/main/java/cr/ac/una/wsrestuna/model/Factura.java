@@ -23,7 +23,7 @@ import java.util.Objects;
     @NamedQuery(name = "Factura.findByCliente", query = "SELECT f FROM Factura f WHERE f.cliente.idCliente = :idCliente ORDER BY f.fechaHora DESC"),
     @NamedQuery(name = "Factura.findByCajero", query = "SELECT f FROM Factura f WHERE f.cajero.idUsuario = :idUsuario ORDER BY f.fechaHora DESC"),
     @NamedQuery(name = "Factura.findByFecha", query = "SELECT f FROM Factura f WHERE f.fechaHora BETWEEN :fechaInicio AND :fechaFin ORDER BY f.fechaHora DESC"),
-    @NamedQuery(name = "Factura.findByMetodoPago", query = "SELECT f FROM Factura f WHERE f.metodoPago = :metodoPago ORDER BY f.fechaHora DESC")
+    @NamedQuery(name = "Factura.findByEstado", query = "SELECT f FROM Factura f WHERE f.estado = :estado ORDER BY f.fechaHora DESC")
 })
 public class Factura implements Serializable {
 
@@ -36,11 +36,14 @@ public class Factura implements Serializable {
     private Long idFactura;
 
     @NotNull
-    @Column(name = "FECHA_HORA", nullable = false)
+    @Column(name = "FECHA_FACTURA", nullable = false)
     private LocalDateTime fechaHora;
 
+    @Column(name = "NUMERO_FACTURA", length = 20)
+    private String numeroFactura;
+
     @NotNull
-    @Column(name = "SUBTOTAL", nullable = false, precision = 10, scale = 2)
+    @Column(name = "SUBTOTAL", nullable = false, precision = 12, scale = 2)
     private BigDecimal subtotal;
 
     @NotNull
@@ -52,26 +55,29 @@ public class Factura implements Serializable {
     private BigDecimal impuestoServicio;
 
     @NotNull
-    @Column(name = "TOTAL", nullable = false, precision = 10, scale = 2)
+    @Column(name = "TOTAL", nullable = false, precision = 12, scale = 2)
     private BigDecimal total;
 
-    @NotNull
-    @Size(min = 1, max = 20)
-    @Column(name = "METODO_PAGO", nullable = false, length = 20)
-    private String metodoPago; // EFECTIVO, TARJETA, MIXTO
-
-    @Column(name = "EFECTIVO_RECIBIDO", precision = 10, scale = 2)
+    @Column(name = "EFECTIVO_RECIBIDO", precision = 12, scale = 2)
     private BigDecimal efectivoRecibido;
 
-    @Column(name = "TARJETA_RECIBIDO", precision = 10, scale = 2)
+    @Column(name = "TARJETA_RECIBIDO", precision = 12, scale = 2)
     private BigDecimal tarjetaRecibido;
 
     @Column(name = "VUELTO", precision = 10, scale = 2)
     private BigDecimal vuelto;
 
-    @Size(max = 500)
-    @Column(name = "OBSERVACIONES", length = 500)
-    private String observaciones;
+    @NotNull
+    @Size(min = 1, max = 15)
+    @Column(name = "ESTADO", nullable = false, length = 15)
+    private String estado; // ACTIVA, ANULADA
+
+    @NotNull
+    @Column(name = "CORREO_ENVIADO", nullable = false, length = 1)
+    private String correoEnviado; // S, N
+
+    @Column(name = "DESCUENTO", precision = 10, scale = 2)
+    private BigDecimal descuento;
 
     // Relaciones
     @ManyToOne
@@ -84,7 +90,7 @@ public class Factura implements Serializable {
 
     @NotNull
     @ManyToOne
-    @JoinColumn(name = "ID_CAJERO", referencedColumnName = "ID_USUARIO", nullable = false)
+    @JoinColumn(name = "ID_USUARIO_CAJERO", referencedColumnName = "ID_USUARIO", nullable = false)
     private Usuario cajero;
 
     @OneToMany(mappedBy = "factura", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -96,10 +102,13 @@ public class Factura implements Serializable {
         this.subtotal = BigDecimal.ZERO;
         this.impuestoVenta = BigDecimal.ZERO;
         this.impuestoServicio = BigDecimal.ZERO;
+        this.descuento = BigDecimal.ZERO;
         this.total = BigDecimal.ZERO;
         this.efectivoRecibido = BigDecimal.ZERO;
         this.tarjetaRecibido = BigDecimal.ZERO;
         this.vuelto = BigDecimal.ZERO;
+        this.estado = "ACTIVA";
+        this.correoEnviado = "N";
         this.detalles = new ArrayList<>();
     }
 
@@ -181,12 +190,36 @@ public class Factura implements Serializable {
         this.total = total;
     }
 
-    public String getMetodoPago() {
-        return metodoPago;
+    public String getNumeroFactura() {
+        return numeroFactura;
     }
 
-    public void setMetodoPago(String metodoPago) {
-        this.metodoPago = metodoPago;
+    public void setNumeroFactura(String numeroFactura) {
+        this.numeroFactura = numeroFactura;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
+    public String getCorreoEnviado() {
+        return correoEnviado;
+    }
+
+    public void setCorreoEnviado(String correoEnviado) {
+        this.correoEnviado = correoEnviado;
+    }
+
+    public BigDecimal getDescuento() {
+        return descuento;
+    }
+
+    public void setDescuento(BigDecimal descuento) {
+        this.descuento = descuento;
     }
 
     public BigDecimal getEfectivoRecibido() {
@@ -213,14 +246,6 @@ public class Factura implements Serializable {
 
     public void setVuelto(BigDecimal vuelto) {
         this.vuelto = vuelto;
-    }
-
-    public String getObservaciones() {
-        return observaciones;
-    }
-
-    public void setObservaciones(String observaciones) {
-        this.observaciones = observaciones;
     }
 
     public Orden getOrden() {
@@ -272,9 +297,10 @@ public class Factura implements Serializable {
     public String toString() {
         return "Factura{" +
                 "idFactura=" + idFactura +
+                ", numeroFactura='" + numeroFactura + '\'' +
                 ", fechaHora=" + fechaHora +
                 ", total=" + total +
-                ", metodoPago='" + metodoPago + '\'' +
+                ", estado='" + estado + '\'' +
                 ", cliente=" + (cliente != null ? cliente.getNombre() : "N/A") +
                 ", cajero=" + (cajero != null ? cajero.getNombre() : "N/A") +
                 '}';

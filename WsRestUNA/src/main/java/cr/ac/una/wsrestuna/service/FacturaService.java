@@ -129,11 +129,17 @@ public class FacturaService {
             factura.setSubtotal(facturaDto.getSubtotal() != null ? facturaDto.getSubtotal() : BigDecimal.ZERO);
             factura.setImpuestoVenta(facturaDto.getImpuestoVenta() != null ? facturaDto.getImpuestoVenta() : BigDecimal.ZERO);
             factura.setImpuestoServicio(facturaDto.getImpuestoServicio() != null ? facturaDto.getImpuestoServicio() : BigDecimal.ZERO);
+            factura.setDescuento(facturaDto.getDescuento() != null ? facturaDto.getDescuento() : BigDecimal.ZERO);
             factura.setTotal(facturaDto.getTotal() != null ? facturaDto.getTotal() : BigDecimal.ZERO);
-            factura.setMetodoPago(facturaDto.getMetodoPago());
             factura.setEfectivoRecibido(facturaDto.getEfectivoRecibido() != null ? facturaDto.getEfectivoRecibido() : BigDecimal.ZERO);
             factura.setTarjetaRecibido(facturaDto.getTarjetaRecibido() != null ? facturaDto.getTarjetaRecibido() : BigDecimal.ZERO);
-            factura.setObservaciones(facturaDto.getObservaciones());
+            factura.setEstado(facturaDto.getEstado() != null ? facturaDto.getEstado() : "ACTIVA");
+            factura.setCorreoEnviado(facturaDto.getCorreoEnviado() != null ? facturaDto.getCorreoEnviado() : "N");
+            
+            // El numeroFactura se genera automáticamente por trigger en la BD
+            if (facturaDto.getNumeroFactura() != null && !facturaDto.getNumeroFactura().isEmpty()) {
+                factura.setNumeroFactura(facturaDto.getNumeroFactura());
+            }
 
             // Relaciones
             if (facturaDto.getIdOrden() != null) {

@@ -577,6 +577,81 @@ public class Request {
             return convertirParametroDtoAJson((cr.ac.una.restuna.model.ParametroDto) objeto);
         }
 
+        // Soportar FacturaDto
+        if (objeto instanceof cr.ac.una.restuna.model.FacturaDto) {
+            cr.ac.una.restuna.model.FacturaDto factura = (cr.ac.una.restuna.model.FacturaDto) objeto;
+            StringBuilder json = new StringBuilder();
+            json.append('{');
+
+            // ID (si existe)
+            if (factura.getIdFactura() != null && factura.getIdFactura() > 0) {
+                json.append("\"idFactura\":").append(factura.getIdFactura()).append(',');
+            }
+
+            // ID Orden
+            if (factura.getIdOrden() != null) {
+                json.append("\"idOrden\":").append(factura.getIdOrden()).append(',');
+            }
+
+            // ID Cliente
+            if (factura.getIdCliente() != null) {
+                json.append("\"idCliente\":").append(factura.getIdCliente()).append(',');
+            }
+
+            // ID Usuario Cajero (obligatorio)
+            if (factura.getIdUsuarioCajero() != null) {
+                json.append("\"idCajero\":").append(factura.getIdUsuarioCajero()).append(',');
+            }
+
+            // Subtotal (obligatorio)
+            if (factura.getSubtotal() != null) {
+                json.append("\"subtotal\":").append(factura.getSubtotal()).append(',');
+            }
+
+            // Impuesto Venta (obligatorio)
+            if (factura.getImpuestoVenta() != null) {
+                json.append("\"impuestoVenta\":").append(factura.getImpuestoVenta()).append(',');
+            }
+
+            // Impuesto Servicio (obligatorio)
+            if (factura.getImpuestoServicio() != null) {
+                json.append("\"impuestoServicio\":").append(factura.getImpuestoServicio()).append(',');
+            }
+
+            // Total
+            if (factura.getTotal() != null) {
+                json.append("\"total\":").append(factura.getTotal()).append(',');
+            }
+
+            // Efectivo Recibido
+            if (factura.getEfectivoRecibido() != null) {
+                json.append("\"efectivoRecibido\":").append(factura.getEfectivoRecibido()).append(',');
+            }
+
+            // Tarjeta Recibida
+            if (factura.getTarjetaRecibida() != null) {
+                json.append("\"tarjetaRecibido\":").append(factura.getTarjetaRecibida()).append(',');
+            }
+
+            // Vuelto
+            if (factura.getVuelto() != null) {
+                json.append("\"vuelto\":").append(factura.getVuelto()).append(',');
+            }
+
+            // Fecha Factura
+            if (factura.getFechaFactura() != null) {
+                json.append("\"fechaFactura\":\"").append(factura.getFechaFactura().getTime()).append("\",");
+            }
+
+            // Eliminar la última coma si existe
+            if (json.charAt(json.length() - 1) == ',') {
+                json.setLength(json.length() - 1);
+            }
+
+            json.append('}');
+            return json.toString();
+        }
+
         // Para otros tipos de objetos, usar toString como fallback (no recomendado)
         return objeto.toString();
     }
