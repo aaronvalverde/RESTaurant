@@ -17,6 +17,7 @@ public class DetalleOrdenDto {
     private Double precioUnitario;
     private Double subtotal;
     private String observaciones;
+    private String nombreProducto;
 
     public DetalleOrdenDto(Long idDetalleOrden, Long idOrden, Long idProducto, Integer cantidad, Double precioUnitario, Double subtotal, String observaciones) {
         this.idDetalleOrden = idDetalleOrden;
@@ -85,6 +86,14 @@ public class DetalleOrdenDto {
 
     public void setObservaciones(String observaciones) {
         this.observaciones = observaciones;
+    }
+    
+    public String getNombreProducto() {
+        return nombreProducto;
+    }
+    
+    public void setNombreProducto(String nombreProducto) {
+        this.nombreProducto = nombreProducto;
     }
     
     private void calcularSubtotal(){

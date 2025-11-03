@@ -543,8 +543,24 @@ public class SectionsController extends Controller implements Initializable {
      * Abre la vista de facturación con la mesa seleccionada
      */
     private void abrirFacturacion(MesaDto mesa) {
-        // TODO: Implementar lógica para pasar la orden de la mesa a BillingController
-        FlowController.getInstance().goView(AppKeys.BILLING);
+        try {
+            // Obtener el controlador desde FlowController
+            BillingController billingController = (BillingController) FlowController.getInstance()
+                .getController(AppKeys.BILLING);
+            
+            // Pasar la mesa al controlador antes de mostrar la vista
+            if (billingController != null) {
+                billingController.cargarMesa(mesa);
+            }
+            
+            // Cambiar a la vista de facturación
+            FlowController.getInstance().goView(AppKeys.BILLING);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            mostrarAlerta(Alert.AlertType.ERROR, "Error", 
+                "No se pudo abrir la ventana de facturación: " + e.getMessage());
+        }
     }
 
     @FXML

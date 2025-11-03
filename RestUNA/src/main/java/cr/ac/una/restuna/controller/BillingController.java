@@ -5,16 +5,20 @@ import java.util.ResourceBundle;
 import javafx.fxml.Initializable;
 import com.jfoenix.controls.JFXTreeTableView;
 import cr.ac.una.restuna.model.DetalleFacturaDto;
+import cr.ac.una.restuna.model.DetalleOrdenDto;
 import cr.ac.una.restuna.model.FacturaDto;
 import cr.ac.una.restuna.model.MesaDto;
 import cr.ac.una.restuna.model.OrdenDto;
 import cr.ac.una.restuna.service.MesaService;
 import cr.ac.una.restuna.service.OrdenService;
 import cr.ac.una.restuna.service.FacturaService;
+import cr.ac.una.restuna.service.ClienteService;
+import cr.ac.una.restuna.util.JsonParser;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXTextField;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -53,9 +57,13 @@ public class BillingController extends Controller implements Initializable {
     @FXML
     private MFXTextField txfAmount; //se actualiza en cada interacción con los botones de digitación.
     @FXML
-    private TreeTableColumn<DetalleFacturaDto, String> tbcKey; //efectivo, tarjeta, sinpe.
+    private TreeTableColumn<DetalleFacturaDto, String> tbcProduct; //nombre del producto
     @FXML
-    private TreeTableColumn<DetalleFacturaDto, String> tbcTotalAmount; //lo registrado en cada método de pago.
+    private TreeTableColumn<DetalleFacturaDto, Long> tbcQuantity; //cantidad del producto
+    @FXML
+    private TreeTableColumn<DetalleFacturaDto, Long> tbcUnitPrice; //precio unitario del producto
+    @FXML
+    private TreeTableColumn<DetalleFacturaDto, Long> tbcTotal; //total del producto (cantidad * precio unitario)
     @FXML
     private JFXTreeTableView<DetalleFacturaDto> tbvPaymentBreakdown;
     @FXML
@@ -84,11 +92,13 @@ public class BillingController extends Controller implements Initializable {
 
     private double totalToPay = 0.0;
     private double totalPaid = 0.0;
+    private double totalTip = 0.0;
     
     // Servicios
     private final MesaService mesaService = new MesaService();
     private final OrdenService ordenService = new OrdenService();
     private final FacturaService facturaService = new FacturaService();
+    private final ClienteService clienteService = new ClienteService();
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -104,8 +114,10 @@ public class BillingController extends Controller implements Initializable {
 
     private void configTable() {
 
-        tbcKey.setCellValueFactory(new TreeItemPropertyValueFactory<>("idProducto"));
-        tbcTotalAmount.setCellValueFactory(new TreeItemPropertyValueFactory<>("subtotal"));
+        tbcProduct.setCellValueFactory(new TreeItemPropertyValueFactory<>("nombreProducto"));
+        tbcQuantity.setCellValueFactory(new TreeItemPropertyValueFactory<>("cantidad"));
+        tbcUnitPrice.setCellValueFactory(new TreeItemPropertyValueFactory<>("precioUnitario"));
+        tbcTotal.setCellValueFactory(new TreeItemPropertyValueFactory<>("subtotal"));
 
         TreeItem<DetalleFacturaDto> root = new TreeItem<>(new DetalleFacturaDto());
         tbvPaymentBreakdown.setRoot(root);
@@ -131,7 +143,18 @@ public class BillingController extends Controller implements Initializable {
 
     @FXML
     void onActionBtnTip(ActionEvent event) {
-        addPay("Tip");
+        try {
+            double amount = Double.parseDouble(txfAmount.getText().trim());
+            totalTip += amount;
+            totalToPay += amount;
+            
+            txfTotalTip.setText(String.format("%.2f", totalTip));
+            txfTotalDue.setText(String.format("%.2f", totalToPay));
+            updateTotal();
+            txfAmount.clear();
+        } catch (NumberFormatException e) {
+            showMessage("Ingrese un monto válido para la propina.");
+        }
     }
 
     //facturar
@@ -211,16 +234,21 @@ public class BillingController extends Controller implements Initializable {
     }
 
     private void addPay(String method) {
-
         try {
             double amount = Double.parseDouble(txfAmount.getText().trim());
+            
+            if (amount <= 0) {
+                showMessage("El monto debe ser mayor a cero.");
+                return;
+            }
+            
             DetalleFacturaDto detail = new DetalleFacturaDto();
-
             detail.setIdDetalleFactura(System.currentTimeMillis());
             detail.setIdProducto((long) (detailBill.size() + 1));
             detail.setPrecioUnitario((long) amount);
             detail.setCantidad(1L);
             detail.setSubtotal((long) amount);
+            
             detailBill.add(detail);
 
             TreeItem<DetalleFacturaDto> item = new TreeItem<>(detail);
@@ -229,9 +257,10 @@ public class BillingController extends Controller implements Initializable {
             totalPaid += amount;
             txfAmountTendered.setText(String.format("%.2f", totalPaid));
             updateTotal();
+            txfAmount.clear();
 
         } catch (NumberFormatException e) {
-
+            showMessage("Ingrese un monto válido.");
         }
     }
 
@@ -303,13 +332,31 @@ public class BillingController extends Controller implements Initializable {
                     
                     if (respuesta.getEstado()) {
                         String contenido = (String) respuesta.getResultado("Ordenes");
-                        if (contenido != null) {
-                            // Parsear orden (necesitarías implementar el parser)
-                            // ordenActual = parsearOrden(contenido);
-                            // cargarDetallesOrden();
+                        if (contenido != null && !contenido.trim().isEmpty()) {
+                            // Si es un array, extraer el primer objeto
+                            if (contenido.trim().startsWith("[")) {
+                                List<String> ordenes = JsonParser.extraerObjetosDelArray(contenido);
+                                if (!ordenes.isEmpty()) {
+                                    ordenActual = parsearOrden(ordenes.get(0));
+                                }
+                            } else {
+                                ordenActual = parsearOrden(contenido);
+                            }
                         }
                     }
                     return null;
+                }
+                
+                @Override
+                protected void succeeded() {
+                    if (ordenActual != null) {
+                        cargarDatosOrden();
+                    }
+                }
+                
+                @Override
+                protected void failed() {
+                    showMessage("Error al cargar la orden: " + getException().getMessage());
                 }
             };
             
@@ -325,7 +372,6 @@ public class BillingController extends Controller implements Initializable {
         
         // Si la orden tiene mesa asociada, cargarla
         if (orden != null && orden.getIdMesa() != null) {
-            // Cargar mesa desde servicio
             javafx.concurrent.Task<Void> task = new javafx.concurrent.Task<Void>() {
                 @Override
                 protected Void call() throws Exception {
@@ -333,9 +379,8 @@ public class BillingController extends Controller implements Initializable {
                     
                     if (respuesta.getEstado()) {
                         String contenido = (String) respuesta.getResultado("Mesa");
-                        if (contenido != null) {
-                            // Parsear mesa (necesitarías implementar el parser)
-                            // mesaActual = parsearMesa(contenido);
+                        if (contenido != null && !contenido.trim().isEmpty()) {
+                            mesaActual = parsearMesa(contenido);
                         }
                     }
                     return null;
@@ -345,7 +390,182 @@ public class BillingController extends Controller implements Initializable {
             new Thread(task).start();
         }
         
-        // Cargar detalles de la orden en la tabla
-        // cargarDetallesOrden();
+        // Cargar detalles de la orden
+        cargarDatosOrden();
+    }
+    
+    /**
+     * Parsear JSON de orden a OrdenDto
+     */
+    private OrdenDto parsearOrden(String json) {
+        OrdenDto orden = new OrdenDto();
+        
+        orden.setIdOrden(JsonParser.extraerValorLong(json, "idOrden"));
+        orden.setIdMesa(JsonParser.extraerValorLong(json, "idMesa"));
+        orden.setIdCliente(JsonParser.extraerValorLong(json, "idCliente"));
+        orden.setEstado(JsonParser.extraerValorString(json, "estado"));
+        orden.setNombreCliente(JsonParser.extraerValorString(json, "nombreCliente"));
+        
+        String subtotalStr = JsonParser.extraerValorNumerico(json, "subtotal");
+        if (subtotalStr != null) {
+            orden.setSubtotal(Double.parseDouble(subtotalStr));
+        }
+        
+        // Extraer detalles de la orden
+        String detallesJson = JsonParser.extraerArray(json, "detalles");
+        if (detallesJson != null) {
+            List<String> detallesList = JsonParser.extraerObjetosDelArray(detallesJson);
+            for (String detalleJson : detallesList) {
+                DetalleOrdenDto detalle = parsearDetalleOrden(detalleJson);
+                orden.getDetalles().add(detalle);
+            }
+        }
+        
+        return orden;
+    }
+    
+    /**
+     * Parsear JSON de detalle de orden a DetalleOrdenDto
+     */
+    private DetalleOrdenDto parsearDetalleOrden(String json) {
+        DetalleOrdenDto detalle = new DetalleOrdenDto();
+        
+        detalle.setIdDetalleOrden(JsonParser.extraerValorLong(json, "idDetalleOrden"));
+        detalle.setIdProducto(JsonParser.extraerValorLong(json, "idProducto"));
+        detalle.setCantidad(JsonParser.extraerValorInteger(json, "cantidad"));
+        detalle.setNombreProducto(JsonParser.extraerValorString(json, "nombreProducto"));
+        
+        String precioUnitarioStr = JsonParser.extraerValorNumerico(json, "precioUnitario");
+        if (precioUnitarioStr != null) {
+            detalle.setPrecioUnitario(Double.parseDouble(precioUnitarioStr));
+        }
+        
+        String subtotalStr = JsonParser.extraerValorNumerico(json, "subtotal");
+        if (subtotalStr != null) {
+            detalle.setSubtotal(Double.parseDouble(subtotalStr));
+        }
+        
+        detalle.setObservaciones(JsonParser.extraerValorString(json, "observaciones"));
+        
+        return detalle;
+    }
+    
+    /**
+     * Parsear JSON de mesa a MesaDto
+     */
+    private MesaDto parsearMesa(String json) {
+        MesaDto mesa = new MesaDto();
+        
+        mesa.setIdMesa(JsonParser.extraerValorLong(json, "idMesa"));
+        
+        String numeroMesaStr = JsonParser.extraerValorNumerico(json, "numeroMesa");
+        if (numeroMesaStr != null) {
+            mesa.setNumeroMesa(numeroMesaStr);
+        }
+        
+        String capacidadStr = JsonParser.extraerValorNumerico(json, "capacidad");
+        if (capacidadStr != null) {
+            try {
+                mesa.setCapacidad(Integer.parseInt(capacidadStr));
+            } catch (NumberFormatException e) {
+                // Ignorar si no se puede convertir
+            }
+        }
+        
+        mesa.setEstado(JsonParser.extraerValorString(json, "estado"));
+        mesa.setIdSeccion(JsonParser.extraerValorLong(json, "idSeccion"));
+        
+        return mesa;
+    }
+    
+    /**
+     * Cargar todos los datos de la orden en la vista de facturación
+     */
+    private void cargarDatosOrden() {
+        if (ordenActual == null) {
+            return;
+        }
+        
+        // Limpiar datos previos
+        clear();
+        
+        // Cargar nombre del cliente si está disponible en el JSON
+        if (ordenActual.getNombreCliente() != null && !ordenActual.getNombreCliente().trim().isEmpty()) {
+            txfClient.setText(ordenActual.getNombreCliente());
+        } else if (ordenActual.getIdCliente() != null) {
+            // Si no está en el JSON, intentar cargar desde el servicio
+            cargarNombreCliente(ordenActual.getIdCliente());
+        }
+        
+        // Calcular el total de la orden desde los detalles y mostrarlos en la tabla
+        totalToPay = 0.0;
+        
+        if (ordenActual.getDetalles() != null && !ordenActual.getDetalles().isEmpty()) {
+            for (DetalleOrdenDto detalleOrden : ordenActual.getDetalles()) {
+                double precioUnitario = detalleOrden.getPrecioUnitario() != null ? detalleOrden.getPrecioUnitario() : 0.0;
+                int cantidad = detalleOrden.getCantidad() != null ? detalleOrden.getCantidad() : 1;
+                double subtotal = detalleOrden.getSubtotal() != null ? detalleOrden.getSubtotal() : (precioUnitario * cantidad);
+                String nombreProducto = detalleOrden.getNombreProducto() != null ? detalleOrden.getNombreProducto() : "Producto sin nombre";
+                
+                totalToPay += subtotal;
+                
+                // Crear item para la tabla con todos los datos del producto
+                DetalleFacturaDto itemParaTabla = new DetalleFacturaDto();
+                itemParaTabla.setIdDetalleFactura(detalleOrden.getIdDetalleOrden());
+                itemParaTabla.setNombreProducto(nombreProducto);
+                itemParaTabla.setCantidad((long) cantidad);
+                itemParaTabla.setPrecioUnitario((long) precioUnitario);
+                itemParaTabla.setSubtotal((long) subtotal);
+                
+                // Agregar a la tabla
+                TreeItem<DetalleFacturaDto> item = new TreeItem<>(itemParaTabla);
+                tbvPaymentBreakdown.getRoot().getChildren().add(item);
+            }
+        }
+        
+        // Actualizar campos de totales
+        txfTotalDue.setText(String.format("%.2f", totalToPay));
+        txfAmountDue.setText(String.format("%.2f", totalToPay));
+        txfAmountTendered.setText("0.00");
+        txfChange.setText("0.00");
+        txfTotalTip.setText("0.00");
+        
+        // Enfocar el campo de monto para comenzar a recibir pagos
+        txfAmount.requestFocus();
+    }
+    
+    /**
+     * Cargar el nombre del cliente desde el servicio
+     */
+    private void cargarNombreCliente(Long idCliente) {
+        javafx.concurrent.Task<String> task = new javafx.concurrent.Task<String>() {
+            @Override
+            protected String call() throws Exception {
+                cr.ac.una.restuna.util.Respuesta respuesta = clienteService.getCliente(idCliente);
+                
+                if (respuesta.getEstado()) {
+                    String contenido = (String) respuesta.getResultado("Cliente");
+                    if (contenido != null && !contenido.trim().isEmpty()) {
+                        return JsonParser.extraerValorString(contenido, "nombre");
+                    }
+                }
+                return null;
+            }
+            
+            @Override
+            protected void succeeded() {
+                String nombre = getValue();
+                if (nombre != null && !nombre.trim().isEmpty()) {
+                    txfClient.setText(nombre);
+                }
+            }
+            
+            @Override
+            protected void failed() {
+                // No mostrar error, el usuario puede ingresar el nombre manualmente
+            }
+        };
+        
+        new Thread(task).start();
     }
 }

@@ -22,6 +22,9 @@ public class OrdenDto implements Serializable {
     private LocalDateTime fechaHora;
     private Double subtotal;
     private List<DetalleOrdenDto> detalles;
+    
+    // Campo transitorio para almacenar el nombre del cliente (no se persiste)
+    private transient String nombreCliente;
 
     public OrdenDto() {
         this.fechaHora = LocalDateTime.now();
@@ -118,6 +121,14 @@ public class OrdenDto implements Serializable {
 
     public void setDetalles(List<DetalleOrdenDto> detalles) {
         this.detalles = detalles;
+    }
+    
+    public String getNombreCliente() {
+        return nombreCliente;
+    }
+    
+    public void setNombreCliente(String nombreCliente) {
+        this.nombreCliente = nombreCliente;
     }
     
     public void calcularSubtotal() {

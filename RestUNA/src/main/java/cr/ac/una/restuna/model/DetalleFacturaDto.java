@@ -21,6 +21,7 @@ public class DetalleFacturaDto extends RecursiveTreeObject<DetalleFacturaDto> im
     private LongProperty cantidad;
     private LongProperty precioUnitario;
     private LongProperty subtotal;
+    private String nombreProducto; // Transitorio para mostrar en la vista
 
 
   
@@ -80,6 +81,14 @@ public class DetalleFacturaDto extends RecursiveTreeObject<DetalleFacturaDto> im
 
     public void setSubtotal(Long subtotal) {
         this.subtotal.set(subtotal);
+    }
+    
+    public String getNombreProducto() {
+        return nombreProducto;
+    }
+    
+    public void setNombreProducto(String nombreProducto) {
+        this.nombreProducto = nombreProducto;
     }
 
     
