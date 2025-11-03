@@ -347,13 +347,16 @@ public class BillingController extends Controller implements Initializable {
                 }
                 
                 // Liberar mesa si existe
-                if (mesaActual != null) {
+                if (mesaActual != null && mesaActual.getIdMesa() != null) {
                     mesaActual.setEstado("LIBRE");
-                    mesaService.guardarMesa(mesaActual);
+                    Respuesta respMesa = mesaService.actualizarEstadoMesa(mesaActual.getIdMesa(), "LIBRE");
+                    if (!respMesa.getEstado()) {
+                        throw new Exception("Error al liberar la mesa: " + respMesa.getMensaje());
+                    }
                 }
                 
                 // Actualizar estado de orden a FACTURADA
-                if (ordenActual != null) {
+                if (ordenActual != null && ordenActual.getIdOrden() != null) {
                     ordenActual.setEstado("FACTURADA");
                     
                     // Asegurar que idSalonero esté presente (requerido por backend)
@@ -361,7 +364,10 @@ public class BillingController extends Controller implements Initializable {
                         ordenActual.setIdSalonero(UserSession.getInstance().getCurrentUser().getIdUsuario());
                     }
                     
-                    ordenService.guardarOrden(ordenActual);
+                    Respuesta respOrden = ordenService.cambiarEstadoOrden(ordenActual.getIdOrden(), "FACTURADA");
+                    if (!respOrden.getEstado()) {
+                        throw new Exception("Error al actualizar estado de la orden: " + respOrden.getMensaje());
+                    }
                 }
                 
                 return null;

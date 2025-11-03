@@ -168,7 +168,7 @@ public class OrdenService {
             parametros.put("estado", estado);
             
             Request request = new Request("OrdenController/orden", "/{id}/estado/{estado}", parametros);
-            request.post(new HashMap<>()); // Usar POST en lugar de PUT si no existe
+            request.put(null);
             
             if (request.isError()) {
                 return new Respuesta(false, request.getError(), "");

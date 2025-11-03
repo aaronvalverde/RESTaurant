@@ -20,12 +20,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Controlador REST para gestión de facturas
- * 
- * @author Kendall Fonseca
- * @author Kaleb Alfaro
- */
 @Path("/FacturaController")
 @Tag(name = "Facturas", description = "Operaciones sobre facturas del restaurante")
 public class FacturaController {

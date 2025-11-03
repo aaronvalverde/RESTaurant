@@ -150,7 +150,7 @@ public class Request {
     public void post(Object body) {
         HttpURLConnection connection = null;
         try {
-            String url = BASE_URL + endpoint;
+            String url = buildUrl();
             System.out.println("Realizando POST a: " + url);
             connection = createConnection(url, "POST");
             connection.setDoOutput(true);
@@ -172,6 +172,36 @@ public class Request {
         } catch (Exception e) {
             handleError("Error en petición POST", e);
             e.printStackTrace();
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+    }
+
+    public void put(Object body) {
+        HttpURLConnection connection = null;
+        try {
+            String url = buildUrl();
+            System.out.println("Realizando PUT a: " + url);
+            connection = createConnection(url, "PUT");
+            connection.setConnectTimeout(10000); // 10 segundos
+            connection.setReadTimeout(15000);    // 15 segundos
+
+            if (body != null) {
+                connection.setDoOutput(true);
+                String jsonBody = convertirObjetoAJson(body);
+                System.out.println("Enviando JSON: " + jsonBody);
+
+                try (OutputStream os = connection.getOutputStream()) {
+                    byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
+                    os.write(input, 0, input.length);
+                }
+            }
+
+            processResponse(connection);
+        } catch (Exception e) {
+            handleError("Error en petición PUT", e);
         } finally {
             if (connection != null) {
                 connection.disconnect();
@@ -884,7 +914,7 @@ public class Request {
      */
     public void getRenewal() {
         try {
-            String url = BASE_URL + endpoint;
+            String url = buildUrl();
             HttpURLConnection connection = createConnection(url, "GET");
             processResponse(connection);
         } catch (Exception e) {
@@ -925,7 +955,7 @@ public class Request {
     }
 
   private String buildUrl() {
-        String url = BASE_URL + endpoint;
+        String url = buildUrl();
 
         // PRIMERO: Manejar path parameters (como {id})
         if (pathTemplate != null && !pathTemplate.isEmpty() && parametros != null) {

@@ -5,6 +5,7 @@ import cr.ac.una.wsrestuna.model.DetalleFactura;
 import cr.ac.una.wsrestuna.model.DetalleFacturaDto;
 import cr.ac.una.wsrestuna.model.Factura;
 import cr.ac.una.wsrestuna.model.FacturaDto;
+import cr.ac.una.wsrestuna.model.Mesa;
 import cr.ac.una.wsrestuna.model.Orden;
 import cr.ac.una.wsrestuna.model.Producto;
 import cr.ac.una.wsrestuna.model.ResumenCierreCajaDto;
@@ -174,6 +175,7 @@ public class FacturaService {
             }
 
             Factura factura = new Factura();
+            Orden ordenRelacionado = null;
             factura.setFechaHora(LocalDateTime.now());
             factura.setSubtotal(facturaDto.getSubtotal() != null ? facturaDto.getSubtotal() : BigDecimal.ZERO);
             factura.setImpuestoVenta(facturaDto.getImpuestoVenta() != null ? facturaDto.getImpuestoVenta() : BigDecimal.ZERO);
@@ -192,12 +194,12 @@ public class FacturaService {
 
             // Relaciones
             if (facturaDto.getIdOrden() != null) {
-                Orden orden = em.find(Orden.class, facturaDto.getIdOrden());
-                if (orden == null) {
+                ordenRelacionado = em.find(Orden.class, facturaDto.getIdOrden());
+                if (ordenRelacionado == null) {
                     return new Respuesta(false, CodigoRespuesta.ERROR_NOENCONTRADO, 
                             "Orden no encontrada", "No existe orden con ID: " + facturaDto.getIdOrden());
                 }
-                factura.setOrden(orden);
+                factura.setOrden(ordenRelacionado);
             }
 
             if (facturaDto.getIdCliente() != null) {
@@ -238,6 +240,15 @@ public class FacturaService {
             factura.calcularVuelto();
 
             em.persist(factura);
+
+            if (ordenRelacionado != null) {
+                ordenRelacionado.setEstado("FACTURADA");
+                Mesa mesa = ordenRelacionado.getMesa();
+                if (mesa != null) {
+                    mesa.setEstado("LIBRE");
+                }
+            }
+
             em.flush();
             
             facturaDto = new FacturaDto(factura);

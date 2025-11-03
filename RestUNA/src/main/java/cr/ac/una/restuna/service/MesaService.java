@@ -240,21 +240,28 @@ public class MesaService {
      */
     public Respuesta actualizarEstadoMesa(Long idMesa, String estado) {
         try {
-            // Obtener mesa actual
-            Respuesta resp = getMesa(idMesa);
-            if (!resp.getEstado()) {
-                return resp;
+            if (idMesa == null || idMesa <= 0) {
+                return new Respuesta(false, "Debe especificar la mesa a actualizar", "idMesa inválido");
             }
-            
-            // Parsear JSON y crear DTO
-            // Por simplicidad, crear nueva mesa con el estado actualizado
-            MesaDto mesa = new MesaDto();
-            mesa.setIdMesa(idMesa);
-            mesa.setEstado(estado);
-            
-            // Guardar con el estado actualizado
-            return guardarMesa(mesa);
-            
+
+            if (estado == null || estado.trim().isEmpty()) {
+                return new Respuesta(false, "Debe indicar el nuevo estado de la mesa", "estado vacío");
+            }
+
+            Map<String, Object> parametros = new HashMap<>();
+            parametros.put("id", idMesa);
+            parametros.put("estado", estado);
+
+            Request request = new Request("MesaController/mesa", "/{id}/estado/{estado}", parametros);
+            request.put(null);
+
+            if (request.isError()) {
+                return new Respuesta(false, request.getError(), "");
+            }
+
+            String responseJson = request.getResponseBody();
+            return new Respuesta(true, "Estado de mesa actualizado correctamente", "", "Mesa", responseJson);
+
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, "Error actualizando estado de mesa [" + idMesa + "]", ex);
             return new Respuesta(false, "Error actualizando estado.", "actualizarEstadoMesa " + ex.getMessage());
