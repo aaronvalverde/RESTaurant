@@ -108,6 +108,8 @@ public class OrderController extends Controller implements Initializable {
     private Boolean sectionMode = false;
     //settea el quick billing
     private Boolean quickBillingMode = false;
+    // Bandera para evitar limpiar automáticamente al cambiar combos
+    private boolean isClearing = false;
 
     private OrdenDto currentOrder;
     private List<GrupoProductoDto> groupProduct;
@@ -356,7 +358,12 @@ public class OrderController extends Controller implements Initializable {
                 Respuesta respuesta = getValue();
                 if (respuesta.getEstado()) {
                     mostrarAlerta("Éxito", "Orden guardada correctamente. La mesa ahora está ocupada.");
+                    
+                    // Limpiar la orden actual (incluye limpiar combos)
                     limpiarOrden();
+                    
+                    // Recargar secciones para actualizar la vista con estados actualizados
+                    cargarSecciones();
                 } else {
                     mostrarAlerta("Error", "Error al guardar la orden: " + respuesta.getMensaje());
                 }
@@ -375,10 +382,25 @@ public class OrderController extends Controller implements Initializable {
      * Limpia la orden actual
      */
     private void limpiarOrden() {
+        isClearing = true; // Activar bandera antes de limpiar
+        
         currentOrder = new OrdenDto();
         orderContainer.getChildren().clear();
         txfClientName.clear();
+        
+        // Limpiar selección de sección y mesa
+        cmbSection.clearSelection();
+        cmbTable.clearSelection();
+        currentSection = null;
+        currentMesa = null;
+        
+        // Limpiar filtro de grupos y mostrar todos los productos
+        cmbGroups.clearSelection();
+        mostrarTodosLosProductos();
+        
         updateTotals();
+        
+        isClearing = false; // Desactivar bandera después de limpiar
     }
     
     /**
@@ -793,9 +815,20 @@ public class OrderController extends Controller implements Initializable {
             MFXButton btnGroup = new MFXButton(group.getNombre());
             btnGroup.getStyleClass().add("group-button");
             btnGroup.setOnAction(x -> {
-                // Seleccionar grupo en combo y filtrar
-                cmbGroups.selectItem(group);
-                mostrarProductosPorGrupo(group);
+                // Buscar el grupo correspondiente en la lista del combo por ID
+                GrupoProductoDto grupoEnCombo = grupos.stream()
+                    .filter(g -> g.getIdGrupoProducto().equals(group.getIdGrupoProducto()))
+                    .findFirst()
+                    .orElse(null);
+                
+                if (grupoEnCombo != null) {
+                    // Seleccionar grupo en combo y filtrar
+                    cmbGroups.selectItem(grupoEnCombo);
+                    mostrarProductosPorGrupo(grupoEnCombo);
+                } else {
+                    // Si no está en el combo, solo filtrar sin seleccionar
+                    mostrarProductosPorGrupo(group);
+                }
             });
             groupsBox.getChildren().add(btnGroup);
         }
@@ -1038,14 +1071,22 @@ public class OrderController extends Controller implements Initializable {
         });
         
         cmbTable.selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            // Ignorar cambios durante limpieza automática
+            if (isClearing) {
+                return;
+            }
+            
             if (newVal != null) {
                 currentMesa = newVal;
                 // Si la mesa está ocupada, cargar su orden
                 if ("OCUPADA".equals(newVal.getEstado())) {
                     cargarOrdenDeMesa(newVal.getIdMesa());
                 } else {
-                    // Si es una mesa libre, limpiar la orden
-                    limpiarOrden();
+                    // Si es una mesa libre, solo limpiar productos pero mantener la selección
+                    currentOrder = new OrdenDto();
+                    orderContainer.getChildren().clear();
+                    txfClientName.clear();
+                    updateTotals();
                 }
             }
         });
