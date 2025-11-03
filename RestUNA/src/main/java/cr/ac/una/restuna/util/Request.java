@@ -578,6 +578,87 @@ public class Request {
         }
 
         // Soportar FacturaDto
+        // Soportar CierreCajaDto
+        if (objeto instanceof cr.ac.una.restuna.model.CierreCajaDto) {
+            cr.ac.una.restuna.model.CierreCajaDto cierre = (cr.ac.una.restuna.model.CierreCajaDto) objeto;
+            StringBuilder json = new StringBuilder();
+            json.append('{');
+
+            // ID (si existe)
+            if (cierre.getIdCierreCaja() != null && cierre.getIdCierreCaja() > 0) {
+                json.append("\"idCierreCaja\":").append(cierre.getIdCierreCaja()).append(',');
+            }
+
+            // ID Usuario Cajero
+            if (cierre.getIdUsuarioCajero() != null) {
+                json.append("\"idCajero\":").append(cierre.getIdUsuarioCajero()).append(',');
+            }
+
+            // Fecha Apertura
+            if (cierre.getFechaApertura() != null) {
+                json.append("\"fechaApertura\":\"").append(cierre.getFechaApertura().getTime()).append("\",");
+            }
+
+            // Fecha Cierre
+            if (cierre.getFechaCierre() != null) {
+                json.append("\"fechaHora\":\"").append(cierre.getFechaCierre().getTime()).append("\",");
+            }
+
+            // Efectivo Inicial
+            if (cierre.getEfectivoInicial() != null) {
+                json.append("\"efectivoInicial\":").append(cierre.getEfectivoInicial()).append(',');
+            }
+
+            // Efectivo Sistema
+            if (cierre.getEfectivoSistema() != null) {
+                json.append("\"efectivoSistema\":").append(cierre.getEfectivoSistema()).append(',');
+            }
+
+            // Efectivo Declarado
+            if (cierre.getEfectivoDeclarado() != null) {
+                json.append("\"efectivoDeclarado\":").append(cierre.getEfectivoDeclarado()).append(',');
+            }
+
+            // Tarjeta Sistema
+            if (cierre.getTarjetaSistema() != null) {
+                json.append("\"tarjetaSistema\":").append(cierre.getTarjetaSistema()).append(',');
+            }
+
+            // Tarjeta Declarado
+            if (cierre.getTarjetaDeclarado() != null) {
+                json.append("\"tarjetaDeclarado\":").append(cierre.getTarjetaDeclarado()).append(',');
+            }
+
+            // Diferencia Efectivo
+            if (cierre.getDiferenciaEfectivo() != null) {
+                json.append("\"efectivoDiferencia\":").append(cierre.getDiferenciaEfectivo()).append(',');
+            }
+
+            // Diferencia Tarjeta
+            if (cierre.getDiferenciaTarjeta() != null) {
+                json.append("\"tarjetaDiferencia\":").append(cierre.getDiferenciaTarjeta()).append(',');
+            }
+
+            // Total Facturas
+            if (cierre.getTotalFacturas() != null) {
+                json.append("\"totalFacturas\":").append(cierre.getTotalFacturas()).append(',');
+            }
+
+            // Observaciones
+            if (cierre.getObservaciones() != null && !cierre.getObservaciones().isEmpty()) {
+                json.append("\"observaciones\":\"").append(escaparJson(cierre.getObservaciones())).append("\",");
+            }
+
+            // Eliminar la última coma si existe
+            if (json.charAt(json.length() - 1) == ',') {
+                json.setLength(json.length() - 1);
+            }
+
+            json.append('}');
+            return json.toString();
+        }
+
+        // Soportar FacturaDto
         if (objeto instanceof cr.ac.una.restuna.model.FacturaDto) {
             cr.ac.una.restuna.model.FacturaDto factura = (cr.ac.una.restuna.model.FacturaDto) objeto;
             StringBuilder json = new StringBuilder();

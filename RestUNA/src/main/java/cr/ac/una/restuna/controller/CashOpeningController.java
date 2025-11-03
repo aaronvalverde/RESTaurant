@@ -65,6 +65,8 @@ public class CashOpeningController extends Controller implements Initializable {
                 stage.sizeToScene();
             }
         });
+
+        cargarAperturaActiva();
     }
 
     @Override
@@ -87,13 +89,16 @@ public class CashOpeningController extends Controller implements Initializable {
         try {
             double initAmount = Double.parseDouble(txfInitialFund.getText().trim());
             
+            Date fechaApertura = new Date();
+            
             // Crear el objeto de cierre de caja (apertura) - solo en memoria
             activeOpening = new CierreCajaDto();
             activeOpening.setEfectivoInicial((long) initAmount);
+            activeOpening.setFechaApertura(fechaApertura);
             activeOpening.setEstado("A"); // Estado Abierta
             
             // Guardar en parámetros del sistema
-            saveParameters(initAmount);
+            saveParameters(initAmount, fechaApertura);
             
             showMessage("Caja abierta con éxito.");
             closeWindow();
@@ -102,7 +107,7 @@ public class CashOpeningController extends Controller implements Initializable {
         }
     }
     
-    private void saveParameters(double initAmount){
+    private void saveParameters(double initAmount, Date fechaApertura){
         
         try{
             // Obtener el ID del usuario actual
@@ -129,7 +134,7 @@ public class CashOpeningController extends Controller implements Initializable {
             }
             status.setValor("A");
             
-            // Buscar o crear parámetro FECHA_APERTURA
+            // Buscar o crear parámetro FECHA_APERTURA (guardar como timestamp)
             ParametroDto date = buscarParametro(parametrosExistentes, "FECHA_APERTURA");
             if (date == null) {
                 date = new ParametroDto();
@@ -137,7 +142,7 @@ public class CashOpeningController extends Controller implements Initializable {
                 date.setClave("FECHA_APERTURA");
                 date.setDescripcion("Fecha de apertura de caja");
             }
-            date.setValor(new Date().toString());
+            date.setValor(String.valueOf(fechaApertura.getTime())); // Guardar timestamp en milisegundos
             
             // Buscar o crear parámetro MONTO_INICIAL
             ParametroDto amount = buscarParametro(parametrosExistentes, "MONTO_INICIAL");
@@ -171,6 +176,55 @@ public class CashOpeningController extends Controller implements Initializable {
         }catch(Exception e){
             e.printStackTrace();
             showMessage("No se pudo abrir la caja. Intente nuevamente.");
+        }
+    }
+
+    private void cargarAperturaActiva() {
+        try {
+            if (UserSession.getInstance().getCurrentUser() == null) {
+                return;
+            }
+
+            Long idUsuario = UserSession.getInstance().getCurrentUser().getIdUsuario();
+            Respuesta resp = parametroService.getParametrosPorUsuario(idUsuario);
+            if (!resp.getEstado()) {
+                System.err.println("No se pudieron consultar los parámetros de caja: " + resp.getMensaje());
+                return;
+            }
+
+            String jsonArray = (String) resp.getResultado("Parametros");
+            List<ParametroDto> parametros = parsearParametros(jsonArray);
+
+            ParametroDto estado = buscarParametro(parametros, "CAJA_ESTADO");
+            ParametroDto fecha = buscarParametro(parametros, "FECHA_APERTURA");
+            ParametroDto monto = buscarParametro(parametros, "MONTO_INICIAL");
+
+            if (estado == null || fecha == null || monto == null) {
+                return;
+            }
+
+            if (!"A".equalsIgnoreCase(estado.getValor())) {
+                return;
+            }
+
+            String valorFecha = fecha.getValor();
+            String valorMonto = monto.getValor();
+            if (valorFecha == null || valorFecha.isBlank() || valorMonto == null || valorMonto.isBlank()) {
+                return;
+            }
+
+            long fechaTimestamp = Long.parseLong(valorFecha);
+            long montoInicial = Long.parseLong(valorMonto.replace(".0", ""));
+
+            if (activeOpening == null) {
+                activeOpening = new CierreCajaDto();
+            }
+            activeOpening.setFechaApertura(new Date(fechaTimestamp));
+            activeOpening.setEfectivoInicial(montoInicial);
+            activeOpening.setEstado("A");
+
+        } catch (Exception e) {
+            System.err.println("No se pudo cargar la apertura activa: " + e.getMessage());
         }
     }
     

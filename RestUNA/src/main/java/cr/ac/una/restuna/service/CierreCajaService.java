@@ -20,7 +20,7 @@ public class CierreCajaService {
 
     public Respuesta obtenerTodos() {
         try {
-            Request request = new Request("cierrecaja");
+            Request request = new Request("CierreCajaController/cierres");
             request.get();
             
             if (request.isError()) {
@@ -39,7 +39,7 @@ public class CierreCajaService {
         try {
             Map<String, Object> parametros = new HashMap<>();
             parametros.put("id", id);
-            Request request = new Request("cierrecaja", "/{id}", parametros);
+            Request request = new Request("CierreCajaController/cierre", "/{id}", parametros);
             request.get();
             
             if (request.isError()) {
@@ -58,7 +58,7 @@ public class CierreCajaService {
         try {
             Map<String, Object> parametros = new HashMap<>();
             parametros.put("idCajero", idCajero);
-            Request request = new Request("cierrecaja/cajero", "/{idCajero}", parametros);
+            Request request = new Request("CierreCajaController/cierres/cajero", "/{idCajero}", parametros);
             request.get();
             
             if (request.isError()) {
@@ -75,7 +75,7 @@ public class CierreCajaService {
 
     public Respuesta guardarCierreCaja(CierreCajaDto cierreDto) {
         try {
-            Request request = new Request("cierrecaja");
+            Request request = new Request("CierreCajaController/cierre");
             request.post(cierreDto);
             
             if (request.isError()) {
@@ -92,7 +92,7 @@ public class CierreCajaService {
 
     public Respuesta actualizarCierreCaja(CierreCajaDto cierreDto) {
         try {
-            Request request = new Request("cierrecaja");
+            Request request = new Request("CierreCajaController/cierre");
             request.post(cierreDto);
             
             if (request.isError()) {
@@ -111,7 +111,7 @@ public class CierreCajaService {
         try {
             Map<String, Object> parametros = new HashMap<>();
             parametros.put("id", id);
-            Request request = new Request("cierrecaja", "/{id}", parametros);
+            Request request = new Request("CierreCajaController/cierre", "/{id}", parametros);
             request.delete();
             
             if (request.isError()) {

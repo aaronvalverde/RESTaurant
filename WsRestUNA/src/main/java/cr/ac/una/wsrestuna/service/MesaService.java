@@ -7,6 +7,8 @@ import cr.ac.una.wsrestuna.util.Respuesta;
 import cr.ac.una.wsrestuna.util.CodigoRespuesta;
 import jakarta.ejb.LocalBean;
 import jakarta.ejb.Stateless;
+import jakarta.ejb.TransactionAttribute;
+import jakarta.ejb.TransactionAttributeType;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import java.util.ArrayList;
@@ -145,6 +147,7 @@ public class MesaService {
     /**
      * Guarda una nueva mesa o actualiza una existente
      */
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public Respuesta guardarMesa(MesaDto dto) {
         try {
             Mesa mesa;
@@ -157,7 +160,20 @@ public class MesaService {
                         "No se encontró la mesa a actualizar", "guardarMesa");
                 }
                 
-                // Validar número de mesa único en sección al actualizar
+                LOG.log(Level.INFO, "Actualizando mesa {0} - Estado anterior: {1}, Estado nuevo: {2}", 
+                        new Object[]{mesa.getIdMesa(), mesa.getEstado(), dto.getEstado()});
+                
+                // Actualizar sección si cambió
+                if (dto.getIdSeccion() != null && !dto.getIdSeccion().equals(mesa.getSeccion().getIdSeccion())) {
+                    Seccion nuevaSeccion = em.find(Seccion.class, dto.getIdSeccion());
+                    if (nuevaSeccion == null) {
+                        return new Respuesta(false, CodigoRespuesta.ERROR_NOENCONTRADO,
+                            "No se encontró la sección especificada", "guardarMesa");
+                    }
+                    mesa.setSeccion(nuevaSeccion);
+                }
+                
+                // Validar número de mesa único en sección al actualizar SOLO si cambió
                 if (dto.getNumeroMesa() != null && !dto.getNumeroMesa().equals(mesa.getNumeroMesa())) {
                     List<Mesa> mesasExistentes = em.createQuery(
                         "SELECT m FROM Mesa m WHERE m.numeroMesa = :numero AND m.seccion.idSeccion = :idSeccion AND m.idMesa <> :idMesa", Mesa.class)
@@ -173,7 +189,25 @@ public class MesaService {
                 }
                 
                 mesa.actualizar(dto);
-                mesa = em.merge(mesa);
+                
+                // Usar query nativa con parámetros posicionales (? en vez de :nombre)
+                int rowsUpdated = em.createNativeQuery(
+                    "UPDATE RESTUNA.MESA SET ESTADO = ?, NUMERO_MESA = ?, CAPACIDAD = ?, " +
+                    "POSICION_X = ?, POSICION_Y = ? WHERE ID_MESA = ?")
+                    .setParameter(1, dto.getEstado())
+                    .setParameter(2, dto.getNumeroMesa())
+                    .setParameter(3, dto.getCapacidad())
+                    .setParameter(4, dto.getPosicionX())
+                    .setParameter(5, dto.getPosicionY())
+                    .setParameter(6, mesa.getIdMesa())
+                    .executeUpdate();
+                
+                LOG.log(Level.INFO, "Mesa {0} actualizada con query nativa - Filas afectadas: {1}, Estado: {2}", 
+                        new Object[]{mesa.getIdMesa(), rowsUpdated, dto.getEstado()});
+                
+                // Limpiar caché y recargar desde BD
+                em.clear();
+                mesa = em.find(Mesa.class, mesa.getIdMesa());
             } else {
                 // Validar sección
                 if (dto.getIdSeccion() == null) {
@@ -246,6 +280,7 @@ public class MesaService {
     /**
      * Actualiza el estado de una mesa
      */
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public Respuesta actualizarEstadoMesa(Long id, String estado) {
         try {
             Mesa mesa = em.find(Mesa.class, id);

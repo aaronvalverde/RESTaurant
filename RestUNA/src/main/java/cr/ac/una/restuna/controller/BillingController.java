@@ -355,6 +355,12 @@ public class BillingController extends Controller implements Initializable {
                 // Actualizar estado de orden a FACTURADA
                 if (ordenActual != null) {
                     ordenActual.setEstado("FACTURADA");
+                    
+                    // Asegurar que idSalonero esté presente (requerido por backend)
+                    if (ordenActual.getIdSalonero() == null) {
+                        ordenActual.setIdSalonero(UserSession.getInstance().getCurrentUser().getIdUsuario());
+                    }
+                    
                     ordenService.guardarOrden(ordenActual);
                 }
                 

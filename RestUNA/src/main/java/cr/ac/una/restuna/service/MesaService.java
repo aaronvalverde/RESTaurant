@@ -102,6 +102,9 @@ public class MesaService {
                 return new Respuesta(false, "Formato de respuesta no válido", "Esperaba un array de mesas");
             }
             
+            // DEBUG: Ver estados de las mesas
+            System.out.println("JSON de mesas recibido: " + responseJson);
+            
             return new Respuesta(true, "", "", "Mesas", responseJson);
             
         } catch (Exception ex) {

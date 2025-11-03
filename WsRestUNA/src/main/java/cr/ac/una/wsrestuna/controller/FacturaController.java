@@ -1,6 +1,7 @@
 package cr.ac.una.wsrestuna.controller;
 
 import cr.ac.una.wsrestuna.model.FacturaDto;
+import cr.ac.una.wsrestuna.model.ResumenCierreCajaDto;
 import cr.ac.una.wsrestuna.service.FacturaService;
 import cr.ac.una.wsrestuna.util.Respuesta;
 import io.swagger.v3.oas.annotations.Operation;
@@ -157,6 +158,50 @@ public class FacturaController {
             LOG.log(Level.SEVERE, "Error obteniendo facturas por fecha.", ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                 .entity("Error obteniendo facturas: " + ex.getMessage())
+                .build();
+        }
+    }
+
+    @GET
+    @Path("/facturas/resumen")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(summary = "Obtiene el resumen de facturas de un cajero en un periodo")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Resumen calculado correctamente",
+                content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                        schema = @Schema(implementation = ResumenCierreCajaDto.class))),
+        @ApiResponse(responseCode = "400", description = "Parámetros inválidos",
+                content = @Content(mediaType = MediaType.TEXT_PLAIN)),
+        @ApiResponse(responseCode = "500", description = "Error interno",
+                content = @Content(mediaType = MediaType.TEXT_PLAIN))
+    })
+    public Response getResumenFacturas(
+            @Parameter(description = "ID del cajero", example = "2", required = true)
+            @QueryParam("idCajero") Long idCajero,
+            @Parameter(description = "Fecha inicio (ISO 8601)", example = "2024-05-01T00:00:00", required = true)
+            @QueryParam("fechaInicio") String fechaInicio,
+            @Parameter(description = "Fecha fin (ISO 8601)", example = "2024-05-01T23:59:59", required = true)
+            @QueryParam("fechaFin") String fechaFin) {
+        try {
+            if (idCajero == null || fechaInicio == null || fechaFin == null) {
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity("Debe indicar el cajero, la fecha de inicio y la fecha fin.").build();
+            }
+
+            LocalDateTime inicio = LocalDateTime.parse(fechaInicio);
+            LocalDateTime fin = LocalDateTime.parse(fechaFin);
+
+            Respuesta res = facturaService.obtenerResumenCierreCaja(idCajero, inicio, fin);
+            if (!res.getEstado()) {
+                return Response.status(res.getCodigoRespuesta().getValue()).entity(res).build();
+            }
+
+            return Response.ok((ResumenCierreCajaDto) res.getResultado("ResumenCierreCaja")).build();
+        } catch (Exception ex) {
+            LOG.log(Level.SEVERE, "Error obteniendo resumen de facturas.", ex);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity("Error obteniendo resumen de facturas: " + ex.getMessage())
                 .build();
         }
     }

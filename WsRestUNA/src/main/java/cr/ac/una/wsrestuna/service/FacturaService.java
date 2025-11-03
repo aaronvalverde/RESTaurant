@@ -1,6 +1,14 @@
 package cr.ac.una.wsrestuna.service;
 
-import cr.ac.una.wsrestuna.model.*;
+import cr.ac.una.wsrestuna.model.Cliente;
+import cr.ac.una.wsrestuna.model.DetalleFactura;
+import cr.ac.una.wsrestuna.model.DetalleFacturaDto;
+import cr.ac.una.wsrestuna.model.Factura;
+import cr.ac.una.wsrestuna.model.FacturaDto;
+import cr.ac.una.wsrestuna.model.Orden;
+import cr.ac.una.wsrestuna.model.Producto;
+import cr.ac.una.wsrestuna.model.ResumenCierreCajaDto;
+import cr.ac.una.wsrestuna.model.Usuario;
 import cr.ac.una.wsrestuna.util.CodigoRespuesta;
 import cr.ac.una.wsrestuna.util.Respuesta;
 import jakarta.ejb.LocalBean;
@@ -114,6 +122,47 @@ public class FacturaService {
             LOGGER.log(Level.SEVERE, "Error al obtener facturas por fecha", e);
             return new Respuesta(false, CodigoRespuesta.ERROR_INTERNO, 
                     "Error al obtener facturas", e.getMessage());
+        }
+    }
+
+    public Respuesta obtenerResumenCierreCaja(Long idCajero, LocalDateTime fechaInicio, LocalDateTime fechaFin) {
+        try {
+            if (idCajero == null) {
+                return new Respuesta(false, CodigoRespuesta.ERROR_CLIENTE,
+                        "El ID del cajero es requerido", "idCajero nulo");
+            }
+            if (fechaInicio == null || fechaFin == null) {
+                return new Respuesta(false, CodigoRespuesta.ERROR_CLIENTE,
+                        "Las fechas son requeridas", "Fechas nulas");
+            }
+
+            TypedQuery<Object[]> query = em.createQuery(
+                    "SELECT COALESCE(SUM(f.efectivoRecibido), 0), "
+                    + "COALESCE(SUM(f.tarjetaRecibido), 0), "
+                    + "COUNT(f) "
+                    + "FROM Factura f "
+                    + "WHERE f.cajero.idUsuario = :idUsuario "
+                    + "AND f.estado <> 'ANULADA' "
+                    + "AND f.fechaHora BETWEEN :fechaInicio AND :fechaFin", Object[].class);
+
+            query.setParameter("idUsuario", idCajero);
+            query.setParameter("fechaInicio", fechaInicio);
+            query.setParameter("fechaFin", fechaFin);
+
+            Object[] resultado = query.getSingleResult();
+
+            BigDecimal totalEfectivo = resultado[0] != null ? (BigDecimal) resultado[0] : BigDecimal.ZERO;
+            BigDecimal totalTarjeta = resultado[1] != null ? (BigDecimal) resultado[1] : BigDecimal.ZERO;
+            Long totalFacturas = resultado[2] != null ? (Long) resultado[2] : 0L;
+
+            ResumenCierreCajaDto resumen = new ResumenCierreCajaDto(totalFacturas, totalEfectivo, totalTarjeta);
+
+            return new Respuesta(true, CodigoRespuesta.CORRECTO,
+                    "Resumen de facturas obtenido correctamente", "", "ResumenCierreCaja", resumen);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error al obtener resumen de facturas para el cierre de caja", e);
+            return new Respuesta(false, CodigoRespuesta.ERROR_INTERNO,
+                    "Error al obtener resumen de facturas", e.getMessage());
         }
     }
 
