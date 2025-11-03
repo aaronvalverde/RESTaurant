@@ -5,10 +5,7 @@ import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-/**
- * Entidad JPA para la tabla USUARIO
- * Representa usuarios del sistema: administradores, cajeros y saloneros
- */
+
 @Entity
 @Table(name = "USUARIO", schema = "RESTUNA")
 @NamedQueries({
@@ -74,10 +71,10 @@ public class Usuario implements Serializable {
 
 
 
-    // Constructores
+    
     public Usuario() {
         this.fechaCreacion = LocalDateTime.now();
-        this.estado = "A"; // Activo por defecto
+        this.estado = "A"; 
     }
 
     public Usuario(Long id) {
@@ -94,27 +91,27 @@ public class Usuario implements Serializable {
     public void actualizar(UsuarioDto usuarioDto) {
         this.usuario = usuarioDto.getUsuario();
         
-        // Actualizar el nombre si se proporciona, sino usar el usuario
+        
         if (usuarioDto.getNombre() != null && !usuarioDto.getNombre().trim().isEmpty()) {
             this.nombre = usuarioDto.getNombre();
         } else {
-            this.nombre = usuarioDto.getUsuario(); // Usar el usuario como nombre por defecto
+            this.nombre = usuarioDto.getUsuario(); 
         }
         
         this.rol = usuarioDto.getRol();
         this.estado = usuarioDto.getEstado() != null ? usuarioDto.getEstado() : "A";
         
-        // Solo actualizar contraseña si se proporciona una nueva para usuarios existentes
-        // Para usuarios nuevos (sin ID), siempre requerir contraseña
+        
+        
         if (usuarioDto.getNuevaContrasena() != null && !usuarioDto.getNuevaContrasena().trim().isEmpty()) {
             this.contrasena = usuarioDto.getNuevaContrasena();
         } else if (this.idUsuario == null) {
-            // Para usuarios nuevos, asegurarse de que hay contraseña
+            
             throw new IllegalArgumentException("La contraseña es obligatoria para usuarios nuevos");
         }
     }
 
-    // Métodos de conveniencia
+    
     @PrePersist
     protected void onCreate() {
         if (fechaCreacion == null) {
@@ -125,51 +122,39 @@ public class Usuario implements Serializable {
         }
     }
 
-    /**
-     * Verifica si el usuario está activo
-     */
+    
     public boolean isActivo() {
         return "A".equals(estado);
     }
 
-    /**
-     * Activa o desactiva el usuario
-     */
+    
     public void setActivo(boolean activo) {
         this.estado = activo ? "A" : "I";
     }
 
 
 
-    /**
-     * Verifica si el usuario tiene el rol especificado
-     */
+    
     public boolean tieneRol(String rol) {
         return this.rol != null && this.rol.equals(rol);
     }
 
-    /**
-     * Verifica si el usuario es administrador
-     */
+    
     public boolean isAdministrador() {
         return tieneRol("ADMINISTRADOR");
     }
 
-    /**
-     * Verifica si el usuario es cajero
-     */
+    
     public boolean isCajero() {
         return tieneRol("CAJERO");
     }
 
-    /**
-     * Verifica si el usuario es salonero
-     */
+    
     public boolean isSalonero() {
         return tieneRol("SALONERO");
     }
 
-    // Getters y Setters
+    
     public Long getIdUsuario() {
         return idUsuario;
     }
@@ -246,7 +231,7 @@ public class Usuario implements Serializable {
 
 
 
-    // hashCode, equals y toString
+    
     @Override
     public int hashCode() {
         int hash = 0;

@@ -18,12 +18,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Controlador REST para gestión de clientes
- * 
- * @author Kendall Fonseca
- * @author Kaleb Alfaro
- */
+
 @Path("/ClienteController")
 @Tag(name = "Clientes", description = "Operaciones sobre clientes del restaurante")
 public class ClienteController {
@@ -142,7 +137,7 @@ public class ClienteController {
         try {
             Respuesta res;
             
-            // Si tiene ID, actualizar; si no, crear
+            
             if (clienteDto.getIdCliente() != null && clienteDto.getIdCliente() > 0) {
                 res = clienteService.actualizar(clienteDto);
             } else {

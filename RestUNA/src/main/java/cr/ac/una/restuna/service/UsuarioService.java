@@ -8,9 +8,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Servicio para operaciones con usuarios siguiendo patrón UNA Planilla
- */
+
 public class UsuarioService {
     
     public Respuesta getUsuario(String usuario, String clave){
@@ -27,8 +25,8 @@ public class UsuarioService {
                 
                 }
                 
-                // Por simplicidad, por ahora retornamos la respuesta raw
-                // En implementación completa necesitarías deserialización apropiada
+                
+                
                 String responseJson = request.getResponseBody();
         
             return new Respuesta(true," ", " ", "Usuario", responseJson);
@@ -80,7 +78,7 @@ public class UsuarioService {
     
     public Respuesta getUsuarios() {
         try {
-            // Usar el endpoint simplificado sin parámetros
+            
             Request request = new Request("UsuarioController/usuarios");
             request.get();
             if(request.isError()){
@@ -98,19 +96,15 @@ public class UsuarioService {
     
     @Deprecated
     public Respuesta getUsuarios(String nombre, String apellidos, String usuario, String correo) {
-        // Método mantenido por compatibilidad - redirige al nuevo método simplificado
+        
         System.out.println("AVISO: Usando método getUsuarios() obsoleto. Use obtenerTodosLosUsuarios()");
         return obtenerTodosLosUsuarios();
     }
     
-    /**
-     * Guarda un nuevo usuario o actualiza uno existente en el servidor
-     * @param usuarioDto El DTO con los datos del usuario
-     * @return Respuesta con el resultado de la operación
-     */
+    
     public Respuesta guardarUsuario(UsuarioDto usuarioDto){
         try {        
-            // Validaciones básicas
+            
             if (usuarioDto == null) {
                 return new Respuesta(false, "Datos de usuario inválidos", "UsuarioDto es null");
             }
@@ -119,20 +113,20 @@ public class UsuarioService {
                 return new Respuesta(false, "El nombre de usuario es obligatorio", "Nombre de usuario vacío");
             }
             
-            // Si es un usuario nuevo (sin ID) y no tiene contraseña, rechazarlo
+            
             if (usuarioDto.getIdUsuario() == null && 
                 (usuarioDto.getNuevaContrasena() == null || usuarioDto.getNuevaContrasena().trim().isEmpty())) {
                 return new Respuesta(false, "La contraseña es obligatoria para usuarios nuevos", "Contraseña vacía");
             }
             
-            // Validación del nombre (si está disponible pero vacío)
+            
             if (usuarioDto.getNombre() == null || usuarioDto.getNombre().trim().isEmpty()) {
-                usuarioDto.setNombre(usuarioDto.getUsuario()); // Usar nombre de usuario como nombre por defecto
+                usuarioDto.setNombre(usuarioDto.getUsuario()); 
             }
             
-            // Asegurarse de que el estado está establecido
+            
             if (usuarioDto.getEstado() == null) {
-                usuarioDto.setEstado("A"); // Activo por defecto
+                usuarioDto.setEstado("A"); 
             }
             
             System.out.println("Guardando usuario: " + usuarioDto.getUsuario());
@@ -141,7 +135,7 @@ public class UsuarioService {
            
             if(request.isError()){
                 System.err.println("Error guardando usuario: " + request.getError());
-                // Filtrar el error para no mostrar HTML o mensajes técnicos al usuario
+                
                 String errorMsg = "Error de comunicación con el servidor";
                 
                 if (request.getError().contains("HTTP 400")) {
@@ -160,12 +154,12 @@ public class UsuarioService {
             String responseJson = request.getResponseBody();
             System.out.println("Respuesta recibida: " + responseJson);
             
-            // Verificar si la respuesta indica un error a pesar de tener código HTTP 200
+            
             if (responseJson != null && responseJson.contains("\"estado\":false")) {
-                // Intentar extraer mensaje de error
+                
                 int inicioMsg = responseJson.indexOf("\"mensaje\":");
                 if (inicioMsg > 0) {
-                    inicioMsg += 11; // Longitud de "mensaje":"
+                    inicioMsg += 11; 
                     int finMsg = responseJson.indexOf("\"", inicioMsg);
                     if (finMsg > inicioMsg) {
                         String mensajeError = responseJson.substring(inicioMsg, finMsg);
@@ -185,13 +179,10 @@ public class UsuarioService {
         }
     }
     
-    /**
-     * Método simplificado para obtener todos los usuarios sin parámetros
-     * Con mejor manejo de errores y logs detallados
-     */
+    
     public Respuesta obtenerTodosLosUsuarios() {
         try {
-            // Usar endpoint simple sin parámetros
+            
             System.out.println("Iniciando solicitud para obtener todos los usuarios");
             Request request = new Request("UsuarioController/usuarios");
             request.get();
@@ -210,14 +201,14 @@ public class UsuarioService {
                 return new Respuesta(false, "Respuesta vacía del servidor", "No se recibieron datos");
             }
             
-            // El servidor retorna un array JSON de usuarios directamente (patrón UNA Planilla)
-            // Verificar que sea un array válido
+            
+            
             if (!responseJson.trim().startsWith("[")) {
                 System.err.println("Formato de respuesta inesperado (esperaba array): " + responseJson);
                 return new Respuesta(false, "Formato de respuesta no válido", "Esperaba un array de usuarios");
             }
             
-            // El JSON ya es un array de usuarios, lo pasamos directamente
+            
             return new Respuesta(true, "", "", "Usuarios", responseJson);
             
         } catch (Exception ex) {

@@ -9,16 +9,12 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Servicio para operaciones con mesas del restaurante
- */
+
 public class MesaService {
     
     private static final Logger LOG = Logger.getLogger(MesaService.class.getName());
     
-    /**
-     * Obtiene una mesa por ID
-     */
+    
     public Respuesta getMesa(Long id) {
         try {
             Map<String, Object> parametros = new HashMap<>();
@@ -39,9 +35,7 @@ public class MesaService {
         }
     }
     
-    /**
-     * Obtiene todas las mesas
-     */
+    
     public Respuesta getMesas() {
         try {
             System.out.println("Iniciando solicitud para obtener todas las mesas");
@@ -76,9 +70,7 @@ public class MesaService {
         }
     }
     
-    /**
-     * Obtiene todas las mesas de una sección
-     */
+    
     public Respuesta getMesasPorSeccion(Long idSeccion) {
         try {
             System.out.println("Obteniendo mesas de sección: " + idSeccion);
@@ -102,7 +94,7 @@ public class MesaService {
                 return new Respuesta(false, "Formato de respuesta no válido", "Esperaba un array de mesas");
             }
             
-            // DEBUG: Ver estados de las mesas
+            
             System.out.println("JSON de mesas recibido: " + responseJson);
             
             return new Respuesta(true, "", "", "Mesas", responseJson);
@@ -113,9 +105,7 @@ public class MesaService {
         }
     }
     
-    /**
-     * Obtiene mesas por estado
-     */
+    
     public Respuesta getMesasPorEstado(String estado) {
         try {
             Map<String, Object> parametros = new HashMap<>();
@@ -141,9 +131,7 @@ public class MesaService {
         }
     }
     
-    /**
-     * Obtiene mesas libres
-     */
+    
     public Respuesta getMesasLibres() {
         try {
             Request request = new Request("MesaController/mesas/libres");
@@ -167,9 +155,7 @@ public class MesaService {
         }
     }
     
-    /**
-     * Guarda una mesa (crear o actualizar)
-     */
+    
     public Respuesta guardarMesa(MesaDto mesaDto) {
         try {
             if (mesaDto == null) {
@@ -209,9 +195,7 @@ public class MesaService {
         }
     }
     
-    /**
-     * Guarda múltiples mesas (batch)
-     */
+    
     public Respuesta guardarMesas(List<MesaDto> mesas) {
         try {
             System.out.println("Guardando " + mesas.size() + " mesas");
@@ -234,10 +218,7 @@ public class MesaService {
         }
     }
     
-    /**
-     * Actualiza el estado de una mesa
-     * (Se hace obteniendo la mesa, cambiando el estado y guardándola)
-     */
+    
     public Respuesta actualizarEstadoMesa(Long idMesa, String estado) {
         try {
             if (idMesa == null || idMesa <= 0) {
@@ -268,9 +249,7 @@ public class MesaService {
         }
     }
     
-    /**
-     * Elimina una mesa por ID
-     */
+    
     public Respuesta eliminarMesa(Long id) {
         try {
             Map<String, Object> parametros = new HashMap<>();

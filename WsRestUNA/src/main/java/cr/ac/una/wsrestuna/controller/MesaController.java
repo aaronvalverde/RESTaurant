@@ -25,9 +25,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Controlador REST para gestión de mesas del restaurante
- */
+
 @Path("/MesaController")
 @Tag(name = "Mesas", description = "Operaciones sobre mesas del restaurante")
 public class MesaController {
@@ -37,10 +35,7 @@ public class MesaController {
     @EJB
     MesaService mesaService;
     
-    /**
-     * Obtiene una mesa por ID
-     * GET /MesaController/mesa/{id}
-     */
+    
     @GET
     @Path("/mesa/{id}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -71,10 +66,7 @@ public class MesaController {
         }
     }
     
-    /**
-     * Obtiene todas las mesas
-     * GET /MesaController/mesas
-     */
+    
     @GET
     @Path("/mesas")
     @Produces(MediaType.APPLICATION_JSON)
@@ -105,10 +97,7 @@ public class MesaController {
         }
     }
     
-    /**
-     * Obtiene mesas de una sección específica
-     * GET /MesaController/mesas/seccion/{idSeccion}
-     */
+    
     @GET
     @Path("/mesas/seccion/{idSeccion}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -140,10 +129,7 @@ public class MesaController {
         }
     }
     
-    /**
-     * Obtiene mesas por estado
-     * GET /MesaController/mesas/estado/{estado}
-     */
+    
     @GET
     @Path("/mesas/estado/{estado}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -175,10 +161,7 @@ public class MesaController {
         }
     }
     
-    /**
-     * Obtiene mesas libres
-     * GET /MesaController/mesas/libres
-     */
+    
     @GET
     @Path("/mesas/libres")
     @Produces(MediaType.APPLICATION_JSON)
@@ -209,10 +192,7 @@ public class MesaController {
         }
     }
     
-    /**
-     * Guarda una mesa (crear o actualizar)
-     * POST /MesaController/mesa
-     */
+    
     @POST
     @Path("/mesa")
     @Produces(MediaType.APPLICATION_JSON)
@@ -242,10 +222,7 @@ public class MesaController {
         }
     }
     
-    /**
-     * Guarda múltiples mesas (batch)
-     * POST /MesaController/mesas
-     */
+    
     @POST
     @Path("/mesas")
     @Produces(MediaType.APPLICATION_JSON)
@@ -276,10 +253,7 @@ public class MesaController {
         }
     }
     
-    /**
-     * Actualiza el estado de una mesa
-     * PUT /MesaController/mesa/{id}/estado/{estado}
-     */
+    
     @PUT
     @Path("/mesa/{id}/estado/{estado}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -311,10 +285,7 @@ public class MesaController {
         }
     }
     
-    /**
-     * Elimina una mesa por ID
-     * DELETE /MesaController/mesa/{id}
-     */
+    
     @DELETE
     @Path("/mesa/{id}")
     @Produces(MediaType.APPLICATION_JSON)

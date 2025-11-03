@@ -10,12 +10,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * DTO para transferencia de datos de Factura
- * 
- * @author Kendall Fonseca
- * @author Kaleb Alfaro
- */
+
 @Schema(description = "Factura del sistema RESTaurant")
 public class FacturaDto implements Serializable {
 
@@ -79,7 +74,7 @@ public class FacturaDto implements Serializable {
     @JsonbProperty("vuelto")
     private BigDecimal vuelto;
 
-    // IDs de relaciones
+    
     @Schema(description = "ID de la orden relacionada", example = "10")
     @JsonbProperty("idOrden")
     private Long idOrden;
@@ -93,7 +88,7 @@ public class FacturaDto implements Serializable {
     @JsonbProperty("idCajero")
     private Long idCajero;
 
-    // Nombres para mostrar
+    
     @Schema(description = "Nombre del cliente", example = "Juan Pérez")
     @JsonbProperty("nombreCliente")
     private String nombreCliente;
@@ -102,12 +97,12 @@ public class FacturaDto implements Serializable {
     @JsonbProperty("nombreCajero")
     private String nombreCajero;
 
-    // Detalles de la factura
+    
     @Schema(description = "Lista de productos en la factura")
     @JsonbProperty("detalles")
     private List<DetalleFacturaDto> detalles;
 
-    // Campos de control
+    
     @Schema(description = "Indica si el registro fue modificado", example = "false")
     @JsonbProperty("modificado")
     private Boolean modificado;
@@ -117,7 +112,7 @@ public class FacturaDto implements Serializable {
     @JsonbDateFormat("yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime fecha;
 
-    // Constructores
+    
     public FacturaDto() {
         this.modificado = false;
         this.fecha = LocalDateTime.now();
@@ -152,7 +147,7 @@ public class FacturaDto implements Serializable {
             this.estado = factura.getEstado();
             this.correoEnviado = factura.getCorreoEnviado();
 
-            // IDs
+            
             if (factura.getOrden() != null) {
                 this.idOrden = factura.getOrden().getIdOrden();
             }
@@ -165,7 +160,7 @@ public class FacturaDto implements Serializable {
                 this.nombreCajero = factura.getCajero().getNombre();
             }
 
-            // Detalles
+            
             if (factura.getDetalles() != null) {
                 this.detalles = new ArrayList<>();
                 for (DetalleFactura detalle : factura.getDetalles()) {
@@ -175,7 +170,7 @@ public class FacturaDto implements Serializable {
         }
     }
 
-    // Getters y Setters
+    
     public Long getIdFactura() {
         return idFactura;
     }

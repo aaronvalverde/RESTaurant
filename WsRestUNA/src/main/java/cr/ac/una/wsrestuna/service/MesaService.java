@@ -16,9 +16,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Servicio para gestión de mesas del restaurante
- */
+
 @Stateless
 @LocalBean
 public class MesaService {
@@ -28,9 +26,7 @@ public class MesaService {
     @PersistenceContext(unitName = "RestUNA_PU")
     private EntityManager em;
     
-    /**
-     * Obtiene una mesa por ID
-     */
+    
     public Respuesta getMesa(Long id) {
         try {
             Mesa mesa = em.find(Mesa.class, id);
@@ -50,9 +46,7 @@ public class MesaService {
         }
     }
     
-    /**
-     * Obtiene todas las mesas
-     */
+    
     public Respuesta getMesas() {
         try {
             List<Mesa> mesas = em.createNamedQuery("Mesa.findAll", Mesa.class)
@@ -73,9 +67,7 @@ public class MesaService {
         }
     }
     
-    /**
-     * Obtiene todas las mesas de una sección
-     */
+    
     public Respuesta getMesasPorSeccion(Long idSeccion) {
         try {
             List<Mesa> mesas = em.createNamedQuery("Mesa.findBySeccion", Mesa.class)
@@ -97,9 +89,7 @@ public class MesaService {
         }
     }
     
-    /**
-     * Obtiene mesas por estado
-     */
+    
     public Respuesta getMesasPorEstado(String estado) {
         try {
             List<Mesa> mesas = em.createNamedQuery("Mesa.findByEstado", Mesa.class)
@@ -121,9 +111,7 @@ public class MesaService {
         }
     }
     
-    /**
-     * Obtiene mesas libres
-     */
+    
     public Respuesta getMesasLibres() {
         try {
             List<Mesa> mesas = em.createNamedQuery("Mesa.findLibres", Mesa.class)
@@ -144,16 +132,14 @@ public class MesaService {
         }
     }
     
-    /**
-     * Guarda una nueva mesa o actualiza una existente
-     */
+    
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public Respuesta guardarMesa(MesaDto dto) {
         try {
             Mesa mesa;
             
             if (dto.getIdMesa() != null && dto.getIdMesa() > 0) {
-                // Actualizar existente
+                
                 mesa = em.find(Mesa.class, dto.getIdMesa());
                 if (mesa == null) {
                     return new Respuesta(false, CodigoRespuesta.ERROR_NOENCONTRADO,
@@ -163,7 +149,7 @@ public class MesaService {
                 LOG.log(Level.INFO, "Actualizando mesa {0} - Estado anterior: {1}, Estado nuevo: {2}", 
                         new Object[]{mesa.getIdMesa(), mesa.getEstado(), dto.getEstado()});
                 
-                // Actualizar sección si cambió
+                
                 if (dto.getIdSeccion() != null && !dto.getIdSeccion().equals(mesa.getSeccion().getIdSeccion())) {
                     Seccion nuevaSeccion = em.find(Seccion.class, dto.getIdSeccion());
                     if (nuevaSeccion == null) {
@@ -173,7 +159,7 @@ public class MesaService {
                     mesa.setSeccion(nuevaSeccion);
                 }
                 
-                // Validar número de mesa único en sección al actualizar SOLO si cambió
+                
                 if (dto.getNumeroMesa() != null && !dto.getNumeroMesa().equals(mesa.getNumeroMesa())) {
                     List<Mesa> mesasExistentes = em.createQuery(
                         "SELECT m FROM Mesa m WHERE m.numeroMesa = :numero AND m.seccion.idSeccion = :idSeccion AND m.idMesa <> :idMesa", Mesa.class)
@@ -190,7 +176,7 @@ public class MesaService {
                 
                 mesa.actualizar(dto);
                 
-                // Usar query nativa con parámetros posicionales (? en vez de :nombre)
+                
                 int rowsUpdated = em.createNativeQuery(
                     "UPDATE RESTUNA.MESA SET ESTADO = ?, NUMERO_MESA = ?, CAPACIDAD = ?, " +
                     "POSICION_X = ?, POSICION_Y = ? WHERE ID_MESA = ?")
@@ -205,11 +191,11 @@ public class MesaService {
                 LOG.log(Level.INFO, "Mesa {0} actualizada con query nativa - Filas afectadas: {1}, Estado: {2}", 
                         new Object[]{mesa.getIdMesa(), rowsUpdated, dto.getEstado()});
                 
-                // Limpiar caché y recargar desde BD
+                
                 em.clear();
                 mesa = em.find(Mesa.class, mesa.getIdMesa());
             } else {
-                // Validar sección
+                
                 if (dto.getIdSeccion() == null) {
                     return new Respuesta(false, CodigoRespuesta.ERROR_CLIENTE,
                         "Debe especificar una sección para la mesa", "guardarMesa");
@@ -221,7 +207,7 @@ public class MesaService {
                         "No se encontró la sección especificada", "guardarMesa");
                 }
                 
-                // Validar número de mesa único en sección
+                
                 List<Mesa> mesasExistentes = em.createQuery(
                     "SELECT m FROM Mesa m WHERE m.numeroMesa = :numero AND m.seccion.idSeccion = :idSeccion", Mesa.class)
                     .setParameter("numero", dto.getNumeroMesa())
@@ -233,7 +219,7 @@ public class MesaService {
                         "Ya existe una mesa con el número '" + dto.getNumeroMesa() + "' en esta sección", "guardarMesa");
                 }
                 
-                // Crear nueva
+                
                 mesa = new Mesa(dto);
                 mesa.setSeccion(seccion);
                 em.persist(mesa);
@@ -252,9 +238,7 @@ public class MesaService {
         }
     }
     
-    /**
-     * Guarda múltiples mesas (batch)
-     */
+    
     public Respuesta guardarMesas(List<MesaDto> dtos) {
         try {
             List<MesaDto> resultados = new ArrayList<>();
@@ -262,7 +246,7 @@ public class MesaService {
             for (MesaDto dto : dtos) {
                 Respuesta resp = guardarMesa(dto);
                 if (!resp.getEstado()) {
-                    return resp; // Si falla una, devolver error
+                    return resp; 
                 }
                 resultados.add((MesaDto) resp.getResultado("Mesa"));
             }
@@ -277,9 +261,7 @@ public class MesaService {
         }
     }
     
-    /**
-     * Actualiza el estado de una mesa
-     */
+    
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public Respuesta actualizarEstadoMesa(Long id, String estado) {
         try {
@@ -304,9 +286,7 @@ public class MesaService {
         }
     }
     
-    /**
-     * Elimina una mesa por ID
-     */
+    
     public Respuesta eliminarMesa(Long id) {
         try {
             Mesa mesa = em.find(Mesa.class, id);

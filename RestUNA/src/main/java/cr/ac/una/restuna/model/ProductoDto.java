@@ -34,9 +34,7 @@ public class ProductoDto extends RecursiveTreeObject<ProductoDto> implements Ser
         this.fechaCreacion = new SimpleObjectProperty<>();
     }
 
-    /**
-     * Constructor que parsea un objeto JSON
-     */
+    
     public ProductoDto(String objetoJson) {
         this();
         
@@ -45,7 +43,7 @@ public class ProductoDto extends RecursiveTreeObject<ProductoDto> implements Ser
         }
         
         try {
-            // Usar JsonParser para extraer valores
+            
             Long idProd = JsonParser.extraerValorLong(objetoJson, "idProducto");
             if (idProd != null) setIdProducto(idProd);
             
@@ -128,9 +126,7 @@ public class ProductoDto extends RecursiveTreeObject<ProductoDto> implements Ser
         return grupoProducto;
     }
     
-    /**
-     * Obtener nombre del grupo (útil para tablas)
-     */
+    
     public String getNombreGrupo() {
         return grupoProducto != null ? grupoProducto.getNombre() : null;
     }

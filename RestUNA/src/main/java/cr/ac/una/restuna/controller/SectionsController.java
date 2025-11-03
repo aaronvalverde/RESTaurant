@@ -28,13 +28,7 @@ import javafx.scene.layout.VBox;
 import cr.ac.una.restuna.util.JsonParser;
 import java.util.Optional;
 
-/**
- * FXML Controller class
- * 
- * Vista para gestionar MESAS dentro de una sección seleccionada
- *
- * @author aaron
- */
+
 public class SectionsController extends Controller implements Initializable {
 
     @FXML
@@ -58,11 +52,11 @@ public class SectionsController extends Controller implements Initializable {
     @FXML
     private VBox btnToBill;
     
-    // Servicios
+    
     private final SeccionService seccionService = new SeccionService();
     private final MesaService mesaService = new MesaService();
     
-    // Estado
+    
     private SeccionDto seccionActual;
     private List<MesaDto> mesasActuales = new ArrayList<>();
     private Map<MFXButton, MesaDto> mesaButtonMap = new HashMap<>();
@@ -71,9 +65,7 @@ public class SectionsController extends Controller implements Initializable {
     private boolean modoEdicion = false;
     private boolean hayCambios = false;
 
-    /**
-     * Initializes the controller class.
-     */
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         setNombreVista(AppKeys.SECTIONS);
@@ -87,15 +79,12 @@ public class SectionsController extends Controller implements Initializable {
 
     @Override
     public void initialize() {
-        // Método sobrescrito de Controller - no se usa en este caso
+        
     }
     
-    /**
-     * Configura los handlers de drag & drop del panel de sección
-     * Se configura UNA SOLA VEZ para que funcione con todas las mesas
-     */
+    
     private void configurarDragAndDrop() {
-        // Drag & drop para mover mesas en modo edición
+        
         sectionPane.setOnDragOver(e -> {
             if (e.getGestureSource() instanceof MFXButton && modoEdicion) {
                 e.acceptTransferModes(TransferMode.MOVE);
@@ -113,12 +102,12 @@ public class SectionsController extends Controller implements Initializable {
                     double y = e.getY() - btnMesa.getHeight() / 2;
                     btnMesa.relocate(x, y);
                     
-                    // Actualizar posición en DTO
+                    
                     mesa.setPosicionX(x);
                     mesa.setPosicionY(y);
                     hayCambios = true;
                     
-                    // Guardar inmediatamente la nueva posición
+                    
                     guardarPosicionMesa(mesa);
                     
                     e.setDropCompleted(true);
@@ -127,13 +116,13 @@ public class SectionsController extends Controller implements Initializable {
             e.consume();
         });
         
-        // Drag & drop hacia el botón de facturar (solo mesas OCUPADAS)
+        
         btnToBill.setOnDragOver(e -> {
             if (e.getGestureSource() instanceof MFXButton && !modoEdicion) {
                 MFXButton btnMesa = (MFXButton) e.getGestureSource();
                 MesaDto mesa = mesaButtonMap.get(btnMesa);
                 
-                // Solo aceptar mesas OCUPADAS
+                
                 if (mesa != null && "OCUPADA".equals(mesa.getEstado())) {
                     e.acceptTransferModes(TransferMode.MOVE);
                 }
@@ -147,7 +136,7 @@ public class SectionsController extends Controller implements Initializable {
                 MesaDto mesa = mesaButtonMap.get(btnMesa);
                 
                 if (mesa != null && "OCUPADA".equals(mesa.getEstado())) {
-                    // Abrir facturación con esta mesa
+                    
                     abrirFacturacion(mesa);
                     e.setDropCompleted(true);
                 }
@@ -164,7 +153,7 @@ public class SectionsController extends Controller implements Initializable {
             return;
         }
         
-        // Solicitar número o nombre de mesa
+        
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle(getMsg("new.table"));
         dialog.setHeaderText(getMsg("add.new.table"));
@@ -177,16 +166,16 @@ public class SectionsController extends Controller implements Initializable {
         
         String numeroMesa = resultado.get().trim();
         
-        // Crear mesa con capacidad por defecto
+        
         MesaDto mesa = new MesaDto();
         mesa.setIdSeccion(seccionActual.getIdSeccion());
         mesa.setNumeroMesa(numeroMesa);
-        mesa.setCapacidad(4); // Capacidad por defecto
+        mesa.setCapacidad(4); 
         mesa.setPosicionX(100.0);
         mesa.setPosicionY(100.0);
         mesa.setEstado("LIBRE");
         
-        // Guardar en servidor
+        
         Respuesta respuesta = mesaService.guardarMesa(mesa);
         
         if (respuesta.getEstado()) {
@@ -216,7 +205,7 @@ public class SectionsController extends Controller implements Initializable {
         
         MesaDto mesa = mesaButtonMap.get(mesaSeleccionada);
         if (mesa == null || mesa.getIdMesa() == null) {
-            // Es una mesa nueva que aún no está guardada
+            
             sectionPane.getChildren().remove(mesaSeleccionada);
             mesaButtonMap.remove(mesaSeleccionada);
             mesasActuales.remove(mesa);
@@ -224,7 +213,7 @@ public class SectionsController extends Controller implements Initializable {
             return;
         }
         
-        // Validar que la mesa no esté ocupada
+        
         if ("OCUPADA".equals(mesa.getEstado())) {
             mostrarAlerta(Alert.AlertType.ERROR, "Eliminar Mesa", 
                 "No se puede eliminar una mesa ocupada con órdenes activas. " +
@@ -232,7 +221,7 @@ public class SectionsController extends Controller implements Initializable {
             return;
         }
         
-        // Confirmar eliminación
+        
         Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
         confirmacion.setTitle("Eliminar Mesa");
         confirmacion.setHeaderText("¿Está seguro?");
@@ -266,7 +255,7 @@ public class SectionsController extends Controller implements Initializable {
     @FXML
     private void onActionBtnEditMode(ActionEvent event) {
         onEditMode(true);
-        //confirmación de guardar cambios (si los hay).
+        
     }
 
     @FXML
@@ -297,7 +286,7 @@ public class SectionsController extends Controller implements Initializable {
         btnDeleteTable.setDisable(true);
         
         if (mesaSeleccionada != null && !editMode) {
-            // Deseleccionar al salir del modo edición
+            
             mesaSeleccionada.setStyle(mesaSeleccionada.getStyle().replace("-fx-border-color: yellow; -fx-border-width: 3px;", ""));
             mesaSeleccionada = null;
         }
@@ -320,14 +309,14 @@ public class SectionsController extends Controller implements Initializable {
         
         sectionsContainer.getChildren().clear();
         
-        // Extraer objetos JSON de nivel superior (secciones) del array
+        
         List<String> objetosSecciones = JsonParser.extraerObjetosDelArray(contenido);
         
         for (String objetoJson : objetosSecciones) {
             SeccionDto seccion = parsearSeccion(objetoJson);
             
             if (seccion != null) {
-                // Mostrar nombre y tipo de sección
+                
                 String textoBoton = seccion.getNombre() + " (" + seccion.getTipo() + ")";
                 MFXButton btnSeccion = new MFXButton(textoBoton);
                 btnSeccion.setPrefWidth(200);
@@ -345,19 +334,19 @@ public class SectionsController extends Controller implements Initializable {
     }
     
     private void seleccionarSeccion(SeccionDto seccion, MFXButton boton) {
-        // Deseleccionar sección anterior
+        
         if (seccionSeleccionada != null) {
             seccionSeleccionada.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-size: 12px;");
         }
         
-        // Seleccionar nueva sección
+        
         seccionSeleccionada = boton;
         boton.setStyle("-fx-background-color: #FFA726; -fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: bold;");
         
-        // Habilitar botón de agregar mesa
+        
         btnAddTable.setDisable(false);
         
-        // Cargar mesas de la sección
+        
         loadMesas(seccion);
     }
     
@@ -391,7 +380,7 @@ public class SectionsController extends Controller implements Initializable {
             return;
         }
         
-        // Limpiar solo los botones de mesa, preservando el btnToBill
+        
         sectionPane.getChildren().removeIf(node -> node instanceof MFXButton);
         mesaButtonMap.clear();
         mesasActuales.clear();
@@ -402,7 +391,7 @@ public class SectionsController extends Controller implements Initializable {
             return;
         }
         
-        // Extraer objetos JSON de nivel superior (mesas) del array
+        
         List<String> objetosMesas = JsonParser.extraerObjetosDelArray(contenido);
         
         for (String objetoJson : objetosMesas) {
@@ -450,33 +439,33 @@ public class SectionsController extends Controller implements Initializable {
         btnMesa.setPrefHeight(80);
         btnMesa.setPrefWidth(80);
         
-        // Color según estado
+        
         String color = switch (mesa.getEstado()) {
-            case "LIBRE" -> "#4CAF50"; // Verde
-            case "OCUPADA" -> "#F44336"; // Rojo
-            case "RESERVADA" -> "#FF9800"; // Naranja
-            case "FUERA_SERVICIO" -> "#9E9E9E"; // Gris
-            default -> "#2196F3"; // Azul
+            case "LIBRE" -> "#4CAF50"; 
+            case "OCUPADA" -> "#F44336"; 
+            case "RESERVADA" -> "#FF9800"; 
+            case "FUERA_SERVICIO" -> "#9E9E9E"; 
+            default -> "#2196F3"; 
         };
         
         btnMesa.setStyle("-fx-background-color: " + color + "; -fx-text-fill: white; -fx-font-size: 16px;");
         
-        // Posicionar
+        
         if (mesa.getPosicionX() != null && mesa.getPosicionY() != null) {
             btnMesa.relocate(mesa.getPosicionX(), mesa.getPosicionY());
         }
         
-        // Drag & Drop - en modo edición para mover, fuera de modo edición para facturar (solo OCUPADAS)
+        
         btnMesa.setOnDragDetected(e -> {
             if (modoEdicion) {
-                // En modo edición, cualquier mesa se puede mover
+                
                 Dragboard db = btnMesa.startDragAndDrop(TransferMode.MOVE);
                 ClipboardContent content = new ClipboardContent();
                 content.putString("mover");
                 db.setContent(content);
                 e.consume();
             } else if ("OCUPADA".equals(mesa.getEstado())) {
-                // Fuera de modo edición, solo mesas OCUPADAS se pueden arrastrar a facturar
+                
                 Dragboard db = btnMesa.startDragAndDrop(TransferMode.MOVE);
                 ClipboardContent content = new ClipboardContent();
                 content.putString("facturar");
@@ -485,11 +474,11 @@ public class SectionsController extends Controller implements Initializable {
             }
         });
         
-        // Click para seleccionar
+        
         btnMesa.setOnMouseClicked(e -> {
             if (modoEdicion && e.getButton() == MouseButton.PRIMARY) {
                 if (mesaSeleccionada != null) {
-                    // Deseleccionar anterior
+                    
                     mesaSeleccionada.setStyle(mesaSeleccionada.getStyle().replace("-fx-border-color: yellow; -fx-border-width: 3px;", ""));
                 }
                 mesaSeleccionada = btnMesa;
@@ -503,7 +492,7 @@ public class SectionsController extends Controller implements Initializable {
     }
     
     private void guardarPosicionMesa(MesaDto mesa) {
-        // Guardar solo la mesa que se movió
+        
         Respuesta respuesta = mesaService.guardarMesa(mesa);
         
         if (respuesta.getEstado()) {
@@ -539,21 +528,19 @@ public class SectionsController extends Controller implements Initializable {
         alert.showAndWait();
     }
     
-    /**
-     * Abre la vista de facturación con la mesa seleccionada
-     */
+    
     private void abrirFacturacion(MesaDto mesa) {
         try {
-            // Obtener el controlador desde FlowController
+            
             BillingController billingController = (BillingController) FlowController.getInstance()
                 .getController(AppKeys.BILLING);
             
-            // Pasar la mesa al controlador antes de mostrar la vista
+            
             if (billingController != null) {
                 billingController.cargarMesa(mesa);
             }
             
-            // Cambiar a la vista de facturación
+            
             FlowController.getInstance().goView(AppKeys.BILLING);
             
         } catch (Exception e) {
@@ -570,7 +557,7 @@ public class SectionsController extends Controller implements Initializable {
             MesaDto mesa = mesaButtonMap.get(btnMesa);
             
             if (mesa != null && "OCUPADA".equals(mesa.getEstado())) {
-                // Abrir facturación con la mesa seleccionada
+                
                 abrirFacturacion(mesa);
                 event.setDropCompleted(true);
             } else if (mesa != null && !"OCUPADA".equals(mesa.getEstado())) {

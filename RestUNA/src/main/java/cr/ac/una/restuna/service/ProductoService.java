@@ -6,16 +6,12 @@ import cr.ac.una.restuna.util.Respuesta;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Servicio para comunicación con el servidor REST para productos
- */
+
 public class ProductoService {
 
     private static final Logger LOG = Logger.getLogger(ProductoService.class.getName());
 
-    /**
-     * Obtiene un producto por ID
-     */
+    
     public Respuesta getProducto(Long id) {
         try {
             Request request = new Request("producto/" + id);
@@ -34,9 +30,7 @@ public class ProductoService {
         }
     }
 
-    /**
-     * Obtiene todos los productos
-     */
+    
     public Respuesta getProductos() {
         try {
             Request request = new Request("producto/productos");
@@ -55,9 +49,7 @@ public class ProductoService {
         }
     }
 
-    /**
-     * Obtiene productos activos
-     */
+    
     public Respuesta getProductosActivos() {
         try {
             Request request = new Request("producto/productos/activos");
@@ -76,9 +68,7 @@ public class ProductoService {
         }
     }
 
-    /**
-     * Obtiene productos por grupo
-     */
+    
     public Respuesta getProductosPorGrupo(Long idGrupo) {
         try {
             Request request = new Request("producto/productos/grupo/" + idGrupo);
@@ -97,9 +87,7 @@ public class ProductoService {
         }
     }
 
-    /**
-     * Obtiene productos activos por grupo
-     */
+    
     public Respuesta getProductosPorGrupoActivos(Long idGrupo) {
         try {
             Request request = new Request("producto/productos/grupo/" + idGrupo + "/activos");
@@ -118,9 +106,7 @@ public class ProductoService {
         }
     }
 
-    /**
-     * Obtiene productos con acceso rápido
-     */
+    
     public Respuesta getProductosAccesoRapido() {
         try {
             Request request = new Request("producto/productos/accesorapido");
@@ -139,9 +125,7 @@ public class ProductoService {
         }
     }
 
-    /**
-     * Obtiene productos más vendidos
-     */
+    
     public Respuesta getProductosMasVendidos() {
         try {
             Request request = new Request("producto/productos/masvendidos");
@@ -160,9 +144,7 @@ public class ProductoService {
         }
     }
 
-    /**
-     * Guarda un producto
-     */
+    
     public Respuesta guardarProducto(ProductoDto producto) {
         try {
             Request request = new Request("producto/producto");
@@ -181,9 +163,7 @@ public class ProductoService {
         }
     }
 
-    /**
-     * Elimina un producto
-     */
+    
     public Respuesta eliminarProducto(Long id) {
         try {
             Request request = new Request("producto/producto/" + id);

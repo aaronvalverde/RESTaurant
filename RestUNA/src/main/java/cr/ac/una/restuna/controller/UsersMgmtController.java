@@ -1,7 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/javafx/FXMLController.java to edit this template
- */
+
 package cr.ac.una.restuna.controller;
 
 import com.jfoenix.controls.JFXTreeTableView;
@@ -34,11 +31,7 @@ import javafx.scene.control.TreeTableColumn;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
-/**
- * FXML Controller class
- *
- * @author aaron
- */
+
 public class UsersMgmtController extends Controller implements Initializable {
 
     @FXML
@@ -105,7 +98,7 @@ public class UsersMgmtController extends Controller implements Initializable {
         Task<Respuesta> loadTask = new Task<Respuesta>() {
             @Override
             protected Respuesta call() throws Exception {
-                return usuarioService.obtenerTodosLosUsuarios(); // Obtener todos los usuarios
+                return usuarioService.obtenerTodosLosUsuarios(); 
             }
         };
 
@@ -139,7 +132,7 @@ public class UsersMgmtController extends Controller implements Initializable {
                 Throwable exception = loadTask.getException();
                 showMessage("Error de conexión: " + exception.getMessage());
 
-                // Restaurar botón
+                
                 btnAdd.setDisable(false);
                 btnAdd.setText("Añadir");
             });
@@ -175,7 +168,7 @@ public class UsersMgmtController extends Controller implements Initializable {
                 NewUserController controller = loadTask.getValue();
                 if (controller != null) {
                     controller.setParentController(this);
-                    controller.clearFields(); // Limpiar campos para modo creación
+                    controller.clearFields(); 
                     
                     FlowController.getInstance().goViewInWindowModal(AppKeys.NEW_USER, this.getStage(), false);
                 } else {
@@ -196,12 +189,12 @@ public class UsersMgmtController extends Controller implements Initializable {
     }
 
     public void addUser(Long idUsuario, String username, String name, String role, String status) {
-        // Verificar si el usuario ya existe en la lista local
+        
         boolean encontrado = false;
         for (UserRow user : userList) {
             if (user.getUsername().get().equalsIgnoreCase(username)) {
                 System.out.println("El usuario " + username + " ya existe en la lista. Actualizando...");
-                // Si existe, actualizar sus datos
+                
                 user.getName().set(name);
                 user.getRole().set(role);
                 user.getStatus().set(status);
@@ -216,8 +209,8 @@ public class UsersMgmtController extends Controller implements Initializable {
         }
         
         TreeItem<UserRow> root = new RecursiveTreeItem<>(userList, RecursiveTreeObject::getChildren);
-        tbvUsers.setRoot(null); // Limpiar primero
-        tbvUsers.setRoot(root);  // Establecer nuevo root
+        tbvUsers.setRoot(null); 
+        tbvUsers.setRoot(root);  
         tbvUsers.setShowRoot(false);
         
         System.out.println("Usuario " + username + " procesado. Total usuarios: " + userList.size());
@@ -265,7 +258,7 @@ public class UsersMgmtController extends Controller implements Initializable {
             System.out.println("Procesando JSON de usuarios...");
             System.out.println("JSON recibido: " + usuariosJson);
 
-            // Verificar si el JSON es válido
+            
             if (usuariosJson == null || usuariosJson.trim().isEmpty()) {
                 System.err.println("JSON vacío");
                 showMessage(getLanguageString("msg.nouserdata"));
@@ -305,9 +298,7 @@ public class UsersMgmtController extends Controller implements Initializable {
         }
     }
 
-    /**
-     * Encuentra la posición de cierre del corchete correspondiente
-     */
+    
     private int encontrarCierreCorchete(String json, int posicionApertura) {
         int contador = 1;
         for (int i = posicionApertura + 1; i < json.length(); i++) {
@@ -324,9 +315,7 @@ public class UsersMgmtController extends Controller implements Initializable {
         return -1;
     }
 
-    /**
-     * Procesa un array de usuarios JSON
-     */
+    
     private void procesarArrayDeUsuarios(String arrayUsuarios) {
         try {
             String contenido = arrayUsuarios.substring(1, arrayUsuarios.length() - 1);
@@ -362,16 +351,14 @@ public class UsersMgmtController extends Controller implements Initializable {
         }
     }
 
-    /**
-     * Procesa un objeto de usuario individual para la tabla
-     */
+    
     private void procesarObjetoUsuario(String objetoUsuario) {
         try {
             Long idUsuario = JsonParser.extraerValorLong(objetoUsuario, "idUsuario");
             String usuario = JsonParser.extraerValor(objetoUsuario, "usuario");
             String nombre = JsonParser.extraerValor(objetoUsuario, "nombre");
             if (nombre == null || nombre.trim().isEmpty()) {
-                nombre = usuario; // Fallback al usuario si no hay nombre
+                nombre = usuario; 
             }
             String rol = JsonParser.extraerValor(objetoUsuario, "rol");
             String estado = JsonParser.extraerValor(objetoUsuario, "estado");
@@ -397,7 +384,7 @@ public class UsersMgmtController extends Controller implements Initializable {
             dto.setRol(JsonParser.extraerValor(json, "rol"));
             dto.setEstado(JsonParser.extraerValor(json, "estado"));
             
-            // Campo booleano para estado activo
+            
             Boolean activo = JsonParser.extraerValorBooleano(json, "activo");
             if (activo != null) {
                 dto.setActivo(activo);
@@ -414,7 +401,7 @@ public class UsersMgmtController extends Controller implements Initializable {
 
 
     private void onEditUser(UserRow userRow) {
-        // Cargar el usuario completo desde el servidor usando el ID
+        
         Task<Respuesta> loadTask = new Task<Respuesta>() {
             @Override
             protected Respuesta call() throws Exception {
@@ -426,12 +413,12 @@ public class UsersMgmtController extends Controller implements Initializable {
             Platform.runLater(() -> {
                 Respuesta respuesta = loadTask.getValue();
                 if (respuesta != null && respuesta.getEstado()) {
-                    // La respuesta viene como String JSON, necesitamos parsearlo
+                    
                     Object resultado = respuesta.getResultado("Usuario");
                     UsuarioDto usuarioDto = null;
                     
                     if (resultado instanceof String) {
-                        // Parsear el JSON manualmente
+                        
                         usuarioDto = parsearUsuarioDto((String) resultado);
                     } else if (resultado instanceof UsuarioDto) {
                         usuarioDto = (UsuarioDto) resultado;
@@ -464,14 +451,14 @@ public class UsersMgmtController extends Controller implements Initializable {
     }
     
     private void onDeleteUser(UserRow userRow) {
-        // Mostrar diálogo de confirmación
+        
         Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
         confirmAlert.setTitle(getLanguageString("confirm.delete"));
         confirmAlert.setHeaderText(getLanguageString("delete.user"));
         confirmAlert.setContentText(getLanguageString("sure.delete.user") + userRow.getUsername().get() + "'?\n\n" +
                 getLanguageString("action.not.reversible"));
         
-        // Esperar respuesta del usuario
+        
         confirmAlert.showAndWait().ifPresent(response -> {
             if (response == javafx.scene.control.ButtonType.OK) {
                 eliminarUsuarioDelServidor(userRow);
@@ -480,7 +467,7 @@ public class UsersMgmtController extends Controller implements Initializable {
     }
     
     private void eliminarUsuarioDelServidor(UserRow userRow) {
-        // Deshabilitar botón mientras se elimina
+        
         btnAdd.setDisable(true);
         btnAdd.setText(getLanguageString("btn.deleting"));
         
@@ -496,21 +483,21 @@ public class UsersMgmtController extends Controller implements Initializable {
                 Respuesta respuesta = deleteTask.getValue();
                 
                 if (respuesta != null && respuesta.getEstado()) {
-                    // Eliminación exitosa
+                    
                     showMessage(getLanguageString("user")+ userRow.getUsername().get() + getLanguageString("deletion.success"));
                     
-                    // Eliminar de la lista local
+                    
                     userList.remove(userRow);
                     
-                    // Actualizar la vista
+                    
                     filters();
                 } else {
-                    // Error al eliminar
+                    
                     String errorMsg = respuesta != null ? respuesta.getMensaje() : "Error desconocido";
                     showMessage(getLanguageString("msg.error.user.delete") + errorMsg);
                 }
                 
-                // Restaurar botón
+                
                 btnAdd.setDisable(false);
                 btnAdd.setText(getLanguageString("btn.add"));
             });
@@ -521,7 +508,7 @@ public class UsersMgmtController extends Controller implements Initializable {
                 Throwable exception = deleteTask.getException();
                 showMessage("Error de conexión: " + (exception != null ? exception.getMessage() : "Error desconocido"));
                 
-                // Restaurar botón
+                
                 btnAdd.setDisable(false);
                 btnAdd.setText(getLanguageString("btn.add"));
             });
@@ -539,11 +526,11 @@ public class UsersMgmtController extends Controller implements Initializable {
             private final javafx.scene.layout.HBox buttonsBox = new javafx.scene.layout.HBox(5);
 
             {
-                // Configurar estilo de los botones para que solo muestren el gráfico
-                btnEdit.setText("");  // Sin texto
-                btnDelete.setText(""); // Sin texto
                 
-                // Configurar imágenes para los botones
+                btnEdit.setText("");  
+                btnDelete.setText(""); 
+                
+                
                 try {
                     String editIconPath = "/cr/ac/una/restuna/resources/icons/icons8-edit-50.png";
                     String deleteIconPath = "/cr/ac/una/restuna/resources/icons/icons8-delete-50.png";
@@ -562,7 +549,7 @@ public class UsersMgmtController extends Controller implements Initializable {
                         deleteIcon.setFitHeight(20);
                         btnDelete.setGraphic(deleteIcon);
                     } else {
-                        // Si no se cargan las imágenes, crear labels con símbolos
+                        
                         javafx.scene.control.Label editLabel = new javafx.scene.control.Label("✏️");
                         editLabel.setStyle("-fx-font-size: 18px;");
                         btnEdit.setGraphic(editLabel);
@@ -573,7 +560,7 @@ public class UsersMgmtController extends Controller implements Initializable {
                     }
                 } catch (Exception e) {
                     System.err.println("Error cargando iconos: " + e.getMessage());
-                    // Crear labels con símbolos en caso de error
+                    
                     javafx.scene.control.Label editLabel = new javafx.scene.control.Label("✏️");
                     editLabel.setStyle("-fx-font-size: 18px;");
                     btnEdit.setGraphic(editLabel);
@@ -583,7 +570,7 @@ public class UsersMgmtController extends Controller implements Initializable {
                     btnDelete.setGraphic(deleteLabel);
                 }
 
-                // Configurar acciones
+                
                 btnEdit.setOnAction(e -> {
                     UserRow userRow = getTableRow().getItem();
                     if (userRow != null) {

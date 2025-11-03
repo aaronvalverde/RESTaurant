@@ -10,12 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * Entidad que representa una factura en el sistema.
- * 
- * @author Kendall Fonseca
- * @author Kaleb Alfaro
- */
+
 @Entity
 @Table(name = "FACTURA", schema = "RESTUNA")
 @NamedQueries({
@@ -70,16 +65,16 @@ public class Factura implements Serializable {
     @NotNull
     @Size(min = 1, max = 15)
     @Column(name = "ESTADO", nullable = false, length = 15)
-    private String estado; // ACTIVA, ANULADA
+    private String estado; 
 
     @NotNull
     @Column(name = "CORREO_ENVIADO", nullable = false, length = 1)
-    private String correoEnviado; // S, N
+    private String correoEnviado; 
 
     @Column(name = "DESCUENTO", precision = 10, scale = 2)
     private BigDecimal descuento;
 
-    // Relaciones
+    
     @ManyToOne
     @JoinColumn(name = "ID_ORDEN", referencedColumnName = "ID_ORDEN")
     private Orden orden;
@@ -96,7 +91,7 @@ public class Factura implements Serializable {
     @OneToMany(mappedBy = "factura", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DetalleFactura> detalles;
 
-    // Constructores
+    
     public Factura() {
         this.fechaHora = LocalDateTime.now();
         this.subtotal = BigDecimal.ZERO;
@@ -112,7 +107,7 @@ public class Factura implements Serializable {
         this.detalles = new ArrayList<>();
     }
 
-    // Métodos de negocio
+    
     public void calcularTotales() {
         this.subtotal = detalles.stream()
                 .map(DetalleFactura::getSubtotal)
@@ -141,7 +136,7 @@ public class Factura implements Serializable {
         calcularTotales();
     }
 
-    // Getters y Setters
+    
     public Long getIdFactura() {
         return idFactura;
     }

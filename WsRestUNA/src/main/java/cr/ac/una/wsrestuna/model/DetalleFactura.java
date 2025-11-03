@@ -7,12 +7,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Objects;
 
-/**
- * Entidad que representa el detalle de una factura (productos facturados).
- * 
- * @author Kendall Fonseca
- * @author Kaleb Alfaro
- */
+
 @Entity
 @Table(name = "DETALLE_FACTURA", schema = "RESTUNA")
 @NamedQueries({
@@ -43,7 +38,7 @@ public class DetalleFactura implements Serializable {
     @Column(name = "SUBTOTAL", nullable = false, precision = 10, scale = 2)
     private BigDecimal subtotal;
 
-    // Relaciones
+    
     @NotNull
     @ManyToOne
     @JoinColumn(name = "ID_FACTURA", referencedColumnName = "ID_FACTURA", nullable = false)
@@ -54,7 +49,7 @@ public class DetalleFactura implements Serializable {
     @JoinColumn(name = "ID_PRODUCTO", referencedColumnName = "ID_PRODUCTO", nullable = false)
     private Producto producto;
 
-    // Constructores
+    
     public DetalleFactura() {
         this.cantidad = 0;
         this.precioUnitario = BigDecimal.ZERO;
@@ -69,14 +64,14 @@ public class DetalleFactura implements Serializable {
         calcularSubtotal();
     }
 
-    // Métodos de negocio
+    
     public void calcularSubtotal() {
         if (this.precioUnitario != null && this.cantidad != null) {
             this.subtotal = this.precioUnitario.multiply(new BigDecimal(this.cantidad));
         }
     }
 
-    // Getters y Setters
+    
     public Long getIdDetalleFactura() {
         return idDetalleFactura;
     }

@@ -26,10 +26,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Controlador REST para la gestión de parámetros de configuración
- * Endpoints para CRUD de parámetros por usuario
- */
+
 @Path("ParametroController")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -41,9 +38,7 @@ public class ParametroController {
     @EJB
     private ParametroService parametroService;
 
-    /**
-     * GET /ParametroController/parametros/usuario/{idUsuario} - Obtiene todos los parámetros de un usuario
-     */
+    
     @GET
     @Path("parametros/usuario/{idUsuario}")
     @Operation(summary = "Lista parámetros de un usuario")
@@ -74,9 +69,7 @@ public class ParametroController {
         }
     }
 
-    /**
-     * GET /ParametroController/parametro/usuario/{idUsuario}/clave/{clave} - Obtiene un parámetro específico
-     */
+    
     @GET
     @Path("parametro/usuario/{idUsuario}/clave/{clave}")
     @Operation(summary = "Obtiene un parámetro específico")
@@ -109,9 +102,7 @@ public class ParametroController {
         }
     }
 
-    /**
-     * POST /ParametroController/parametro - Guarda un parámetro (crear o actualizar)
-     */
+    
     @POST
     @Path("parametro")
     @Operation(summary = "Guarda un parámetro")
@@ -141,9 +132,7 @@ public class ParametroController {
         }
     }
 
-    /**
-     * POST /ParametroController/parametros - Guarda múltiples parámetros (batch)
-     */
+    
     @POST
     @Path("parametros")
     @Operation(summary = "Guarda múltiples parámetros")
@@ -172,9 +161,7 @@ public class ParametroController {
         }
     }
 
-    /**
-     * DELETE /ParametroController/parametro/{id} - Elimina un parámetro
-     */
+    
     @DELETE
     @Path("parametro/{id}")
     @Operation(summary = "Elimina un parámetro")

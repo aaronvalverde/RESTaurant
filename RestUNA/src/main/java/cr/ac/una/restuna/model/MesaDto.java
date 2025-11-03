@@ -4,10 +4,7 @@ import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
 import java.io.Serializable;
 import javafx.beans.property.*;
 
-/**
- * DTO para gestión de mesas del restaurante
- * Compatible con JFXTreeTableView
- */
+
 public class MesaDto extends RecursiveTreeObject<MesaDto> implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -34,7 +31,7 @@ public class MesaDto extends RecursiveTreeObject<MesaDto> implements Serializabl
         this.modificado = false;
     }
 
-    // Setters
+    
     public void setIdMesa(Long idMesa) {
         this.idMesa.set(idMesa);
     }
@@ -67,7 +64,7 @@ public class MesaDto extends RecursiveTreeObject<MesaDto> implements Serializabl
         this.nombreSeccion.set(nombreSeccion);
     }
 
-    // Getters
+    
     public Long getIdMesa() {
         return idMesa.get();
     }
@@ -100,7 +97,7 @@ public class MesaDto extends RecursiveTreeObject<MesaDto> implements Serializabl
         return nombreSeccion.get();
     }
 
-    // Properties
+    
     public LongProperty idMesaProperty() {
         return idMesa;
     }
@@ -141,7 +138,7 @@ public class MesaDto extends RecursiveTreeObject<MesaDto> implements Serializabl
         this.modificado = modificado;
     }
     
-    // Métodos de utilidad
+    
     public boolean isLibre() {
         return "LIBRE".equals(getEstado());
     }

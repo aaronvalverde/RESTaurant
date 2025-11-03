@@ -8,16 +8,12 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Servicio para operaciones con secciones/salones del restaurante
- */
+
 public class SeccionService {
     
     private static final Logger LOG = Logger.getLogger(SeccionService.class.getName());
     
-    /**
-     * Obtiene una sección por ID (sin contenido de imagen)
-     */
+    
     public Respuesta getSeccion(Long id) {
         try {
             Map<String, Object> parametros = new HashMap<>();
@@ -38,9 +34,7 @@ public class SeccionService {
         }
     }
     
-    /**
-     * Obtiene una sección por ID con el contenido completo de su imagen
-     */
+    
     public Respuesta getSeccionConImagen(Long id) {
         try {
             Map<String, Object> parametros = new HashMap<>();
@@ -61,9 +55,7 @@ public class SeccionService {
         }
     }
     
-    /**
-     * Obtiene todas las secciones
-     */
+    
     public Respuesta getSecciones() {
         try {
             System.out.println("Iniciando solicitud para obtener todas las secciones");
@@ -84,7 +76,7 @@ public class SeccionService {
                 return new Respuesta(false, "Respuesta vacía del servidor", "No se recibieron datos");
             }
             
-            // Verificar que sea un array válido
+            
             if (!responseJson.trim().startsWith("[")) {
                 System.err.println("Formato de respuesta inesperado: " + responseJson);
                 return new Respuesta(false, "Formato de respuesta no válido", "Esperaba un array de secciones");
@@ -99,9 +91,7 @@ public class SeccionService {
         }
     }
     
-    /**
-     * Obtiene solo las secciones activas
-     */
+    
     public Respuesta getSeccionesActivas() {
         try {
             Request request = new Request("SeccionController/secciones/activas");
@@ -129,9 +119,7 @@ public class SeccionService {
         }
     }
     
-    /**
-     * Guarda una sección (crear o actualizar)
-     */
+    
     public Respuesta guardarSeccion(SeccionDto seccionDto) {
         try {
             if (seccionDto == null) {
@@ -146,7 +134,7 @@ public class SeccionService {
                 return new Respuesta(false, "El tipo de sección es obligatorio", "Tipo vacío");
             }
             
-            // Asegurar valores por defecto
+            
             if (seccionDto.getEstado() == null) {
                 seccionDto.setEstado("A");
             }
@@ -176,9 +164,7 @@ public class SeccionService {
         }
     }
     
-    /**
-     * Elimina una sección por ID
-     */
+    
     public Respuesta eliminarSeccion(Long id) {
         try {
             Map<String, Object> parametros = new HashMap<>();

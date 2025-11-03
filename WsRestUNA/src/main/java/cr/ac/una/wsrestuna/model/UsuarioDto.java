@@ -6,10 +6,7 @@ import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-/**
- * DTO para transferencia de datos de Usuario
- * Excluye información sensible como contraseñas y tokens
- */
+
 @Schema(description = "Usuario del sistema REST UNA")
 public class UsuarioDto implements Serializable {
 
@@ -48,12 +45,12 @@ public class UsuarioDto implements Serializable {
     @Schema(description = "Fecha del último acceso", example = "2024-06-01T12:15:00")
     private LocalDateTime fechaUltimoAcceso;
 
-    // Campo para nueva contraseña (solo para creación/actualización)
+    
     @Size(min = 6, max = 255, message = "La contraseña debe tener entre 6 y 255 caracteres")
     @Schema(description = "Contraseña en texto plano al crear/actualizar (no se devuelve)", example = "P@ssw0rd")
     private String nuevaContrasena;
 
-    // Campos de control de modificación (siguiendo patrón plantilla)
+    
     @Schema(description = "Indica si el registro fue modificado", example = "false")
     private Boolean modificado;
     @Schema(description = "Marca de tiempo de modificación", example = "2024-06-01T12:15:00")
@@ -61,7 +58,7 @@ public class UsuarioDto implements Serializable {
     @Schema(description = "Token JWT emitido para autenticación", example = "eyJhbGciOiJIUzI1NiJ9...")
     private String token;
 
-    // Constructores
+    
     public UsuarioDto() {
         this.modificado = false;
         this.fecha = LocalDateTime.now();
@@ -72,16 +69,16 @@ public class UsuarioDto implements Serializable {
         if (usuario != null) {
             this.idUsuario = usuario.getIdUsuario();
             this.usuario = usuario.getUsuario();
-            this.nombre = usuario.getNombre();  // Agregar el nombre
+            this.nombre = usuario.getNombre();  
             this.rol = usuario.getRol();
             this.estado = usuario.getEstado();
             this.fechaCreacion = usuario.getFechaCreacion();
             this.fechaUltimoAcceso = usuario.getFechaUltimoAcceso();
-            // NO incluimos la contraseña por seguridad
+            
         }
     }
 
-    // Métodos de conveniencia
+    
     public boolean isActivo() {
         return "A".equals(estado);
     }
@@ -106,7 +103,7 @@ public class UsuarioDto implements Serializable {
         return tieneRol("SALONERO");
     }
 
-    // Getters y Setters
+    
     public Long getIdUsuario() {
         return idUsuario;
     }

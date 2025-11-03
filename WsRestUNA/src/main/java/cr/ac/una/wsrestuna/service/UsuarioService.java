@@ -16,10 +16,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-/**
- * Servicio EJB para la gestión de usuarios
- * Maneja operaciones CRUD y lógica de negocio para usuarios
- */
+
 @Stateless
 @LocalBean
 public class UsuarioService {
@@ -29,9 +26,7 @@ public class UsuarioService {
     @PersistenceContext(unitName = "RestUNA_PU")
     private EntityManager em;
 
-    /**
-     * Obtiene todos los usuarios
-     */
+    
     public Respuesta obtenerTodos() {
         try {
             TypedQuery<Usuario> query = em.createNamedQuery("Usuario.findAll", Usuario.class);
@@ -49,9 +44,7 @@ public class UsuarioService {
         }
     }
 
-    /**
-     * Obtiene usuarios activos
-     */
+    
     public Respuesta obtenerActivos() {
         try {
             TypedQuery<Usuario> query = em.createNamedQuery("Usuario.findActivos", Usuario.class);
@@ -69,9 +62,7 @@ public class UsuarioService {
         }
     }
 
-    /**
-     * Obtiene un usuario por ID
-     */
+    
     public Respuesta obtenerPorId(Long id) {
         try {
             if (id == null) {
@@ -95,9 +86,7 @@ public class UsuarioService {
         }
     }
 
-    /**
-     * Obtiene un usuario por nombre de usuario
-     */
+    
     public Respuesta obtenerPorUsuario(String usuario) {
         try {
             if (usuario == null || usuario.trim().isEmpty()) {
@@ -122,9 +111,7 @@ public class UsuarioService {
         }
     }
 
-    /**
-     * Obtiene usuarios por rol
-     */
+    
     public Respuesta obtenerPorRol(String rol) {
         try {
             if (rol == null || rol.trim().isEmpty()) {
@@ -148,12 +135,10 @@ public class UsuarioService {
         }
     }
 
-    /**
-     * Crea un nuevo usuario
-     */
+    
     public Respuesta crear(UsuarioDto usuarioDto) {
         try {
-            // Validaciones de entrada
+            
             if (usuarioDto == null) {
                 return new Respuesta(false, CodigoRespuesta.ERROR_CLIENTE, 
                         "Los datos del usuario son requeridos", "UsuarioDto nulo");
@@ -169,20 +154,20 @@ public class UsuarioService {
                         "La contraseña es requerida", "Contraseña vacía");
             }
 
-            // Validar que no exista el usuario
+            
             if (existeUsuario(usuarioDto.getUsuario())) {
                 return new Respuesta(false, CodigoRespuesta.ERROR_CLIENTE, 
                         "Ya existe un usuario con ese nombre", "Usuario duplicado: " + usuarioDto.getUsuario());
             }
 
-            // Crear entidad usando el constructor que llama a actualizar()
+            
             Usuario usuario = new Usuario(usuarioDto);
             
-            // Cifrar contraseña
+            
             String contrasenaCifrada = cifrarContrasena(usuarioDto.getNuevaContrasena());
             usuario.setContrasena(contrasenaCifrada);
 
-            // Persistir
+            
             em.persist(usuario);
             em.flush();
 
@@ -198,12 +183,10 @@ public class UsuarioService {
         }
     }
 
-    /**
-     * Actualiza un usuario existente
-     */
+    
     public Respuesta actualizar(UsuarioDto usuarioDto) {
         try {
-            // Validaciones de entrada
+            
             if (usuarioDto == null) {
                 return new Respuesta(false, CodigoRespuesta.ERROR_CLIENTE, 
                         "Los datos del usuario son requeridos", "UsuarioDto nulo");
@@ -220,25 +203,25 @@ public class UsuarioService {
                         "Usuario no encontrado", "No existe usuario con ID: " + usuarioDto.getIdUsuario());
             }
 
-            // Validar que no exista otro usuario con el mismo nombre de usuario
+            
             if (usuarioDto.getUsuario() != null && !usuario.getUsuario().equals(usuarioDto.getUsuario()) && 
                 existeUsuario(usuarioDto.getUsuario())) {
                 return new Respuesta(false, CodigoRespuesta.ERROR_CLIENTE, 
                         "Ya existe otro usuario con ese nombre", "Usuario duplicado: " + usuarioDto.getUsuario());
             }
 
-            // Actualizar campos
+            
             if (usuarioDto.getUsuario() != null) usuario.setUsuario(usuarioDto.getUsuario());
             if (usuarioDto.getRol() != null) usuario.setRol(usuarioDto.getRol());
             if (usuarioDto.getEstado() != null) usuario.setEstado(usuarioDto.getEstado());
 
-            // Actualizar contraseña si se proporciona
+            
             if (usuarioDto.getNuevaContrasena() != null && !usuarioDto.getNuevaContrasena().trim().isEmpty()) {
                 String contrasenaCifrada = cifrarContrasena(usuarioDto.getNuevaContrasena());
                 usuario.setContrasena(contrasenaCifrada);
             }
 
-            // Actualizar
+            
             usuario = em.merge(usuario);
             em.flush();
 
@@ -254,9 +237,7 @@ public class UsuarioService {
         }
     }
 
-    /**
-     * Elimina un usuario (cambio de estado a inactivo)
-     */
+    
     public Respuesta eliminar(Long id) {
         try {
             if (id == null) {
@@ -270,7 +251,7 @@ public class UsuarioService {
                         "Usuario no encontrado", "No existe usuario con ID: " + id);
             }
 
-            usuario.setEstado("I"); // Inactivo
+            usuario.setEstado("I"); 
             em.merge(usuario);
             em.flush();
 
@@ -285,9 +266,7 @@ public class UsuarioService {
         }
     }
 
-    /**
-     * Autenticar usuario
-     */
+    
     public Respuesta autenticar(String usuario, String contrasena) {
         try {
             if (usuario == null || usuario.trim().isEmpty()) {
@@ -300,7 +279,7 @@ public class UsuarioService {
                         "La contraseña es requerida", "Contraseña vacía");
             }
 
-            // Buscar usuario por nombre de usuario
+            
             TypedQuery<Usuario> query = em.createNamedQuery("Usuario.findByUsuario", Usuario.class);
             query.setParameter("usuario", usuario);
             Usuario usuarioEntity;
@@ -312,20 +291,20 @@ public class UsuarioService {
                         "Usuario no encontrado", "No existe usuario: " + usuario);
             }
 
-            // Verificar que el usuario esté activo
+            
             if (!usuarioEntity.isActivo()) {
                 return new Respuesta(false, CodigoRespuesta.ERROR_CLIENTE, 
                         "Usuario inactivo", "El usuario " + usuario + " está inactivo");
             }
 
-            // Verificar contraseña
+            
             String contrasenaCifrada = cifrarContrasena(contrasena);
             if (!contrasenaCifrada.equals(usuarioEntity.getContrasena())) {
                 return new Respuesta(false, CodigoRespuesta.ERROR_CLIENTE, 
                         "Credenciales incorrectas", "Contraseña incorrecta para: " + usuario);
             }
 
-            // Actualizar último acceso
+            
             usuarioEntity.setFechaUltimoAcceso(LocalDateTime.now());
             em.merge(usuarioEntity);
 
@@ -342,9 +321,7 @@ public class UsuarioService {
         }
     }
 
-    /**
-     * Verifica si existe un usuario con el nombre dado
-     */
+    
     private boolean existeUsuario(String usuario) {
         try {
             TypedQuery<Long> query = em.createQuery(
@@ -356,40 +333,17 @@ public class UsuarioService {
         }
     }
 
-    /**
-     * TODO: Cifra una contraseña usando SHA-256 (DESACTIVADO temporalmente)
-     * Por ahora retorna la contraseña en texto plano para pruebas
-     */
+    
     private String cifrarContrasena(String contrasena) {
-        // TEMPORAL: Sin encriptación por ahora
+        
         return contrasena;
         
-        /* TODO: Implementar con JWTokenHelper más adelante
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] hash = md.digest(contrasena.getBytes("UTF-8"));
-            StringBuilder hexString = new StringBuilder();
-            
-            for (byte b : hash) {
-                String hex = Integer.toHexString(0xff & b);
-                if (hex.length() == 1) {
-                    hexString.append('0');
-                }
-                hexString.append(hex);
-            }
-            
-            return hexString.toString();
-        } catch (Exception e) {
-            throw new RuntimeException("Error al cifrar contraseña", e);
-        }
-        */
+        
     }
     
-    // ========== MÉTODOS SIGUIENDO PATRÓN UNA PLANILLA ==========
     
-    /**
-     * Valida usuario y contraseña (patrón UNA Planilla)
-     */
+    
+    
     public Respuesta validarUsuario(String usuario, String contrasena) {
         try {
             if (usuario == null || usuario.trim().isEmpty()) {
@@ -408,13 +362,13 @@ public class UsuarioService {
             
             Usuario usuarioEntity = query.getSingleResult();
             
-            // Verificar que el usuario esté activo
+            
             if (!usuarioEntity.isActivo()) {
                 return new Respuesta(false, CodigoRespuesta.ERROR_CLIENTE, 
                         "Usuario inactivo", "El usuario está inactivo");
             }
 
-            // Actualizar último acceso
+            
             usuarioEntity.setFechaUltimoAcceso(LocalDateTime.now());
             em.merge(usuarioEntity);
 
@@ -434,9 +388,7 @@ public class UsuarioService {
         }
     }
     
-    /**
-     * Obtiene un usuario por ID (patrón UNA Planilla)
-     */
+    
     public Respuesta getUsuario(Long id) {
         try {
             if (id == null) {
@@ -463,9 +415,7 @@ public class UsuarioService {
         }
     }
     
-    /**
-     * Obtiene usuarios con filtros (patrón UNA Planilla)
-     */
+    
     public Respuesta getUsuarios(String nombre, String usuario, String rol, String estado) {
         try {
             StringBuilder jpql = new StringBuilder("SELECT u FROM Usuario u WHERE 1=1");
@@ -520,15 +470,13 @@ public class UsuarioService {
         }
     }
     
-    /**
-     * Guarda un usuario (crear o actualizar) (patrón UNA Planilla)
-     */
+    
     public Respuesta guardarUsuario(UsuarioDto usuarioDto) {
         try {
             Usuario usuario;
             
             if (usuarioDto.getIdUsuario() != null && usuarioDto.getIdUsuario() > 0) {
-                // Actualizar
+                
                 usuario = em.find(Usuario.class, usuarioDto.getIdUsuario());
                 if (usuario == null) {
                     return new Respuesta(false, CodigoRespuesta.ERROR_NOENCONTRADO, 
@@ -538,7 +486,7 @@ public class UsuarioService {
                 usuario.actualizar(usuarioDto);
                 usuario = em.merge(usuario);
             } else {
-                // Crear
+                
                 usuario = new Usuario(usuarioDto);
                 em.persist(usuario);
             }
@@ -555,9 +503,7 @@ public class UsuarioService {
         }
     }
     
-    /**
-     * Elimina un usuario (patrón UNA Planilla)
-     */
+    
     public Respuesta eliminarUsuario(Long id) {
         try {
             Usuario usuario;

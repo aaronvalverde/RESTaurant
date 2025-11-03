@@ -4,12 +4,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-/**
- * DTO local para representar el resumen retornado por el backend al calcular
- * los totales de facturas durante un periodo de caja abierta.
- *
- * @author Codex
- */
+
 public class ResumenCierreCajaDto implements Serializable {
 
     private static final long serialVersionUID = 1L;

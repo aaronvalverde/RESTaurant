@@ -5,12 +5,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-/**
- * DTO simple para exponer los totales necesarios al realizar un cierre de caja.
- * Agrupa la cantidad de facturas y los montos cobrados en efectivo y tarjeta
- * dentro de un periodo determinado para un cajero.
- *
- */
+
 @Schema(description = "Resumen de facturas durante el periodo de caja abierta")
 public class ResumenCierreCajaDto implements Serializable {
 

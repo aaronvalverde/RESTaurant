@@ -5,10 +5,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- *
- * @author fonse
- */
+
 public class OrdenDto implements Serializable {
     
     private Long idOrden;
@@ -23,7 +20,7 @@ public class OrdenDto implements Serializable {
     private Double subtotal;
     private List<DetalleOrdenDto> detalles;
     
-    // Campo transitorio para almacenar el nombre del cliente (no se persiste)
+    
     private transient String nombreCliente;
 
     public OrdenDto() {
@@ -33,7 +30,7 @@ public class OrdenDto implements Serializable {
         this.detalles = new ArrayList<>();
     }
 
-    // Getters
+    
     public Long getIdOrden() {
         return idOrden;
     }
@@ -78,7 +75,7 @@ public class OrdenDto implements Serializable {
         return detalles;
     }
 
-    // Setters
+    
     public void setIdOrden(Long idOrden) {
         this.idOrden = idOrden;
     }
