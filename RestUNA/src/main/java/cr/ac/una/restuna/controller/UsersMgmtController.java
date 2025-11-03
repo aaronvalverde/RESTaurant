@@ -73,44 +73,32 @@ public class UsersMgmtController extends Controller implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // Inicializar servicio
         usuarioService = new UsuarioService();
 
-        // Configurar tabla
         tbvUsers.prefHeightProperty().bind(tableRoot.heightProperty());
         tbvUsers.prefWidthProperty().bind(tableRoot.widthProperty());
 
-        // Configurar ComboBoxes de filtros
         cmbRole.getItems().addAll("Administrador", "Cajero", "Salonero");
         cmbStatus.getItems().addAll("Activo", "Inactivo");
 
-        // Configurar columnas de la tabla (estructura simplificada)
         tbcUser.setCellValueFactory(x -> x.getValue().getValue().getUsername());
         tbcName.setCellValueFactory(x -> x.getValue().getValue().getName());
-        tbcRole.setCellValueFactory(x -> x.getValue().getValue().getRoleDisplay()); // Mostrar rol capitalizado
-        tbcStatus.setCellValueFactory(x -> x.getValue().getValue().getStatusDisplay()); // Mostrar "Activo"/"Inactivo"
+        tbcRole.setCellValueFactory(x -> x.getValue().getValue().getRoleDisplay()); 
+        tbcStatus.setCellValueFactory(x -> x.getValue().getValue().getStatusDisplay());
 
-        // Configurar raíz de la tabla
         TreeItem<UserRow> root = new RecursiveTreeItem<>(userList, RecursiveTreeObject::getChildren);
         tbvUsers.setRoot(root);
         tbvUsers.setShowRoot(false);
 
-        // Configurar listeners para filtros
         txfSearch.textProperty().addListener((obs, oldVal, newVal) -> filters());
         cmbRole.valueProperty().addListener((obs, oldVal, newVal) -> filters());
         cmbStatus.valueProperty().addListener((obs, oldVal, newVal) -> filters());
 
-        // Cargar usuarios desde el servidor
         cargarUsuarios();
         setActionsColumn();
     }
 
-    /**
-     * Carga todos los usuarios desde el servidor Método público para permitir
-     * recargar desde otros controladores
-     */
     public void cargarUsuarios() {
-        // Mostrar indicador de carga si es necesario
         btnAdd.setDisable(true);
         btnAdd.setText("Cargando...");
 
@@ -127,7 +115,6 @@ public class UsersMgmtController extends Controller implements Initializable {
 
                 if (respuesta != null && respuesta.getEstado()) {
                     try {
-                        // La respuesta contiene el JSON con la lista de usuarios
                         String usuariosJson = (String) respuesta.getResultado("Usuarios");
                         if (usuariosJson != null && !usuariosJson.trim().isEmpty()) {
                             procesarUsuariosDesdeJson(usuariosJson);
@@ -141,7 +128,6 @@ public class UsersMgmtController extends Controller implements Initializable {
                     showMessage("Error cargando usuarios: " + mensaje);
                 }
                 
-                // Restaurar botón después de cargar (exitoso o no)
                 btnAdd.setDisable(false);
                 btnAdd.setText("Añadir");
 
@@ -159,7 +145,6 @@ public class UsersMgmtController extends Controller implements Initializable {
             });
         });
 
-        // Ejecutar tarea en background
         Thread loadThread = new Thread(loadTask);
         loadThread.setDaemon(true);
         loadThread.start();
@@ -177,7 +162,6 @@ public class UsersMgmtController extends Controller implements Initializable {
 
     @FXML
     private void onActionBtnAdd(ActionEvent event) {
-        // Cargar el controlador en segundo plano para evitar bloqueos
         Task<NewUserController> loadTask = new Task<NewUserController>() {
             @Override
             protected NewUserController call() throws Exception {
@@ -193,7 +177,6 @@ public class UsersMgmtController extends Controller implements Initializable {
                     controller.setParentController(this);
                     controller.clearFields(); // Limpiar campos para modo creación
                     
-                    // Abrir ventana modal para agregar nuevo usuario
                     FlowController.getInstance().goViewInWindowModal(AppKeys.NEW_USER, this.getStage(), false);
                 } else {
                     showMessage("Error: No se pudo cargar la vista de nuevo usuario");
@@ -212,16 +195,6 @@ public class UsersMgmtController extends Controller implements Initializable {
         loadThread.start();
     }
 
-    /**
-     * Añade un usuario al modelo local y actualiza la vista Este método es
-     * llamado desde NewUserController después de guardar un usuario
-     *
-     * @param idUsuario ID del usuario
-     * @param username Nombre de usuario
-     * @param name Nombre completo
-     * @param role Rol del usuario
-     * @param status Estado del usuario (A=Activo, I=Inactivo)
-     */
     public void addUser(Long idUsuario, String username, String name, String role, String status) {
         // Verificar si el usuario ya existe en la lista local
         boolean encontrado = false;
@@ -237,13 +210,11 @@ public class UsersMgmtController extends Controller implements Initializable {
             }
         }
 
-        // Si no existe, añadirlo
         if (!encontrado) {
             System.out.println("Añadiendo nuevo usuario: " + username);
             userList.add(new UserRow(idUsuario, username, name, role, status));
         }
         
-        // Forzar actualización de la tabla
         TreeItem<UserRow> root = new RecursiveTreeItem<>(userList, RecursiveTreeObject::getChildren);
         tbvUsers.setRoot(null); // Limpiar primero
         tbvUsers.setRoot(root);  // Establecer nuevo root
@@ -263,14 +234,12 @@ public class UsersMgmtController extends Controller implements Initializable {
             if (filterRol == null || filterRol.isEmpty()) {
                 return true;
             }
-            // Convertir rol capitalizado a mayúsculas para comparar
             String rolCode = filterRol.toUpperCase();
             return f.getRole().get().equals(rolCode);
         }).filtered(s -> {
             if (filterStatus == null || filterStatus.isEmpty()) {
                 return true;
             }
-            // Convertir "Activo" a "A" e "Inactivo" a "I" para comparar
             String statusCode = filterStatus.equals("Activo") ? "A" : "I";
             return s.getStatus().get().equals(statusCode);
         });
@@ -282,20 +251,14 @@ public class UsersMgmtController extends Controller implements Initializable {
 
     @FXML
     private void onActionBtnClearFilters(ActionEvent event) {
-        // Limpiar campo de búsqueda
         txfSearch.clear();
 
-        // Limpiar ComboBoxes
         cmbRole.clearSelection();
         cmbStatus.clearSelection();
 
-        // Aplicar filtros (mostrará todos los usuarios)
         filters();
     }
 
-    /**
-     * Procesa la lista de usuarios desde JSON y los agrega a la tabla
-     */
     private void procesarUsuariosDesdeJson(String usuariosJson) {
         try {
             userList.clear();
@@ -309,50 +272,34 @@ public class UsersMgmtController extends Controller implements Initializable {
                 return;
             }
 
-            // El servidor retorna directamente un array JSON siguiendo el patrón UNA Planilla
-            // Verificar si comienza con corchete (array directo)
             String jsonTrimmed = usuariosJson.trim();
             if (jsonTrimmed.startsWith("[")) {
-                // Es un array directo, procesarlo directamente
-                System.out.println("Procesando array directo de usuarios");
                 procesarArrayDeUsuarios(usuariosJson);
             } else {
-                // Formato antiguo: objeto con clave "Usuarios"
                 int inicioArray = usuariosJson.indexOf("\"Usuarios\":");
                 if (inicioArray != -1) {
-                    // Encontrar el inicio del array
                     inicioArray = usuariosJson.indexOf("[", inicioArray);
                     if (inicioArray != -1) {
-                        // Encontrar el fin del array
                         int finArray = encontrarCierreCorchete(usuariosJson, inicioArray);
                         if (finArray != -1) {
-                            // Extraer el array de usuarios
                             String arrayUsuarios = usuariosJson.substring(inicioArray, finArray + 1);
-                            System.out.println("Array de usuarios extraído: " + arrayUsuarios);
 
-                            // Ahora procesamos cada objeto de usuario dentro del array
                             procesarArrayDeUsuarios(arrayUsuarios);
                         } else {
-                            System.err.println("No se pudo encontrar el cierre del array de usuarios");
                             showMessage("Error analizando la respuesta del servidor");
                         }
                     } else {
-                        System.err.println("No se pudo encontrar el inicio del array de usuarios");
                         showMessage("Error analizando la respuesta del servidor");
                     }
                 } else {
-                    System.err.println("No se encontró la clave 'Usuarios' en el JSON");
                     showMessage("Formato de respuesta inesperado");
                 }
             }
 
-            // Actualizar la vista
             filters();
 
-            System.out.println("Usuarios cargados: " + userList.size());
 
         } catch (Exception e) {
-            System.err.println("Error procesando usuarios desde JSON: " + e.getMessage());
             e.printStackTrace();
             showMessage("Error procesando datos: " + e.getMessage());
         }
@@ -382,11 +329,8 @@ public class UsersMgmtController extends Controller implements Initializable {
      */
     private void procesarArrayDeUsuarios(String arrayUsuarios) {
         try {
-            // Eliminar los corchetes del array
             String contenido = arrayUsuarios.substring(1, arrayUsuarios.length() - 1);
 
-            // Dividir por objetos de usuario (este enfoque simple asume que no hay objetos anidados)
-            // Para una solución más robusta, necesitaríamos una biblioteca JSON adecuada
             int nivelLlaves = 0;
             StringBuilder objetoUsuario = new StringBuilder();
 
@@ -400,12 +344,10 @@ public class UsersMgmtController extends Controller implements Initializable {
                     nivelLlaves--;
                     objetoUsuario.append(c);
 
-                    // Si llegamos al cierre del objeto de usuario
                     if (nivelLlaves == 0) {
                         procesarObjetoUsuario(objetoUsuario.toString());
                         objetoUsuario = new StringBuilder();
 
-                        // Saltar la coma que separa objetos
                         if (i + 1 < contenido.length() && contenido.charAt(i + 1) == ',') {
                             i++;
                         }
@@ -445,10 +387,7 @@ public class UsersMgmtController extends Controller implements Initializable {
             e.printStackTrace();
         }
     }
-    
-    /**
-     * Parsea un objeto JSON a UsuarioDto completo
-     */
+
     private UsuarioDto parsearUsuarioDto(String json) {
         try {
             UsuarioDto dto = new UsuarioDto();
@@ -535,10 +474,8 @@ public class UsersMgmtController extends Controller implements Initializable {
         // Esperar respuesta del usuario
         confirmAlert.showAndWait().ifPresent(response -> {
             if (response == javafx.scene.control.ButtonType.OK) {
-                // Usuario confirmó, proceder con la eliminación
                 eliminarUsuarioDelServidor(userRow);
             }
-            // Si presionó Cancel, no hacer nada
         });
     }
     
