@@ -828,3 +828,27 @@ COMMENT ON COLUMN ARCHIVO.TIPO_MIME            IS 'Tipo MIME del archivo (image/
 COMMENT ON COLUMN ARCHIVO.TAMANIO              IS 'Tamaño del archivo en bytes.';
 COMMENT ON COLUMN ARCHIVO.CONTENIDO            IS 'Contenido binario del archivo (BLOB).';
 COMMENT ON COLUMN ARCHIVO.FECHA_SUBIDA         IS 'Fecha de subida del archivo.';
+
+-----------------------------------------------------------
+-- SINCRONIZACIÓN DE SECUENCIA SEQ_TURNO
+-- Corrige el valor de la secuencia si hay registros existentes
+-----------------------------------------------------------
+DECLARE
+  ultimo_id NUMBER;
+  valor_actual_seq NUMBER;
+  diferencia NUMBER;
+BEGIN
+  SELECT NVL(MAX(ID_TURNO), 0) INTO ultimo_id FROM TURNO;
+
+  SELECT SEQ_TURNO.NEXTVAL INTO valor_actual_seq FROM DUAL;
+
+  diferencia := ultimo_id + 1 - valor_actual_seq;
+
+  IF diferencia > 0 THEN
+    EXECUTE IMMEDIATE 'ALTER SEQUENCE SEQ_TURNO INCREMENT BY ' || diferencia;
+    SELECT SEQ_TURNO.NEXTVAL INTO valor_actual_seq FROM DUAL;
+    EXECUTE IMMEDIATE 'ALTER SEQUENCE SEQ_TURNO INCREMENT BY 1';
+  END IF;
+END;
+/
+
