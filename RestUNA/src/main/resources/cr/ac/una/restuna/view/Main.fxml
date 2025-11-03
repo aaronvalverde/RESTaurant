@@ -78,9 +78,9 @@
          <center>
             <HBox alignment="BOTTOM_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" styleClass="jfx-main-background-image" BorderPane.alignment="CENTER">
                <children>
-                  <HBox alignment="BOTTOM_RIGHT" prefHeight="660.0" prefWidth="210.0" spacing="10.0">
+                  <HBox alignment="BOTTOM_RIGHT" prefHeight="660.0" prefWidth="305.0" spacing="10.0">
                      <children>
-                        <MFXButton fx:id="btnManagement" alignment="CENTER" contentDisplay="TOP" maxWidth="1.7976931348623157E308" minHeight="80.0" onAction="#onActionBtnManagement" prefWidth="100.0" text="%btn.management" HBox.hgrow="ALWAYS">
+                        <MFXButton fx:id="btnManagement" alignment="CENTER" contentDisplay="TOP" maxWidth="1.7976931348623157E308" minHeight="80.0" minWidth="-Infinity" onAction="#onActionBtnManagement" prefWidth="150.0" text="%btn.management" HBox.hgrow="ALWAYS">
                            <graphic>
                               <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true" />
                            </graphic>
@@ -88,7 +88,7 @@
                               <Cursor fx:constant="HAND" />
                            </cursor>
                         </MFXButton>
-                        <MFXButton fx:id="btnSettings" alignment="CENTER" contentDisplay="TOP" maxWidth="1.7976931348623157E308" minHeight="80.0" onAction="#onActionBtnSettings" prefWidth="100.0" text="%btn.settings" HBox.hgrow="ALWAYS">
+                        <MFXButton fx:id="btnSettings" alignment="CENTER" contentDisplay="TOP" maxWidth="1.7976931348623157E308" minHeight="80.0" minWidth="-Infinity" onAction="#onActionBtnSettings" prefWidth="150.0" text="%btn.settings" HBox.hgrow="ALWAYS">
                            <graphic>
                               <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true" />
                            </graphic>

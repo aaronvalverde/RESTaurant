@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xml:lang="es" lang="es">
+<h:head>
+    <title>Control de Turnos</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            background-color: #0f1923;
+            color: #e5e7eb;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container {
+            background: #1a2332;
+            border: 1px solid #2a3442;
+            border-radius: 12px;
+            width: 400px;
+            height: 600px;
+            padding: 40px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-header h1 {
+            margin: 0;
+            font-size: 2rem;
+            color: #eab308;
+        }
+
+        .login-header p {
+            margin: 0;
+            font-size: 1rem;
+            color: #9ca3af;
+        }
+
+        .ui-inputfield {
+            width: 100% !important;
+            background-color: #0f1923 !important;
+            border: 1px solid #2a3442 !important;
+            color: #e5e7eb !important;
+            border-radius: 6px !important;
+            padding: 10px !important;
+        }
+
+        .ui-inputfield:focus {
+            border-color: #eab308 !important;
+            box-shadow: 0 0 5px #eab308 !important;
+        }
+
+        .ui-button {
+            width: 100%;
+            background: #eab308 !important;
+            border: none !important;
+            color: #111827 !important;
+            padding: 12px !important;
+            font-size: 1.2rem !important;
+            font-weight: 600 !important;
+            border-radius: 6px !important;
+            margin-top: 10px;
+        }
+
+        .ui-button:hover {
+            background: #d97706 !important;
+        }
+
+        .ui-messages {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .footer-text {
+            margin-top: 30px;
+            font-size: 0.9rem;
+            color: #6b7280;
+            text-align: center;
+        }
+
+    </style>
+</h:head>
+
+<h:body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>Control de Turnos</h1>
+            <p>Ingresa para registrar tu turno</p>
+        </div>
+
+        <h:form id="loginForm" style="width:100%;">
+            <p:messages id="msgs" showDetail="true" closable="true"/>
+
+            <p:inputText id="username"
+                         value="#{loginController.username}"
+                         placeholder="Usuario"
+                         required="true"
+                         style="margin-bottom:20px;"/>
+
+            <p:password id="password"
+                        value="#{loginController.password}"
+                        placeholder="Contraseña"
+                        required="true"
+                        feedback="false"
+                        style="margin-bottom:20px;"/>
+
+            <p:commandButton value="Ingresar"
+                             action="#{loginController.loginOnAction}"
+                             process="@form"
+                             update="msgs"
+                             icon="pi pi-sign-in"
+                             styleClass="btn-login"/>
+        </h:form>
+
+        <div class="footer-text">
+            <p>RESTuna</p>
+        </div>
+    </div>
+</h:body>
+</html>

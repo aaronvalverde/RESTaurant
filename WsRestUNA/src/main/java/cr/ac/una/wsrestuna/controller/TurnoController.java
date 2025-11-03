@@ -11,12 +11,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.ejb.EJB;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.JsonbBuilder;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.GenericEntity;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -50,7 +53,6 @@ public class TurnoController {
             return Response.ok(new GenericEntity<List<TurnoDto>>((List<TurnoDto>) respuesta.getResultado()) {
             }).build();
         } catch (Exception ex) {
-            LOGGER.log(Level.SEVERE, "Error obteniendo todos los turnos.", ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("Error obteniendo turnos").build();
         }
@@ -69,9 +71,7 @@ public class TurnoController {
     })
     public Response getTurnoById(@PathParam("id") Long id) {
         try {
-            LOGGER.log(Level.INFO, "Buscando turno ID: " + id);
             Respuesta respuesta = turnoService.getTurno(id);
-            LOGGER.log(Level.INFO, "Estado respuesta: " + respuesta.getEstado());
 
             if (!respuesta.getEstado()) {
                 return Response.status(respuesta.getCodigoRespuesta().getValue())
@@ -79,11 +79,9 @@ public class TurnoController {
             }
 
             TurnoDto turnoDto = (TurnoDto) respuesta.getResultado();
-            LOGGER.log(Level.INFO, "TurnoDto: " + turnoDto);
 
             return Response.ok(turnoDto).build();
         } catch (Exception ex) {
-            LOGGER.log(Level.SEVERE, "Error obteniendo turno por ID.", ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("Error: " + ex.getMessage()).build();
         }
@@ -108,7 +106,6 @@ public class TurnoController {
             return Response.ok(new GenericEntity<List<TurnoDto>>((List<TurnoDto>) respuesta.getResultado()) {
             }).build();
         } catch (Exception ex) {
-            LOGGER.log(Level.SEVERE, "Error obteniendo turnos por usuario.", ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("Error obteniendo turnos del usuario").build();
         }
@@ -129,7 +126,6 @@ public class TurnoController {
             TurnoDto turnoDto = (TurnoDto) respuesta.getResultado();
             return Response.ok(turnoDto).build();
         } catch (Exception ex) {
-            LOGGER.log(Level.SEVERE, "Error obteniendo turno activo.", ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("Error obteniendo turno activo").build();
         }
@@ -153,7 +149,6 @@ public class TurnoController {
             }
             return Response.ok((TurnoDto) respuesta.getResultado()).build();
         } catch (Exception ex) {
-            LOGGER.log(Level.SEVERE, "Error iniciando turno.", ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("Error iniciando turno").build();
         }
@@ -161,27 +156,33 @@ public class TurnoController {
 
     @PUT
     @Path("turno/{id}")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Turno finalizado",
-                content = @Content(mediaType = MediaType.APPLICATION_JSON,
-                        schema = @Schema(implementation = TurnoDto.class))),
-        @ApiResponse(responseCode = "404", description = "Turno no encontrado",
-                content = @Content(mediaType = MediaType.TEXT_PLAIN)),
-        @ApiResponse(responseCode = "500", description = "Error interno",
-                content = @Content(mediaType = MediaType.TEXT_PLAIN))
-    })
     public Response finalizarTurno(@PathParam("id") Long id) {
         try {
             Respuesta respuesta = turnoService.finalizarTurno(id);
             if (!respuesta.getEstado()) {
-                return Response.status(respuesta.getCodigoRespuesta().getValue())
-                        .entity(respuesta.getMensaje()).build();
+                return Response.status(respuesta.getCodigoRespuesta().getValue()).entity(respuesta.getMensaje()).build();
             }
-            return Response.ok((TurnoDto) respuesta.getResultado()).build();
+            Object raw = respuesta.getResultado();
+            TurnoDto turnoDto = null;
+            if (raw instanceof TurnoDto) {
+                turnoDto = (TurnoDto) raw;
+            } else if (raw instanceof Map) {
+                Jsonb jsonb = JsonbBuilder.create();
+                String json = jsonb.toJson(raw);
+                turnoDto = jsonb.fromJson(json, TurnoDto.class);
+            } else if (raw instanceof String) {
+                try {
+                    Jsonb jsonb = JsonbBuilder.create();
+                    turnoDto = jsonb.fromJson((String) raw, TurnoDto.class);
+                } catch (Exception ignored) {
+                }
+            }
+            if (turnoDto == null) {
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Respuesta inválida del servicio").build();
+            }
+            return Response.ok(turnoDto).build();
         } catch (Exception ex) {
-            LOGGER.log(Level.SEVERE, "Error finalizando turno.", ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("Error finalizando turno").build();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error finalizando turno").build();
         }
     }
 }

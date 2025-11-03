@@ -10,6 +10,9 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -52,28 +55,67 @@ public class TurnoService {
     }
 
     public Respuesta finalizarTurno(Long id) {
+        LOG.log(Level.INFO, "===== INICIANDO finalizarTurno para ID: {0} =====", id);
+
         try {
             Turno turno = em.find(Turno.class, id);
+            LOG.log(Level.INFO, "Turno encontrado: {0}", turno);
 
             if (turno == null) {
+                LOG.log(Level.WARNING, "Turno NULL para ID: {0}", id);
                 return new Respuesta(false, CodigoRespuesta.ERROR_NOENCONTRADO,
                         "Turno no encontrado", "finalizarTurno", null);
             }
 
+            LOG.log(Level.INFO, "Estado actual del turno: {0}", turno.getEstado());
+            LOG.log(Level.INFO, "Fecha inicio: {0}", turno.getFechaInicio());
+            LOG.log(Level.INFO, "Fecha final ANTES: {0}", turno.getFechaFinal());
+            LOG.log(Level.INFO, "Duración ANTES: {0}", turno.getDuracion());
+
             if (!"A".equals(turno.getEstado())) {
+                LOG.log(Level.WARNING, "Turno ya finalizado con estado: {0}", turno.getEstado());
                 return new Respuesta(false, CodigoRespuesta.ERROR_INTERNO,
                         "El turno ya está finalizado", "finalizarTurno", null);
             }
 
-            turno.finalizarTurno();
-            em.merge(turno);
+            // Establecer valores
+            LocalDateTime ahora = LocalDateTime.now();
+            LOG.log(Level.INFO, "Estableciendo fecha final a: {0}", ahora);
+            turno.setFechaFinal(ahora);
+
+            LOG.log(Level.INFO, "Estableciendo estado a: F");
+            turno.setEstado("F");
+
+            // Calcular duración
+            if (turno.getFechaInicio() != null) {
+                long minutos = Duration.between(turno.getFechaInicio(), ahora).toMinutes();
+                LOG.log(Level.INFO, "Calculando duración: {0} minutos", minutos);
+                turno.setDuracion((int) minutos);
+            }
+
+            LOG.log(Level.INFO, "Fecha final DESPUÉS de set: {0}", turno.getFechaFinal());
+            LOG.log(Level.INFO, "Duración DESPUÉS de set: {0}", turno.getDuracion());
+            LOG.log(Level.INFO, "Estado DESPUÉS de set: {0}", turno.getEstado());
+
+            LOG.log(Level.INFO, "Llamando a em.merge()...");
+            Turno merged = em.merge(turno);
+
+            LOG.log(Level.INFO, "Llamando a em.flush()...");
             em.flush();
 
+            LOG.log(Level.INFO, "Turno después de merge: {0}", merged);
+            LOG.log(Level.INFO, "Fecha final después de flush: {0}", merged.getFechaFinal());
+            LOG.log(Level.INFO, "Duración después de flush: {0}", merged.getDuracion());
+
+            TurnoDto dto = new TurnoDto(merged);
+            LOG.log(Level.INFO, "TurnoDto creado: {0}", dto);
+            LOG.log(Level.INFO, "===== FIN finalizarTurno - ÉXITO =====");
+
             return new Respuesta(true, CodigoRespuesta.CORRECTO,
-                    "", "finalizarTurno", new TurnoDto(turno));
+                    "Turno finalizado", "finalizarTurno", "Turno", dto);
 
         } catch (Exception ex) {
-            LOG.log(Level.SEVERE, "Error finalizando turno.", ex);
+            LOG.log(Level.SEVERE, "===== ERROR en finalizarTurno =====", ex);
             return new Respuesta(false, CodigoRespuesta.ERROR_INTERNO,
                     "Error finalizando turno", "finalizarTurno", ex.getMessage());
         }

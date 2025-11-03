@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:head>
+        <title>Shift Control</title>
+        <style>
+            html, body {
+                margin: 0;
+                padding: 0;
+                height: 100%; 
+                width: 100%;
+                background-color: #0f1923;
+                color: #e5e7eb;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                box-sizing: border-box;
+            }
+
+            .main-container {
+                display: flex;
+                flex-direction: column; 
+                width: 100%;
+                height: 100%;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            .header {
+                padding-left: 25px;
+                padding-right: 25px;
+                padding-top: 20px;
+                padding-bottom: 20px;
+                background-color: #0f1923; 
+                text-align: left; 
+            }
+
+            .header h1 {
+                margin: 0; 
+                font-size: 2.5rem;
+                color: #e5e7eb;
+            }
+
+            .header p {
+                margin: 0;
+                color: #9ca3af;
+                font-size: 1rem;
+            }
+
+            .content-grid {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 24px;
+                width: 100%;
+                height: 100%; 
+                box-sizing: border-box;
+                padding: 24px;
+            }
+
+            .shift-control {
+                background: #1a2332;
+                border: 1px solid #2a3442;
+                border-radius: 8px;
+                padding: 24px;
+                width: 100%;
+                box-sizing: border-box;
+                min-height: 400px;
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start; 
+            }
+
+            .timer-display {
+                text-align: center;
+                margin-bottom: 24px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .clock-icon {
+                width: 80px;
+                height: 80px;
+                background: #0f1923;
+                border-radius: 50%;
+                margin: 0 auto 16px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 40px;
+            }
+
+            .timer-display h2 {
+                font-size: 1.25rem;
+                margin: 0 0 16px 0;
+            }
+
+            .timer {
+                font-size: 4rem;
+                font-family: 'Courier New', monospace;
+                color: #eab308;
+                font-weight: bold;
+                margin-bottom: 24px;
+            }
+
+            .ui-button {
+                width: 100%; 
+                padding: 20px !important;
+                font-size: 1.5rem !important;
+                font-weight: 600 !important;
+                border-radius: 8px !important;
+            }
+
+            .btn-start {
+                background: #eab308 !important;
+                border: none !important;
+                color: #111827 !important;
+            }
+
+            .btn-start:hover {
+                background: #d97706 !important;
+            }
+
+            .btn-stop {
+                background: #dc2626 !important;
+                border: none !important;
+                color: white !important;
+            }
+
+            .btn-stop:hover {
+                background: #b91c1c !important;
+            }
+
+            .user-info {
+                margin-top: 24px;
+                padding-top: 24px;
+                border-top: 1px solid #2a3442;
+                flex-grow: 1;
+            }
+
+            .user-info-item {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                margin-bottom: 12px;
+            }
+
+            .user-info-item .icon {
+                font-size: 20px;
+                color: #9ca3af;
+            }
+
+            .user-info-item .label {
+                color: #9ca3af;
+                font-size: 0.875rem;
+            }
+
+            .user-info-item .value {
+                color: #e5e7eb;
+                font-weight: 500;
+            }
+
+            .header h1 {
+                color: #eab308;
+            }
+
+            @media (max-width: 1024px) {
+                .content-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
+    </h:head>
+    <h:body>
+        <div class="main-container">
+            <div class="header">
+                <h1>Control de Turnos - RESTuna</h1>
+                <p>Registra tus horas de trabajo</p>
+            </div>
+
+            <div class="content-grid">
+                <div class="shift-control">
+                    <div class="timer-display">
+                        <div class="clock-icon">🕐</div>
+                        <h2>Turno Actual</h2>
+                        <div class="timer">
+                            <h:outputText id="cronometro" value="#{turnoBean.tiempoTranscurrido}"/>
+                        </div>
+                    </div>
+
+                    <h:form>
+                        <p:commandButton
+                            value="#{shiftController.turnoActivo ? 'Detener turno' : 'Empezar turno'}"
+                            action="#{shiftController.toggleTurno}"
+                            styleClass="#{shiftController.turnoActivo ? 'btn-stop' : 'btn-start'}"
+                            icon="#{shiftController.turnoActivo ? 'pi pi-stop' : 'pi pi-play'}"
+                            update="@form :tableForm:shiftsTable cronometro"/>
+
+                        <p:poll interval="1" update="cronometro"
+                                listener="#{shiftController.actualizarTiempo}"
+                                rendered="#{shiftController.turnoActivo}"/>
+                    </h:form>
+
+                    <div class="user-info">
+                        <div class="user-info-item">
+                            <span class="icon">👤</span>
+                            <div>
+                                <div class="label">Registrado como:</div>
+                                <div class="value">#{loginController.loggedUser.nombre}</div>
+                            </div>
+                        </div>
+                        <div class="user-info-item">
+                            <span class="icon">🎭</span>
+                            <div>
+                                <div class="label">Rol:</div>
+                                <div class="value">#{loginController.loggedUser.rol}</div>
+                            </div>
+                        </div>
+                        <div class="user-info-item">
+                            <span class="icon">✅</span>
+                            <div>
+                                <div class="label">Estado:</div>
+                                <div class="value">Activo:</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </h:body>
+</html>
