@@ -852,3 +852,30 @@ BEGIN
 END;
 /
 
+-----------------------------------------------------------
+-- DATOS INICIALES
+-----------------------------------------------------------
+
+-- Usuario administrador por defecto
+-- Usuario: admin
+-- Contraseña: admin (en producción debería usar hash seguro)
+INSERT INTO USUARIO (
+    ID_USUARIO, 
+    USUARIO, 
+    NOMBRE, 
+    CONTRASENA, 
+    ROL, 
+    ESTADO, 
+    FECHA_CREACION
+) VALUES (
+    SEQ_USUARIO.NEXTVAL,
+    'admin',
+    'Administrador del Sistema',
+    'admin',
+    'ADMINISTRADOR',
+    'A',
+    SYSDATE
+);
+
+COMMIT;
+
